@@ -1,0 +1,32 @@
+{
+  "name": "@spider/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json && esbuild src/netlify.ts --bundle --platform=node --target=node20 --format=cjs --outfile=../../netlify/functions/api.cjs",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo skip",
+    "test": "echo skip",
+    "clean": "rimraf dist ../../netlify/functions/api.cjs"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@spider/indicators": "workspace:*",
+    "@spider/types": "workspace:*",
+    "dotenv": "^16.4.5",
+    "fastify": "^5.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.8.2",
+    "@types/node": "^22.9.0",
+    "esbuild": "^0.24.0",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-void bg-[radial-gradient(circle_at_top,_#0e121b,_#05060a_60%)] min-h-screen;
+  }
+
+  ::selection {
+    @apply bg-neon-green/30 text-white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-void;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-void-border rounded-full;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply relative bg-void-panel border border-void-border rounded-xl;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 40%);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.03) inset,
+      0 12px 28px -18px rgba(0, 0, 0, 0.6);
+  }
+
+  .value-mono {
+    @apply font-mono tabular-nums;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono;
+  }
+
+  .nfa-disclaimer {
+    @apply text-[11px] text-slate-500 italic border-t border-void-border pt-3 mt-4;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 24px currentColor;
+  }
+}
