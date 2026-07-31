@@ -32,3 +32,6 @@ pnpm run verify:netlify  # smoke test contra el bundle exacto que se despliega
 El despliegue es automático: cada push a `master` dispara un build en Netlify
 (`netlify.toml` define el comando de build, el directorio de publicación y las
 funciones — no requiere configuración manual en el dashboard).
+
+---
+_Desplegado automáticamente vía GitHub → Netlify CI/CD._
