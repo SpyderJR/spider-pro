@@ -323,8 +323,12 @@ export function TerminalPage() {
         {market === "futures" && (
           <span className="text-[11px] text-slate-500 self-center ml-1">
             Alto riesgo — leé la pestaña{" "}
-            <Link to="/contratos" className="text-neon-blue underline">
+            <Link to="/app/contratos" className="text-neon-blue underline">
               Contratos
+            </Link>{" "}
+            y el{" "}
+            <Link to="/riesgo" target="_blank" className="text-neon-blue underline">
+              Aviso de Riesgo
             </Link>{" "}
             antes de operar.
           </span>

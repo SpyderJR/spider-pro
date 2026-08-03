@@ -14,6 +14,8 @@ import {
   type ChatMessage,
 } from "@spider/types";
 import { z } from "zod";
+import { fetchBinanceKlines } from "./binance/rest";
+import type { KlinesResponse } from "@spider/types";
 
 async function getJson<T>(url: string, schema: z.ZodType<T>): Promise<T> {
   const res = await fetch(url);
@@ -24,12 +26,28 @@ async function getJson<T>(url: string, schema: z.ZodType<T>): Promise<T> {
   return schema.parse(json);
 }
 
-export function fetchKlines(symbol: string, interval: Timeframe, limit = 300, coingeckoId?: string) {
+export async function fetchKlines(
+  symbol: string,
+  interval: Timeframe,
+  limit = 300,
+  coingeckoId?: string,
+): Promise<KlinesResponse> {
   const idParam = coingeckoId ? `&coingeckoId=${encodeURIComponent(coingeckoId)}` : "";
-  return getJson(
-    `/api/klines?symbol=${encodeURIComponent(symbol)}&interval=${interval}&limit=${limit}${idParam}`,
-    KlinesResponseSchema,
-  );
+  try {
+    return await getJson(
+      `/api/klines?symbol=${encodeURIComponent(symbol)}&interval=${interval}&limit=${limit}${idParam}`,
+      KlinesResponseSchema,
+    );
+  } catch (err) {
+    // Los proveedores del servidor (Binance/Bybit/CryptoCompare) pueden estar todos
+    // bloqueados o agotados desde la misma IP de nube al mismo tiempo — como último
+    // recurso, pedimos las velas directo a Binance desde el propio navegador del
+    // visitante (su IP residencial no está bloqueada), el mismo truco que ya usan la
+    // Terminal y el Arcade.
+    const candles = await fetchBinanceKlines(`${symbol.toUpperCase()}USDT`, interval, limit);
+    if (candles.length === 0) throw err;
+    return { symbol, interval, source: "binance", candles };
+  }
 }
 
 export function searchTokens(query: string) {
@@ -69,10 +87,14 @@ export async function postChat(
   page: string,
   context: Record<string, unknown> | undefined,
   history: ChatMessage[],
+  accessToken?: string | null,
 ) {
   const res = await fetch(`/api/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
     body: JSON.stringify({ message, page, context, history }),
   });
   const json = await res.json();

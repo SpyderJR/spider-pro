@@ -22,7 +22,7 @@ export function Nav() {
       </div>
 
       {(streakDays > 0 || percent > 0) && (
-        <NavLink to="/academia" className="px-5 py-3 border-b border-void-border flex items-center justify-between text-xs hover:bg-white/5 transition-colors">
+        <NavLink to="/app/academia" className="px-5 py-3 border-b border-void-border flex items-center justify-between text-xs hover:bg-white/5 transition-colors">
           <span className="flex items-center gap-1.5 text-neon-gold font-mono">
             🔥 {streakDays} {streakDays === 1 ? "día" : "días"}
           </span>
@@ -40,7 +40,7 @@ export function Nav() {
           <NavLink
             key={s.path}
             to={s.path}
-            end={s.path === "/"}
+            end={s.path === "/app"}
             className={({ isActive }) =>
               `flex items-center gap-3 px-5 py-2.5 text-sm transition-all border-l-2 ${
                 isActive

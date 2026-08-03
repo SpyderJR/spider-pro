@@ -16,4 +16,9 @@ export const env = {
     process.env.TRONSCAN_BASE_URL ?? "https://apilist.tronscanapi.com",
   TRONGRID_BASE_URL: process.env.TRONGRID_BASE_URL ?? "https://api.trongrid.io",
   XAI_BASE_URL: process.env.XAI_BASE_URL ?? "https://api.x.ai",
+
+  // Opcionales — habilitan cuenta con Google (Bloque 11.2). Sin ellas, el chat sigue
+  // funcionando con rate limit por IP y el endpoint de borrado de cuenta responde 501.
+  SUPABASE_URL: process.env.SUPABASE_URL ?? "",
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
 };

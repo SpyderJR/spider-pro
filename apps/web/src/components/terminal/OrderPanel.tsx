@@ -182,7 +182,7 @@ export function OrderPanel({ pair, currentPrice, balance, hasOpenPosition, onSub
             Si toca tu SL perdés {formatUsd(riskAmount, 2)} ({riskPercent.toFixed(1)}% de tu cuenta)
           </div>
           {riskPercent > 3 && (
-            <Link to="/gestion-de-riesgo" className="text-neon-red underline text-[10px]">
+            <Link to="/app/gestion-de-riesgo" className="text-neon-red underline text-[10px]">
               Esto es más del 3% recomendado — ver Gestión de Riesgo
             </Link>
           )}

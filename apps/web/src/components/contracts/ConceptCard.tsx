@@ -21,7 +21,7 @@ export function ConceptCard({ icon, title, kidIllustration, kidText, seriousCont
       <div className="grid md:grid-cols-3 gap-5">
         <div className="bg-void-soft rounded-xl p-4">
           <div className="text-[10px] font-mono font-bold tracking-widest text-neon-gold mb-2">
-            COMO SI TUVIERAS 5 AÑOS
+            LA IDEA EN SIMPLE
           </div>
           {kidIllustration}
           <p className="text-sm text-slate-300 mt-3 leading-relaxed">{kidText}</p>

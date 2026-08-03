@@ -3,6 +3,7 @@ import { useChatStore } from "../../store/chatStore";
 import { usePageContextStore } from "../../store/pageContextStore";
 import { useChatRateLimitStore, DAILY_CHAT_LIMIT } from "../../store/chatRateLimitStore";
 import { useMarketContextSnapshot } from "../../hooks/useMarketContextSnapshot";
+import { useAuthStore } from "../../store/authStore";
 import { postChat } from "../../lib/api";
 
 export function ChatWidget() {
@@ -10,6 +11,7 @@ export function ChatWidget() {
   const { page, data } = usePageContextStore();
   const marketContext = useMarketContextSnapshot();
   const { canSend, remaining, recordMessage, syncFromServer } = useChatRateLimitStore();
+  const accessToken = useAuthStore((s) => s.session?.access_token ?? null);
   const input = draft;
   const setInput = setDraft;
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -34,7 +36,7 @@ export function ChatWidget() {
     recordMessage();
     try {
       const mergedContext = { ...data, contextoDeMercado: marketContext };
-      const res = await postChat(text, page || "desconocida", mergedContext, messages.slice(-10));
+      const res = await postChat(text, page || "desconocida", mergedContext, messages.slice(-10), accessToken);
       addMessage({ role: "assistant", content: res.reply });
       if (res.remaining !== undefined) syncFromServer(res.remaining);
     } catch {

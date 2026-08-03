@@ -1,14 +1,13 @@
 import { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useGlobalClickSound } from "./hooks/useGlobalClickSound";
 import { useAcademyProgressStore } from "./store/academyProgressStore";
-import { Nav } from "./components/Nav";
-import { MobileTopBar } from "./components/MobileTopBar";
-import { TickerBar } from "./components/TickerBar";
-import { ChatWidget } from "./components/chat/ChatWidget";
-import { OnboardingModal } from "./components/onboarding/OnboardingModal";
-import { BackupModal } from "./components/settings/BackupModal";
-import { useUiStore } from "./store/uiStore";
+import { DashboardLayout } from "./components/DashboardLayout";
+import { LandingPage } from "./sections/LandingPage";
+import { TerminosPage } from "./sections/legal/TerminosPage";
+import { PrivacidadPage } from "./sections/legal/PrivacidadPage";
+import { RiesgoPage } from "./sections/legal/RiesgoPage";
+import { LEGACY_DASHBOARD_PATHS } from "./lib/sections";
 import { SpiderIntelligencePage } from "./sections/SpiderIntelligencePage";
 import { AcademyPage } from "./sections/AcademyPage";
 import { ArcadePage } from "./sections/ArcadePage";
@@ -35,49 +34,46 @@ import { GlosarioPage } from "./sections/GlosarioPage";
 export default function App() {
   useGlobalClickSound();
   const touchVisit = useAcademyProgressStore((s) => s.touchVisit);
-  const { backupModalOpen, closeBackupModal } = useUiStore();
   useEffect(() => {
     touchVisit();
   }, [touchVisit]);
 
   return (
-    <div className="flex min-h-screen">
-      <Nav />
-      <div className="flex-1 min-w-0">
-        <div className="sticky top-0 z-40">
-          <MobileTopBar />
-          <TickerBar />
-        </div>
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <Routes>
-            <Route path="/" element={<SpiderIntelligencePage />} />
-            <Route path="/academia" element={<AcademyPage />} />
-            <Route path="/arcade" element={<ArcadePage />} />
-            <Route path="/bitcoin" element={<BitcoinPage />} />
-            <Route path="/tron" element={<TronPage />} />
-            <Route path="/analisis-tecnico" element={<AnalisisTecnicoPage />} />
-            <Route path="/radar-de-trading" element={<TradingToolsPage />} />
-            <Route path="/terminal" element={<TerminalPage />} />
-            <Route path="/gestion-de-riesgo" element={<RiskManagementPage />} />
-            <Route path="/diario" element={<DiarioPage />} />
-            <Route path="/velas-japonesas" element={<VelasJaponesasPage />} />
-            <Route path="/fractales-estructura" element={<FractalesEstructuraPage />} />
-            <Route path="/estrategias" element={<EstrategiasPage />} />
-            <Route path="/contratos" element={<ContratosPage />} />
-            <Route path="/halvings" element={<HalvingsPage />} />
-            <Route path="/m2-vs-mercado" element={<M2VsMercadoPage />} />
-            <Route path="/stablecoins" element={<StablecoinsPage />} />
-            <Route path="/crashes" element={<CrashesPage />} />
-            <Route path="/roadmap" element={<RoadmapPage />} />
-            <Route path="/justin-sun" element={<JustinSunPage />} />
-            <Route path="/calculadora" element={<CalculadoraPage />} />
-            <Route path="/glosario" element={<GlosarioPage />} />
-          </Routes>
-        </main>
-      </div>
-      <ChatWidget />
-      <OnboardingModal />
-      {backupModalOpen && <BackupModal onClose={closeBackupModal} />}
-    </div>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/terminos" element={<TerminosPage />} />
+      <Route path="/privacidad" element={<PrivacidadPage />} />
+      <Route path="/riesgo" element={<RiesgoPage />} />
+
+      <Route path="/app" element={<DashboardLayout />}>
+        <Route index element={<SpiderIntelligencePage />} />
+        <Route path="academia" element={<AcademyPage />} />
+        <Route path="arcade" element={<ArcadePage />} />
+        <Route path="bitcoin" element={<BitcoinPage />} />
+        <Route path="tron" element={<TronPage />} />
+        <Route path="analisis-tecnico" element={<AnalisisTecnicoPage />} />
+        <Route path="radar-de-trading" element={<TradingToolsPage />} />
+        <Route path="terminal" element={<TerminalPage />} />
+        <Route path="gestion-de-riesgo" element={<RiskManagementPage />} />
+        <Route path="diario" element={<DiarioPage />} />
+        <Route path="velas-japonesas" element={<VelasJaponesasPage />} />
+        <Route path="fractales-estructura" element={<FractalesEstructuraPage />} />
+        <Route path="estrategias" element={<EstrategiasPage />} />
+        <Route path="contratos" element={<ContratosPage />} />
+        <Route path="halvings" element={<HalvingsPage />} />
+        <Route path="m2-vs-mercado" element={<M2VsMercadoPage />} />
+        <Route path="stablecoins" element={<StablecoinsPage />} />
+        <Route path="crashes" element={<CrashesPage />} />
+        <Route path="roadmap" element={<RoadmapPage />} />
+        <Route path="justin-sun" element={<JustinSunPage />} />
+        <Route path="calculadora" element={<CalculadoraPage />} />
+        <Route path="glosario" element={<GlosarioPage />} />
+      </Route>
+
+      {/* Redirects desde las rutas planas donde vivía el dashboard antes del Bloque 11.1 */}
+      {LEGACY_DASHBOARD_PATHS.map((path) => (
+        <Route key={path} path={path} element={<Navigate to={`/app${path}`} replace />} />
+      ))}
+    </Routes>
   );
 }

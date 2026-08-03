@@ -38,7 +38,7 @@ export function StopLossExplainer() {
             para "que me convenga la cuenta" — se ajusta la cuenta (el tamaño) al nivel.
           </p>
           <Link
-            to="/fractales-estructura"
+            to="/app/fractales-estructura"
             className="inline-block mt-3 text-xs font-mono text-neon-blue hover:underline"
           >
             → Ver cómo identificar fractales y soportes/resistencias

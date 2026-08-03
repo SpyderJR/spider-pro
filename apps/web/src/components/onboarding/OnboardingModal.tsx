@@ -22,7 +22,7 @@ export function OnboardingModal() {
   function finish() {
     localStorage.setItem(STORAGE_KEY, "1");
     setVisible(false);
-    if (level === "principiante") navigate("/academia");
+    if (level === "principiante") navigate("/app/academia");
   }
 
   return (

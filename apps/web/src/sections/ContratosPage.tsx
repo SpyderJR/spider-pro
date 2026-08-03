@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { SectionHeader } from "../components/SectionHeader";
 import { Disclaimer } from "../components/Disclaimer";
 import { ConceptCard } from "../components/contracts/ConceptCard";
@@ -288,6 +289,9 @@ export function ContratosPage() {
       </div>
 
       <Disclaimer text="Los contratos con apalancamiento son instrumentos de alto riesgo con los que podés perder la totalidad de tu margen, incluso teniendo razón sobre la dirección del mercado. Contenido educativo, no asesoría financiera (NFA)." />
+      <Link to="/riesgo" target="_blank" className="text-[11px] font-mono text-neon-blue hover:underline">
+        → Leer el Aviso de Riesgo completo
+      </Link>
     </div>
   );
 }

@@ -1,9 +1,15 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { downloadBackup, importBackup } from "../../lib/backup";
+import { useAuthStore } from "../../store/authStore";
 
 export function BackupModal({ onClose }: { onClose: () => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const { status, user } = useAuthStore();
+  const syncLabel =
+    status === "signed-in" && user?.email
+      ? `Sincronizado en la nube como ${user.email}`
+      : "Guardado en este dispositivo";
 
   function handleImportClick() {
     fileInputRef.current?.click();
@@ -35,9 +41,15 @@ export function BackupModal({ onClose }: { onClose: () => void }) {
             ✕
           </button>
         </div>
+        <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-500 mb-4">
+          <span className={`w-1.5 h-1.5 rounded-full ${status === "signed-in" ? "bg-neon-green" : "bg-slate-600"}`} />
+          {syncLabel}
+        </div>
+
         <p className="text-sm text-slate-400 mb-5">
-          Todo lo que hiciste en Spider Pro (Terminal, Academia, Arcade, Diario, Replay y preferencias) vive
-          únicamente en este navegador. Exportalo para no perderlo si limpiás el caché o cambiás de dispositivo.
+          {status === "signed-in"
+            ? "Tu progreso se sincroniza automáticamente con tu cuenta. Este respaldo JSON es una copia adicional, útil para guardar offline o mover datos a mano."
+            : "Todo lo que hiciste en Spider Pro (Terminal, Academia, Arcade, Diario, Replay y preferencias) vive únicamente en este navegador. Exportalo para no perderlo si limpiás el caché o cambiás de dispositivo — o iniciá sesión con Google para un respaldo automático en la nube."}
         </p>
 
         <button

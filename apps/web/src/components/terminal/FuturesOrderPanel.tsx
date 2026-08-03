@@ -152,7 +152,7 @@ export function FuturesOrderPanel({ pair, currentPrice, balance, hasOpenPosition
         {leverage > 10 && (
           <p className="text-[11px] text-neon-gold mt-1">
             Apalancamiento alto — tu liquidación queda a solo {liqDistancePercent.toFixed(2)}% del precio de entrada.{" "}
-            <Link to="/contratos" className="underline">
+            <Link to="/app/contratos" className="underline">
               Ver Contratos
             </Link>
           </p>

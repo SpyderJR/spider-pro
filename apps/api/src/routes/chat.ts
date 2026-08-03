@@ -3,6 +3,7 @@ import { ChatRequestSchema, type ChatResponse } from "@spider/types";
 import { fetchXaiChatReply } from "../providers/xai.js";
 import { env } from "../lib/env.js";
 import { checkChatRateLimit } from "../lib/chatRateLimit.js";
+import { verifyUserToken } from "../lib/supabaseAdmin.js";
 
 function resolveClientIp(request: FastifyRequest): string {
   const nfIp = request.headers["x-nf-client-connection-ip"];
@@ -20,8 +21,11 @@ export function registerChatRoute(app: FastifyInstance) {
     }
     const { message, page, context, history } = parsed.data;
 
-    const ip = resolveClientIp(request);
-    const rateLimit = checkChatRateLimit(ip);
+    // Con sesión, el límite es por usuario (más justo y más difícil de evadir que por IP);
+    // sin sesión o si Supabase no está configurado, cae de vuelta al límite por IP.
+    const userId = await verifyUserToken(request.headers.authorization);
+    const rateLimitKey = userId ? `user:${userId}` : resolveClientIp(request);
+    const rateLimit = checkChatRateLimit(rateLimitKey);
     if (!rateLimit.allowed) {
       return reply.status(429).send({
         reply: "Ya usaste tus 15 mensajes de hoy con Spider Chat. El límite se reinicia en 24 horas — el resto de la plataforma sigue funcionando sin restricciones.",

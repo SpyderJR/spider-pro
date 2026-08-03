@@ -1,5 +1,6 @@
 import { useMarketCoins } from "../hooks/useMarketData";
 import { formatPercent, formatUsd } from "../lib/format";
+import { AccountMenu } from "./account/AccountMenu";
 
 export function TickerBar() {
   const coins = useMarketCoins();
@@ -12,9 +13,12 @@ export function TickerBar() {
         <TickerItem label="BTC/USD" price={btc?.price} change={btc?.change24h} decimals={2} />
         <div className="w-px h-4 bg-void-border shrink-0" />
         <TickerItem label="TRX/USD" price={trx?.price} change={trx?.change24h} decimals={5} />
-        <div className="ml-auto flex items-center gap-1.5 shrink-0 text-slate-600">
-          <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
-          <span className="font-mono">MERCADO EN VIVO</span>
+        <div className="ml-auto flex items-center gap-3 shrink-0 text-slate-600">
+          <span className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
+            <span className="font-mono">MERCADO EN VIVO</span>
+          </span>
+          <AccountMenu />
         </div>
       </div>
     </div>

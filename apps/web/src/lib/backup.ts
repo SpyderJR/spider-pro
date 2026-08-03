@@ -1,11 +1,13 @@
 export const BACKUP_KEYS = [
   "spider-paper-trading",
+  "spider-futures-trading",
   "spider-academy-progress",
   "spider-arcade-progress",
   "spider-diary",
   "spider-replay-trading",
   "spider-terminal-preferences",
   "spider-onboarding-completed",
+  "spider-legal-consent-accepted",
 ];
 
 export function exportBackup(): string {

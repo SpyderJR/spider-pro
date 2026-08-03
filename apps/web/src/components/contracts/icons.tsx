@@ -1,4 +1,4 @@
-// Minimal flat SVG illustrations for the "como si tuvieras 5 años" analogies —
+// Minimal flat SVG illustrations for the simple-analogy column of each concept card —
 // deliberately simple shapes, not photorealistic, matching the app's neon palette.
 
 export function AppleIcon() {

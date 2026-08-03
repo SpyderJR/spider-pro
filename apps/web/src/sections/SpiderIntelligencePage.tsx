@@ -114,7 +114,7 @@ export function SpiderIntelligencePage() {
       reading: avgAthChange !== null ? formatPercent(avgAthChange, false) : "—",
       vote: avgAthChange !== null ? (avgAthChange <= -35 ? 1 : avgAthChange >= -12 ? -1 : 0) : 0,
       explanation: "Promedio de la distancia de BTC y TRX a su máximo histórico. Muy lejos del ATH ha coincidido con zonas de acumulación; muy cerca, con mayor riesgo de corrección.",
-      link: "/bitcoin",
+      link: "/app/bitcoin",
     });
 
     list.push({
@@ -123,7 +123,7 @@ export function SpiderIntelligencePage() {
       reading: btcRsiLast !== null ? btcRsiLast.toFixed(0) : "—",
       vote: btcRsiLast !== null ? (btcRsiLast < 30 ? 1 : btcRsiLast > 70 ? -1 : 0) : 0,
       explanation: "Por debajo de 30 indica sobreventa (posible rebote); por encima de 70, sobrecompra (posible corrección).",
-      link: "/analisis-tecnico",
+      link: "/app/analisis-tecnico",
     });
 
     list.push({
@@ -132,7 +132,7 @@ export function SpiderIntelligencePage() {
       reading: trxRsiLast !== null ? trxRsiLast.toFixed(0) : "—",
       vote: trxRsiLast !== null ? (trxRsiLast < 30 ? 1 : trxRsiLast > 70 ? -1 : 0) : 0,
       explanation: "Misma lectura que el RSI de BTC, aplicada a TRX de forma independiente.",
-      link: "/analisis-tecnico",
+      link: "/app/analisis-tecnico",
     });
 
     list.push({
@@ -141,7 +141,7 @@ export function SpiderIntelligencePage() {
       reading: btcMacdHistLast !== null ? (btcMacdHistLast > 0 ? "Positivo" : btcMacdHistLast < 0 ? "Negativo" : "Neutral") : "—",
       vote: btcMacdHistLast !== null ? (btcMacdHistLast > 0 ? 1 : btcMacdHistLast < 0 ? -1 : 0) : 0,
       explanation: "Histograma MACD positivo indica momentum alcista de corto plazo; negativo, momentum bajista.",
-      link: "/analisis-tecnico",
+      link: "/app/analisis-tecnico",
     });
 
     list.push({
@@ -150,7 +150,7 @@ export function SpiderIntelligencePage() {
       reading: trxMacdHistLast !== null ? (trxMacdHistLast > 0 ? "Positivo" : trxMacdHistLast < 0 ? "Negativo" : "Neutral") : "—",
       vote: trxMacdHistLast !== null ? (trxMacdHistLast > 0 ? 1 : trxMacdHistLast < 0 ? -1 : 0) : 0,
       explanation: "Misma lectura que el MACD de BTC, aplicada a TRX de forma independiente.",
-      link: "/analisis-tecnico",
+      link: "/app/analisis-tecnico",
     });
 
     list.push({
@@ -159,7 +159,7 @@ export function SpiderIntelligencePage() {
       reading: m2TrendPercent !== null ? formatPercent(m2TrendPercent) : "—",
       vote: m2TrendPercent !== null ? (m2TrendPercent > 0.5 ? 1 : m2TrendPercent < -0.5 ? -1 : 0) : 0,
       explanation: "M2 en expansión históricamente se leyó como viento de cola para activos de riesgo; en contracción, como viento en contra.",
-      link: "/m2-vs-mercado",
+      link: "/app/m2-vs-mercado",
     });
 
     return list;
@@ -313,7 +313,7 @@ export function SpiderIntelligencePage() {
       <div className={`panel border p-5 mb-8 ${RISK_LEVEL_STYLES[riskThermometer.level]!.cls}`}>
         <div className="flex items-center justify-between mb-2">
           <div className="text-xs font-mono font-bold tracking-widest">{RISK_LEVEL_STYLES[riskThermometer.level]!.label}</div>
-          <Link to="/contratos" className="text-[10px] font-mono text-neon-blue hover:underline">
+          <Link to="/app/contratos" className="text-[10px] font-mono text-neon-blue hover:underline">
             → Ver Contratos y Apalancamiento
           </Link>
         </div>

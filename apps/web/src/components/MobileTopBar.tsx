@@ -28,7 +28,7 @@ export function MobileTopBar() {
             <NavLink
               key={s.path}
               to={s.path}
-              end={s.path === "/"}
+              end={s.path === "/app"}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-5 py-3 text-sm border-b border-void-border/50 ${

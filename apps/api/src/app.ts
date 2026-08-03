@@ -6,6 +6,7 @@ import { registerMarketRoutes } from "./routes/market.js";
 import { registerTronRoutes } from "./routes/tron.js";
 import { registerChatRoute } from "./routes/chat.js";
 import { registerSearchRoute } from "./routes/search.js";
+import { registerAccountRoutes } from "./routes/account.js";
 
 export async function buildApp() {
   const app = Fastify({
@@ -22,6 +23,7 @@ export async function buildApp() {
   registerTronRoutes(app);
   registerChatRoute(app);
   registerSearchRoute(app);
+  registerAccountRoutes(app);
 
   return app;
 }
