@@ -31,5 +31,7 @@ export type ChatRequest = z.infer<typeof ChatRequestSchema>;
 export const ChatResponseSchema = z.object({
   reply: z.string(),
   degraded: z.boolean().optional(),
+  /** Messages left today under the per-IP rate limit, so the client can stay in sync with the server's count. */
+  remaining: z.number().optional(),
 });
 export type ChatResponse = z.infer<typeof ChatResponseSchema>;

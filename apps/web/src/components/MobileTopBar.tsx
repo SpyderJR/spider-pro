@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { SECTIONS } from "../lib/sections";
+import { useUiStore } from "../store/uiStore";
 
 export function MobileTopBar() {
   const [open, setOpen] = useState(false);
+  const openBackupModal = useUiStore((s) => s.openBackupModal);
 
   return (
     <div className="lg:hidden bg-void-soft/95 backdrop-blur border-b border-void-border">
@@ -38,6 +40,16 @@ export function MobileTopBar() {
               <span>{s.label}</span>
             </NavLink>
           ))}
+          <button
+            onClick={() => {
+              openBackupModal();
+              setOpen(false);
+            }}
+            className="w-full text-left flex items-center gap-3 px-5 py-3 text-sm text-slate-400"
+          >
+            <span className="w-5 text-center">⚙</span>
+            <span>Respaldo de datos</span>
+          </button>
         </div>
       )}
     </div>

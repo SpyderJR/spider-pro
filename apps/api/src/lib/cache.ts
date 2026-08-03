@@ -36,6 +36,7 @@ export const TTL = {
   klines: 15_000,
   price: 30_000,
   fearGreed: 5 * 60_000,
+  fearGreedHistory: 6 * 60 * 60_000,
   m2: 60 * 60_000,
   stablecoins: 60_000,
   tronStats: 60_000,

@@ -5,11 +5,13 @@ interface ChatState {
   isOpen: boolean;
   isSending: boolean;
   messages: ChatMessage[];
+  draft: string;
   toggle: () => void;
   open: () => void;
   close: () => void;
   addMessage: (message: ChatMessage) => void;
   setSending: (sending: boolean) => void;
+  setDraft: (text: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -22,9 +24,11 @@ export const useChatStore = create<ChatState>((set) => ({
         "Hola, soy Spider. Puedo responder preguntas sobre lo que estás viendo en pantalla ahora mismo — precio, indicadores, señales — usando solo datos verificados. Si algo no está en pantalla, te lo voy a decir en vez de inventarlo.",
     },
   ],
+  draft: "",
   toggle: () => set((s) => ({ isOpen: !s.isOpen })),
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
   addMessage: (message) => set((s) => ({ messages: [...s.messages, message] })),
   setSending: (isSending) => set({ isSending }),
+  setDraft: (draft) => set({ draft }),
 }));

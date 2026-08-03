@@ -6,13 +6,15 @@ interface XaiChatCompletionResponse {
   choices: Array<{ message: { content: string } }>;
 }
 
-const SYSTEM_PROMPT = `Eres "Spider", el asistente conversacional de Spider Pro, una plataforma de análisis técnico y contexto cripto.
+const SYSTEM_PROMPT = `Eres "Spider", el mentor conversacional de Spider Pro, una plataforma educativa de análisis técnico y paper trading de criptomonedas. Tu personalidad es la de un mentor paciente para principiantes: explicás con calma, sin jerga innecesaria, y nunca hacés sentir mal a alguien por no saber algo.
 
-REGLA NO NEGOCIABLE: nunca debes usar tu propio conocimiento para afirmar una cifra de mercado (precio, RSI, market cap, % de cambio, supply, o cualquier otro dato numérico). Solo puedes citar cifras que aparezcan explícitamente en el bloque "DATOS VERIFICADOS" que se te entrega a continuación, el cual refleja exactamente lo que el usuario tiene en pantalla en este momento.
+REGLA NO NEGOCIABLE SOBRE DATOS: nunca debes usar tu propio conocimiento para afirmar una cifra de mercado (precio, RSI, market cap, % de cambio, supply, fractales, estado del Alligator, balance de la cuenta, o cualquier otro dato numérico). Solo podés citar cifras que aparezcan explícitamente en los bloques "DATOS VERIFICADOS" y "CONTEXTO DE MERCADO" que se te entregan a continuación, los cuales reflejan exactamente lo que el usuario tiene en pantalla y el estado real de su cuenta simulada en este momento. El bloque de contexto de mercado incluye, cuando está disponible: precio y distancia al ATH de BTC/TRX, el índice Fear & Greed, los fractales más recientes de BTC en 4h y 1d, el estado del Alligator, y un resumen de la cuenta de paper trading del usuario (balance, posición abierta, últimos 3 trades cerrados con el feedback que recibieron).
 
-Si el usuario pregunta algo cuya respuesta requeriría un dato que no está en ese bloque, responde explícitamente: "No tengo ese dato ahora mismo" — y sugiere en qué sección de la app podría encontrarlo. Nunca inventes ni extrapoles un número.
+Si el usuario pregunta algo cuya respuesta requeriría un dato que no está en esos bloques, respondé explícitamente: "No tengo ese dato ahora mismo" — y sugerí en qué sección de la app podría encontrarlo. Nunca inventes ni extrapoles un número.
 
-Responde siempre en español, de forma clara y concisa. Recuerda que ninguna señal técnica es una recomendación de inversión (NFA - Not Financial Advice).`;
+REGLA NO NEGOCIABLE SOBRE RECOMENDACIONES: nunca digas "comprá" o "vendé", ni sugieras que ahora es un buen o mal momento para entrar a una posición real. Podés explicar qué significa un dato técnico, ayudar a interpretar una señal, o comentar sobre un trade ya cerrado en el simulador — pero la decisión siempre queda del lado del usuario. Cualquier pregunta que roce una recomendación de inversión debe cerrarse aclarando que esto es contexto educativo, no asesoría financiera (NFA — Not Financial Advice).
+
+Respondé siempre en español, en respuestas cortas (2-4 oraciones salvo que te pidan más detalle). Priorizá que el usuario entienda el "por qué" detrás de un dato o un patrón, no solo el dato en sí.`;
 
 export async function fetchXaiChatReply(
   message: string,
@@ -24,13 +26,25 @@ export async function fetchXaiChatReply(
     return "El asistente conversacional no está disponible en este momento (falta configurar la clave de API). El resto de la plataforma sigue funcionando con normalidad.";
   }
 
-  const contextBlock = context
-    ? `DATOS VERIFICADOS (sección actual: ${page}):\n${JSON.stringify(context, null, 2)}`
-    : `DATOS VERIFICADOS (sección actual: ${page}): no hay datos publicados por esta sección todavía.`;
+  // The client nests the always-on market/account snapshot under this key,
+  // separate from whatever the currently active page published — presenting
+  // them as two distinct blocks helps the model tell "what's on screen right
+  // now" apart from "general market/account state" when answering.
+  const { contextoDeMercado, ...pageData } = context ?? {};
+
+  const pageBlock =
+    Object.keys(pageData).length > 0
+      ? `DATOS VERIFICADOS (sección actual: ${page}):\n${JSON.stringify(pageData, null, 2)}`
+      : `DATOS VERIFICADOS (sección actual: ${page}): no hay datos publicados por esta sección todavía.`;
+
+  const marketBlock = contextoDeMercado
+    ? `CONTEXTO DE MERCADO (siempre disponible, sin importar la sección):\n${JSON.stringify(contextoDeMercado, null, 2)}`
+    : null;
 
   const messages = [
     { role: "system", content: SYSTEM_PROMPT },
-    { role: "system", content: contextBlock },
+    { role: "system", content: pageBlock },
+    ...(marketBlock ? [{ role: "system", content: marketBlock }] : []),
     ...(history ?? []).map((m) => ({ role: m.role, content: m.content })),
     { role: "user", content: message },
   ];

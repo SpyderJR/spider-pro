@@ -60,6 +60,17 @@ export const NEXT_HALVING = {
   rewardAfter: 1.5625,
 };
 
+/** % gain from the halving-day price to the cycle's subsequent ATH — derived, not a new hardcoded fact. */
+export function gainToAthPercent(h: HalvingEvent): number | null {
+  if (h.priceAtHalving === null || h.athFollowing === null) return null;
+  return ((h.athFollowing - h.priceAtHalving) / h.priceAtHalving) * 100;
+}
+
+/** Calendar days between two halvings — derived from their ISO dates. */
+export function daysBetween(fromIso: string, toIso: string): number {
+  return Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / (1000 * 60 * 60 * 24));
+}
+
 export interface CyclePhaseGuide {
   phase: string;
   monthsFromHalving: string;

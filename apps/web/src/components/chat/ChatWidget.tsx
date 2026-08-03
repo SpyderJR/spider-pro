@@ -1,12 +1,17 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { useChatStore } from "../../store/chatStore";
 import { usePageContextStore } from "../../store/pageContextStore";
+import { useChatRateLimitStore, DAILY_CHAT_LIMIT } from "../../store/chatRateLimitStore";
+import { useMarketContextSnapshot } from "../../hooks/useMarketContextSnapshot";
 import { postChat } from "../../lib/api";
 
 export function ChatWidget() {
-  const { isOpen, toggle, close, messages, addMessage, isSending, setSending } = useChatStore();
+  const { isOpen, toggle, close, messages, addMessage, isSending, setSending, draft, setDraft } = useChatStore();
   const { page, data } = usePageContextStore();
-  const [input, setInput] = useState("");
+  const marketContext = useMarketContextSnapshot();
+  const { canSend, remaining, recordMessage, syncFromServer } = useChatRateLimitStore();
+  const input = draft;
+  const setInput = setDraft;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,12 +21,22 @@ export function ChatWidget() {
   async function handleSend() {
     const text = input.trim();
     if (!text || isSending) return;
+    if (!canSend()) {
+      addMessage({
+        role: "assistant",
+        content: `Ya usaste tus ${DAILY_CHAT_LIMIT} mensajes de hoy. El límite se reinicia en 24 horas — mientras tanto, el resto de la plataforma sigue funcionando sin restricciones.`,
+      });
+      return;
+    }
     setInput("");
     addMessage({ role: "user", content: text });
     setSending(true);
+    recordMessage();
     try {
-      const res = await postChat(text, page || "desconocida", data, messages.slice(-10));
+      const mergedContext = { ...data, contextoDeMercado: marketContext };
+      const res = await postChat(text, page || "desconocida", mergedContext, messages.slice(-10));
       addMessage({ role: "assistant", content: res.reply });
+      if (res.remaining !== undefined) syncFromServer(res.remaining);
     } catch {
       addMessage({
         role: "assistant",
@@ -31,6 +46,8 @@ export function ChatWidget() {
       setSending(false);
     }
   }
+
+  const remainingCount = remaining();
 
   return (
     <>
@@ -51,12 +68,26 @@ export function ChatWidget() {
                 Contexto: <span className="text-neon-blue">{page || "—"}</span>
               </div>
             </div>
-            <button onClick={close} className="text-slate-500 hover:text-slate-300 text-sm">
-              ✕
-            </button>
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-[10px] font-mono ${remainingCount <= 3 ? "text-neon-red" : "text-slate-500"}`}
+                title="Mensajes restantes hoy"
+              >
+                {remainingCount}/{DAILY_CHAT_LIMIT} hoy
+              </span>
+              <button onClick={close} className="text-slate-500 hover:text-slate-300 text-sm">
+                ✕
+              </button>
+            </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            {messages.length === 0 && (
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Preguntame sobre los datos que tenés en pantalla, tu cuenta de la Terminal, o cómo leer un
+                indicador. No doy recomendaciones de compra/venta — esto es educativo (NFA).
+              </p>
+            )}
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -79,12 +110,13 @@ export function ChatWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Preguntale a Spider sobre esta pantalla…"
-              className="flex-1 bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 outline-none focus:border-neon-green/50"
+              placeholder={remainingCount > 0 ? "Preguntale a Spider sobre esta pantalla…" : "Límite diario alcanzado"}
+              disabled={remainingCount <= 0}
+              className="flex-1 bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 outline-none focus:border-neon-green/50 disabled:opacity-50"
             />
             <button
               onClick={handleSend}
-              disabled={isSending}
+              disabled={isSending || remainingCount <= 0}
               className="bg-neon-green/10 border border-neon-green/40 text-neon-green rounded-lg px-3 text-sm disabled:opacity-40"
             >
               ➤

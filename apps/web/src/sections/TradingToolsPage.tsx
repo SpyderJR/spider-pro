@@ -9,6 +9,8 @@ import { MultiTimeframeConfluence } from "../components/tools/MultiTimeframeConf
 import { VolatilityGauge } from "../components/tools/VolatilityGauge";
 import { KeyLevelsTool } from "../components/tools/KeyLevelsTool";
 import { MomentumRadarTool } from "../components/tools/MomentumRadarTool";
+import { ToolExplainer } from "../components/tools/ToolExplainer";
+import { TOOL_EXPLAINERS } from "../data/tradingToolsExplainers";
 
 const TOOLS = [
   { id: "timer", label: "Cuenta Regresiva de Vela", icon: "⏱" },
@@ -82,6 +84,8 @@ export function TradingToolsPage() {
           <TokenSearchBox onSelect={setToken} />
         </div>
       )}
+
+      <ToolExplainer {...TOOL_EXPLAINERS[tool]!} />
 
       <div className="mb-6">
         {tool === "timer" && <CandleTimerTool token={token} />}

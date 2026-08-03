@@ -99,6 +99,19 @@ export const FearGreedResponseSchema = z.object({
 });
 export type FearGreedResponse = z.infer<typeof FearGreedResponseSchema>;
 
+export const FearGreedHistoryPointSchema = z.object({
+  value: z.number().min(0).max(100),
+  classification: FearGreedClassificationSchema,
+  time: z.number().int(),
+});
+export type FearGreedHistoryPoint = z.infer<typeof FearGreedHistoryPointSchema>;
+
+export const FearGreedHistoryResponseSchema = z.object({
+  points: z.array(FearGreedHistoryPointSchema),
+  source: z.literal("alternative.me"),
+});
+export type FearGreedHistoryResponse = z.infer<typeof FearGreedHistoryResponseSchema>;
+
 export const M2PointSchema = z.object({
   time: z.number().int(),
   m2: z.number(),

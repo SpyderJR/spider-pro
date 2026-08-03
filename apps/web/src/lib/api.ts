@@ -3,6 +3,7 @@ import {
   MarketCoinsResponseSchema,
   MarketHistoryResponseSchema,
   FearGreedResponseSchema,
+  FearGreedHistoryResponseSchema,
   M2ResponseSchema,
   StablecoinsResponseSchema,
   TronStatsResponseSchema,
@@ -49,6 +50,10 @@ export function fetchFearGreed() {
 
 export function fetchM2() {
   return getJson(`/api/market/m2`, M2ResponseSchema);
+}
+
+export function fetchFearGreedHistory() {
+  return getJson(`/api/market/fear-greed-history`, FearGreedHistoryResponseSchema);
 }
 
 export function fetchStablecoins() {

@@ -14,3 +14,5 @@ export * from "./vwap.js";
 export * from "./roc.js";
 export * from "./mfi.js";
 export * from "./parabolicSar.js";
+export * from "./ao.js";
+export * from "./alligator.js";

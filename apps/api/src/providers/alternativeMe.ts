@@ -1,4 +1,4 @@
-import type { FearGreedClassification, FearGreedResponse } from "@spider/types";
+import type { FearGreedClassification, FearGreedHistoryResponse, FearGreedResponse } from "@spider/types";
 import { env } from "../lib/env.js";
 import { fetchJson } from "../lib/http.js";
 
@@ -27,4 +27,21 @@ export async function fetchFearGreed(): Promise<FearGreedResponse> {
     updatedAt: Number(point.timestamp) * 1000,
     source: "alternative.me",
   };
+}
+
+/**
+ * Full public history of the index (available since Feb 2018, one point per day) —
+ * used for "when did we last see this?" historical-analog comparisons. limit=0 means
+ * "return everything" per alternative.me's own docs.
+ */
+export async function fetchFearGreedHistory(): Promise<FearGreedHistoryResponse> {
+  const url = `${env.ALTERNATIVE_ME_BASE_URL}/fng/?limit=0&format=json`;
+  const raw = await fetchJson<AlternativeMeResponse>("alternative.me", url);
+  const points = raw.data
+    .map((p) => {
+      const value = Number(p.value);
+      return { value, classification: classify(value), time: Number(p.timestamp) };
+    })
+    .sort((a, b) => a.time - b.time);
+  return { points, source: "alternative.me" };
 }

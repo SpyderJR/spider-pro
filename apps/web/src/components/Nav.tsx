@@ -1,7 +1,13 @@
 import { NavLink } from "react-router-dom";
 import { SECTIONS } from "../lib/sections";
+import { useAcademyProgressStore } from "../store/academyProgressStore";
+import { useUiStore } from "../store/uiStore";
 
 export function Nav() {
+  const { streakDays, overallPercent } = useAcademyProgressStore();
+  const percent = overallPercent();
+  const openBackupModal = useUiStore((s) => s.openBackupModal);
+
   return (
     <nav className="hidden lg:flex lg:flex-col w-64 shrink-0 border-r border-void-border bg-void-soft/60 h-screen sticky top-0 overflow-y-auto">
       <div className="px-5 py-6 border-b border-void-border relative overflow-hidden">
@@ -14,6 +20,21 @@ export function Nav() {
           </span>
         </div>
       </div>
+
+      {(streakDays > 0 || percent > 0) && (
+        <NavLink to="/academia" className="px-5 py-3 border-b border-void-border flex items-center justify-between text-xs hover:bg-white/5 transition-colors">
+          <span className="flex items-center gap-1.5 text-neon-gold font-mono">
+            🔥 {streakDays} {streakDays === 1 ? "día" : "días"}
+          </span>
+          <span className="flex items-center gap-1.5 text-slate-500 font-mono">
+            <span className="w-12 h-1.5 bg-void-soft rounded-full overflow-hidden">
+              <span className="block h-full bg-neon-green" style={{ width: `${percent}%` }} />
+            </span>
+            {percent}%
+          </span>
+        </NavLink>
+      )}
+
       <div className="flex-1 py-3">
         {SECTIONS.map((s) => (
           <NavLink
@@ -33,8 +54,15 @@ export function Nav() {
           </NavLink>
         ))}
       </div>
-      <div className="px-5 py-4 border-t border-void-border text-[11px] text-slate-600">
-        Datos de mercado, no asesoría financiera (NFA).
+      <div className="px-5 py-4 border-t border-void-border">
+        <button
+          onClick={openBackupModal}
+          className="text-[11px] font-mono text-slate-500 hover:text-neon-blue mb-2 flex items-center gap-1.5"
+        >
+          ⚙ Respaldo de datos
+        </button>
+        <div className="text-[11px] text-slate-600">Datos de mercado, no asesoría financiera (NFA).</div>
+        <div className="text-[10px] text-slate-700 mt-1">Gráficos por TradingView Lightweight Charts (open source).</div>
       </div>
     </nav>
   );

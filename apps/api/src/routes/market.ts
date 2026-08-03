@@ -13,7 +13,7 @@ import {
 import { cache, TTL } from "../lib/cache.js";
 import { fetchCoinGeckoHistory, fetchCoinGeckoMarkets, fetchCoinGeckoStablecoinSupply } from "../providers/coingecko.js";
 import { fetchCryptoCompareDailyHistory } from "../providers/cryptocompare.js";
-import { fetchFearGreed } from "../providers/alternativeMe.js";
+import { fetchFearGreed, fetchFearGreedHistory } from "../providers/alternativeMe.js";
 import { fetchM2Series } from "../providers/fred.js";
 import { fetchTronStablecoinSupply } from "../providers/tron.js";
 import { M2_STATIC_FALLBACK, STABLECOIN_STATIC_FALLBACK } from "../lib/staticFallback.js";
@@ -92,6 +92,16 @@ export function registerMarketRoutes(app: FastifyInstance) {
     } catch (err) {
       request.log.error({ err }, "market/fear-greed failed");
       return reply.status(502).send({ error: "fear & greed provider unavailable" });
+    }
+  });
+
+  app.get("/api/market/fear-greed-history", async (request, reply) => {
+    try {
+      const result = await cache.wrap("market:fear-greed-history", TTL.fearGreedHistory, fetchFearGreedHistory);
+      return reply.send(result);
+    } catch (err) {
+      request.log.error({ err }, "market/fear-greed-history failed");
+      return reply.status(502).send({ error: "fear & greed history provider unavailable" });
     }
   });
 

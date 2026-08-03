@@ -42,6 +42,15 @@ export function useM2() {
   });
 }
 
+export function useFearGreedHistory() {
+  return useQuery({
+    queryKey: ["fear-greed-history"],
+    queryFn: api.fetchFearGreedHistory,
+    staleTime: 60 * 60_000,
+    refetchInterval: 6 * 60 * 60_000,
+  });
+}
+
 export function useStablecoins() {
   return useQuery({
     queryKey: ["stablecoins"],
