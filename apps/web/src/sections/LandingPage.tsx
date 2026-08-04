@@ -25,7 +25,7 @@ const STEPS = [
   },
   {
     n: "2",
-    title: "Practicá con dinero ficticio",
+    title: "Practica con dinero ficticio",
     body: "Terminal de paper trading y minijuegos del Arcade — mismas velas y mecánicas reales, cero riesgo de capital.",
   },
   {
@@ -89,7 +89,7 @@ export function LandingPage() {
               "Cuando empecé en el trading no entendía nada: velas, apalancamiento, liquidaciones. Aprendí a
               golpes, y cada golpe costó dinero real — miles de dólares que hoy sé que eran evitables. Spider
               Pro es la plataforma que a mí me hubiera gustado encontrar el primer día: un lugar donde
-              entendés lo que vas a hacer ANTES de hacerlo con dinero de verdad. Por eso es gratis y lo va a
+              entiendes lo que vas a hacer ANTES de hacerlo con dinero de verdad. Por eso es gratis y lo va a
               seguir siendo."
             </p>
             <a
@@ -160,7 +160,7 @@ export function LandingPage() {
             <div className="text-[10px] font-mono font-bold tracking-widest text-neon-red mb-4">LA CIFRA HONESTA</div>
             <p className="text-lg sm:text-xl text-slate-200 leading-relaxed">
               La mayoría de los traders principiantes pierde dinero. No te vendemos señales ni promesas de
-              riqueza: te entrenamos para que, si decidís operar, lo hagas entendiendo los riesgos.
+              riqueza: te entrenamos para que, si decides operar, lo hagas entendiendo los riesgos.
             </p>
           </div>
         </section>
@@ -170,7 +170,7 @@ export function LandingPage() {
       <Reveal>
         <section className="px-4 sm:px-6 py-20 border-t border-void-border bg-void-soft/30">
           <div className="max-w-md mx-auto text-center">
-            <h2 className="text-xl font-bold text-white mb-6">Seguí el proyecto</h2>
+            <h2 className="text-xl font-bold text-white mb-6">Sigue el proyecto</h2>
             <div className="flex flex-col gap-3">
               {SOCIALS.map((s) => (
                 <a

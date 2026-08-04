@@ -11,7 +11,7 @@ import {
   StablecoinSymbolSchema,
 } from "@spider/types";
 import { cache, TTL } from "../lib/cache.js";
-import { fetchCoinGeckoHistory, fetchCoinGeckoMarkets, fetchCoinGeckoStablecoinSupply } from "../providers/coingecko.js";
+import { fetchCoinGeckoHistory, fetchCoinGeckoMarkets } from "../providers/coingecko.js";
 import { fetchCryptoCompareDailyHistory } from "../providers/cryptocompare.js";
 import { fetchFearGreed, fetchFearGreedHistory } from "../providers/alternativeMe.js";
 import { fetchM2Series } from "../providers/fred.js";
@@ -154,26 +154,14 @@ export function registerMarketRoutes(app: FastifyInstance) {
             };
           }
 
-          try {
-            const cgResults = await Promise.all(
-              symbols.map((symbol) => fetchCoinGeckoStablecoinSupply(symbol)),
-            );
-            if (cgResults.every((r) => r !== null)) {
-              const stablecoins = symbols.map((symbol, i) => ({
-                symbol,
-                supply: cgResults[i]!,
-                holders: null,
-              }));
-              return {
-                stablecoins,
-                totalSupply: stablecoins.reduce((sum, s) => sum + s.supply, 0),
-                source: "coingecko" as const,
-                live: true,
-              };
-            }
-          } catch (err) {
-            request.log.warn({ err }, "market/stablecoins: CoinGecko fallback failed too");
-          }
+          // Deliberately no CoinGecko fallback here: CoinGecko only exposes each
+          // stablecoin's GLOBAL circulating supply across every chain it's issued on
+          // (e.g. USDC is ~$70B+ across all of Ethereum/Solana/Base/etc., but only
+          // ~$27M of that is actually on TRON). Showing that number on a page titled
+          // "Stablecoins TRON" would silently mislabel global supply as TRON-specific —
+          // confirmed as a real bug by comparing against tronscan.org directly. The
+          // static reference dataset below is at least conceptually TRON-specific.
+          request.log.warn("market/stablecoins: TronScan unavailable, using static reference dataset");
 
           return {
             stablecoins: STABLECOIN_STATIC_FALLBACK,

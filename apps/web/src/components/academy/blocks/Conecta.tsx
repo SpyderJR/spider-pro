@@ -11,7 +11,7 @@ export function Conecta({ data }: { data: Data }) {
     >
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs font-mono font-bold tracking-widest text-neon-blue mb-1">PRACTICÁ</div>
+          <div className="text-xs font-mono font-bold tracking-widest text-neon-blue mb-1">PRACTICA</div>
           <div className="text-sm text-white font-medium">{data.label}</div>
           <p className="text-xs text-slate-400 mt-1">{data.descripcion}</p>
         </div>

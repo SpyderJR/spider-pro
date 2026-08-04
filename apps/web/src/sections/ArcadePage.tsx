@@ -80,7 +80,7 @@ export function ArcadePage() {
     <div>
       {toast && <AchievementToast xp={toast.xp} achievements={toast.achievements} />}
 
-      <SectionHeader title="Spider Arcade" subtitle="7 minijuegos de 1 a 3 minutos para entrenar tu ojo de trader. Ganás XP, subís de nivel y desbloqueás logros." />
+      <SectionHeader title="Spider Arcade" subtitle="7 minijuegos de 1 a 3 minutos para entrenar tu ojo de trader. Ganas XP, subes de nivel y desbloqueas logros." />
 
       <div className="grid sm:grid-cols-3 gap-3 mb-6">
         <div className="panel p-4 sm:col-span-1">

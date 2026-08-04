@@ -19,7 +19,7 @@ export const TOOL_EXPLAINERS: Record<string, ToolExplainerContent> = {
       <>
         El anillo/barra se llena a medida que pasa el tiempo dentro de la vela. Se pinta <strong className="text-neon-green">verde</strong> si
         el precio va por encima de la apertura de esa vela, <strong className="text-neon-red">rojo</strong> si va por debajo. Al lado
-        tenés los datos de la <strong>vela anterior</strong>, ya cerrada y confirmada (dirección, rango high-low).
+        tienes los datos de la <strong>vela anterior</strong>, ya cerrada y confirmada (dirección, rango high-low).
       </>
     ),
     example: (
@@ -31,7 +31,7 @@ export const TOOL_EXPLAINERS: Record<string, ToolExplainerContent> = {
     ),
     whenToUse: (
       <>
-        Usalo para no reaccionar a mitad de vela a un movimiento que todavía puede revertir — esperá el cierre antes
+        Úsalo para no reaccionar a mitad de vela a un movimiento que todavía puede revertir — espera el cierre antes
         de confirmar una señal, especialmente en marcos cortos donde el ruido intra-vela es alto. No es una señal de
         entrada por sí sola, es una herramienta de timing.
       </>

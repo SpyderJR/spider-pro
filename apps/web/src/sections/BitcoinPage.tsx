@@ -154,6 +154,17 @@ export function BitcoinPage() {
           </div>
         </div>
 
+        {s && s.hashrateHistory.length > 0 && (
+          <div className="mt-4">
+            <div className="text-[10px] font-mono text-slate-500 mb-2">HASHRATE — ÚLTIMO AÑO (EH/s)</div>
+            <PriceLineChart
+              points={s.hashrateHistory.map((h) => ({ time: h.time, price: h.ehs }))}
+              color="#39ff9c"
+              height={140}
+            />
+          </div>
+        )}
+
         <p className="text-xs text-slate-500 mt-4 leading-relaxed">
           El <strong className="text-slate-300">hashrate</strong> mide cuánto poder de cómputo está protegiendo la
           red — cuanto más alto, más caro (e improbable) es un ataque del 51%. La{" "}

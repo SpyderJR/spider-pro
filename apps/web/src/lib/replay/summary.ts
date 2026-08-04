@@ -31,7 +31,7 @@ export function buildReplaySummary(
 
   if (history.length === 0) {
     feedback.push(
-      "No hiciste ninguna operación durante este replay. Está bien esperar si no viste una señal clara, pero practicá entrando en algunos trades para poder evaluar tu criterio.",
+      "No hiciste ninguna operación durante este replay. Está bien esperar si no viste una señal clara, pero practica entrando en algunos trades para poder evaluar tu criterio.",
     );
   } else {
     feedback.push(

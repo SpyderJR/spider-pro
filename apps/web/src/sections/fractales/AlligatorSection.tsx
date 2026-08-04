@@ -73,7 +73,7 @@ export function AlligatorSection() {
         {
           label: "Fractales",
           role: "aporta la señal de entrada exacta",
-          reason: "el Alligator solo dice 'hay tendencia', el fractal dice 'acá específicamente'.",
+          reason: "el Alligator solo dice 'hay tendencia', el fractal dice 'aquí específicamente'.",
         },
         {
           label: "Awesome Oscillator",

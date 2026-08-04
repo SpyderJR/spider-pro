@@ -49,7 +49,7 @@ const RULES: Rule[] = [
   (trade, ctx) => {
     const risk = riskPercent(trade, ctx.balanceBeforeTrade);
     if (risk !== null && risk > 3 && risk <= 8) {
-      return `Arriesgaste ${risk.toFixed(1)}% de tu cuenta — por encima del 3% que solemos marcar como límite de alerta. Revisá la calculadora de tamaño de posición en Gestión de Riesgo.`;
+      return `Arriesgaste ${risk.toFixed(1)}% de tu cuenta — por encima del 3% que solemos marcar como límite de alerta. Revisa la calculadora de tamaño de posición en Gestión de Riesgo.`;
     }
     return null;
   },
@@ -94,10 +94,10 @@ const RULES: Rule[] = [
     if (risk > 0 && reward > 0) {
       const ratio = reward / risk;
       if (ratio >= 2) {
-        return `Buen ratio riesgo/beneficio de 1:${ratio.toFixed(1)} — con esta relación podés perder más trades de los que ganás y aun así ser rentable.`;
+        return `Buen ratio riesgo/beneficio de 1:${ratio.toFixed(1)} — con esta relación puedes perder más trades de los que ganas y aun así ser rentable.`;
       }
       if (ratio < 1) {
-        return `Tu ratio riesgo/beneficio fue de 1:${ratio.toFixed(1)} — estás arriesgando más de lo que buscás ganar. Necesitás un win rate muy alto para que esto sea rentable a largo plazo.`;
+        return `Tu ratio riesgo/beneficio fue de 1:${ratio.toFixed(1)} — estás arriesgando más de lo que buscas ganar. Necesitas un win rate muy alto para que esto sea rentable a largo plazo.`;
       }
     }
     return null;
@@ -137,7 +137,7 @@ const RULES: Rule[] = [
   // 12. Trade ganador — refuerzo positivo
   (trade) => {
     if (trade.pnl > 0) {
-      return `Trade cerrado en ganancia (+$${trade.pnl.toFixed(2)}, ${trade.pnlPercent.toFixed(2)}%). Guardá qué señales te llevaron a esta entrada en el Diario — repetir lo que funciona es tan importante como evitar lo que no.`;
+      return `Trade cerrado en ganancia (+$${trade.pnl.toFixed(2)}, ${trade.pnlPercent.toFixed(2)}%). Guarda qué señales te llevaron a esta entrada en el Diario — repetir lo que funciona es tan importante como evitar lo que no.`;
     }
     return null;
   },

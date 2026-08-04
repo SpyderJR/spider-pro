@@ -181,7 +181,7 @@ export function FuturesOrderPanel({ pair, currentPrice, balance, hasOpenPosition
         </div>
         <p className="text-[10px] text-slate-500 mt-1">
           {marginMode === "isolated"
-            ? "Si te liquidan, solo perdés el margen de esta posición."
+            ? "Si te liquidan, solo pierdes el margen de esta posición."
             : "Toda tu cuenta respalda esta posición — más difícil de liquidar, pero expone todo tu balance."}
         </p>
       </div>
@@ -273,7 +273,7 @@ export function FuturesOrderPanel({ pair, currentPrice, balance, hasOpenPosition
 
       {slUnreachable && (
         <div className="mb-3 bg-neon-red/10 border border-neon-red/30 rounded-lg p-2.5 text-xs text-neon-red font-semibold">
-          Tu SL está más lejos que tu liquidación: tu stop nunca se ejecutaría, te liquidás antes. Subí el SL o bajá el
+          Tu SL está más lejos que tu liquidación: tu stop nunca se ejecutaría, te liquidas antes. Sube el SL o baja el
           apalancamiento.
         </div>
       )}
@@ -286,7 +286,7 @@ export function FuturesOrderPanel({ pair, currentPrice, balance, hasOpenPosition
 
       {hasOpenPosition && (
         <div className="mb-3 text-xs text-neon-gold bg-neon-gold/5 border border-neon-gold/20 rounded-lg p-2">
-          Ya tenés una posición abierta en {pair}. Cerrala antes de abrir otra.
+          Ya tienes una posición abierta en {pair}. Ciérrala antes de abrir otra.
         </div>
       )}
 

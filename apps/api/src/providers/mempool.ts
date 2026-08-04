@@ -21,6 +21,11 @@ export interface DifficultyAdjustment {
   remainingBlocks: number;
 }
 
+export interface HashrateHistoryPoint {
+  time: number; // unix seconds
+  ehs: number;
+}
+
 export interface BitcoinOnChainStats {
   blockHeight: number;
   hashrateEhs: number;
@@ -28,6 +33,7 @@ export interface BitcoinOnChainStats {
   fees: MempoolFees;
   mempool: MempoolStats;
   difficultyAdjustment: DifficultyAdjustment;
+  hashrateHistory: HashrateHistoryPoint[];
 }
 
 /** mempool.space — API pública, gratuita, sin key. */
@@ -44,10 +50,11 @@ export async function fetchBitcoinOnChainStats(): Promise<BitcoinOnChainStats> {
       estimatedRetargetDate: number;
       remainingBlocks: number;
     }>("mempool", `${base}/api/v1/difficulty-adjustment`),
-    fetchJson<{ currentHashrate: number; currentDifficulty: number }>(
-      "mempool",
-      `${base}/api/v1/mining/hashrate/3d`,
-    ),
+    fetchJson<{
+      hashrates: Array<{ timestamp: number; avgHashrate: number }>;
+      currentHashrate: number;
+      currentDifficulty: number;
+    }>("mempool", `${base}/api/v1/mining/hashrate/1y`),
   ]);
 
   return {
@@ -71,5 +78,6 @@ export async function fetchBitcoinOnChainStats(): Promise<BitcoinOnChainStats> {
       estimatedRetargetDate: difficultyAdjustment.estimatedRetargetDate,
       remainingBlocks: difficultyAdjustment.remainingBlocks,
     },
+    hashrateHistory: hashrate.hashrates.map((h) => ({ time: h.timestamp, ehs: h.avgHashrate / 1e18 })),
   };
 }

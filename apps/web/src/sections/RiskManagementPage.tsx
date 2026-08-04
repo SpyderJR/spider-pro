@@ -32,7 +32,7 @@ export function RiskManagementPage() {
       <div className="panel border border-neon-red/30 bg-neon-red/5 p-5 mb-6">
         <div className="text-xs font-mono font-bold tracking-widest text-neon-red mb-2">POR QUÉ ESTA PÁGINA IMPORTA MÁS QUE CUALQUIER INDICADOR</div>
         <p className="text-slate-200 text-sm leading-relaxed">
-          Podés tener la mejor estrategia técnica del dashboard y aun así quebrar la cuenta si arriesgás mal.
+          Puedes tener la mejor estrategia técnica del dashboard y aun así quebrar la cuenta si arriesgas mal.
           Al revés, una estrategia mediocre con buena gestión de riesgo sobrevive lo suficiente como para
           mejorar con el tiempo. Esta página es matemática pura y psicología aplicada — sin eso, todo lo
           demás en Spider Pro es decoración.

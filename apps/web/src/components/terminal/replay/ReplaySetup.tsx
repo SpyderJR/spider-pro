@@ -24,7 +24,7 @@ export function ReplaySetup() {
 
       const candles = await fetchCachedCandles(period.symbol, interval, startTime, endTime);
       if (candles.length < VISIBLE_START_CANDLES + 10) {
-        setError("No hay suficiente histórico para este período y temporalidad. Probá con otra combinación.");
+        setError("No hay suficiente histórico para este período y temporalidad. Prueba con otra combinación.");
         setLoading(false);
         return;
       }
@@ -38,7 +38,7 @@ export function ReplaySetup() {
         startIndex: VISIBLE_START_CANDLES,
       });
     } catch {
-      setError("No se pudo cargar el histórico de Binance. Probá de nuevo en unos segundos.");
+      setError("No se pudo cargar el histórico de Binance. Prueba de nuevo en unos segundos.");
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export function ReplaySetup() {
     <div className="panel p-6">
       <h3 className="text-lg font-bold text-white mb-1">Configurar Replay</h3>
       <p className="text-sm text-slate-400 mb-5">
-        Elegí un período histórico real y operá contra él vela por vela, con una cuenta simulada separada de tu cuenta en vivo.
+        Elige un período histórico real y opera contra él vela por vela, con una cuenta simulada separada de tu cuenta en vivo.
       </p>
 
       <div className="mb-4">

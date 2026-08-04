@@ -322,7 +322,7 @@ export function TerminalPage() {
         </button>
         {market === "futures" && (
           <span className="text-[11px] text-slate-500 self-center ml-1">
-            Alto riesgo — leé la pestaña{" "}
+            Alto riesgo — lee la pestaña{" "}
             <Link to="/app/contratos" className="text-neon-blue underline">
               Contratos
             </Link>{" "}
@@ -406,7 +406,7 @@ export function TerminalPage() {
               <div className="text-center text-slate-500 text-sm py-20">Cargando velas de Binance…</div>
             ) : historyQuery.isError ? (
               <div className="text-center text-neon-red text-sm py-20">
-                No se pudo conectar con Binance. Puede ser un bloqueo temporal o de tu red — probá de nuevo en unos segundos.
+                No se pudo conectar con Binance. Puede ser un bloqueo temporal o de tu red — prueba de nuevo en unos segundos.
               </div>
             ) : (
               <TerminalChart
@@ -475,10 +475,10 @@ export function TerminalPage() {
         <button
           onClick={() => {
             if (market === "spot") {
-              if (confirm("¿Reiniciar la cuenta simulada de Spot? Se borra todo el historial y volvés a $10,000.")) {
+              if (confirm("¿Reiniciar la cuenta simulada de Spot? Se borra todo el historial y vuelves a $10,000.")) {
                 store.resetAccount();
               }
-            } else if (confirm("¿Reiniciar la cuenta simulada de Futuros? Se borra todo el historial y volvés a $10,000.")) {
+            } else if (confirm("¿Reiniciar la cuenta simulada de Futuros? Se borra todo el historial y vuelves a $10,000.")) {
               futuresStore.resetAccount();
             }
           }}
@@ -490,7 +490,7 @@ export function TerminalPage() {
         </>
       )}
 
-      <Disclaimer text="Simulación educativa con dinero ficticio. Los precios son reales (Binance en vivo), pero ninguna operación acá tiene efecto financiero real. Esto es contexto educativo, no asesoría financiera (NFA)." />
+      <Disclaimer text="Simulación educativa con dinero ficticio. Los precios son reales (Binance en vivo), pero ninguna operación aquí tiene efecto financiero real. Esto es contexto educativo, no asesoría financiera (NFA)." />
     </div>
   );
 }

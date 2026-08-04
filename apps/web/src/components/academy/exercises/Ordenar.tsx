@@ -41,7 +41,7 @@ export function Ordenar({ data, onSolved }: { data: Data; onSolved: () => void }
 
   return (
     <div className="bg-void-soft rounded-xl p-4 border border-void-border">
-      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">ORDENÁ</div>
+      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">ORDENA</div>
       <p className="text-sm text-white font-medium mb-3">{data.instruccion}</p>
       <div className="space-y-1.5 mb-3">
         {order.map((id, i) => {
@@ -81,7 +81,7 @@ export function Ordenar({ data, onSolved }: { data: Data; onSolved: () => void }
       {checked && (
         <div className="bg-void-panel rounded-lg p-3 text-xs text-slate-400 mt-3">
           <span className={isCorrect ? "text-neon-green font-semibold" : "text-neon-red font-semibold"}>
-            {isCorrect ? "¡Orden correcto!" : "Todavía no — el verde marca lo que ya está en su lugar, seguí ajustando."}
+            {isCorrect ? "¡Orden correcto!" : "Todavía no — el verde marca lo que ya está en su lugar, sigue ajustando."}
           </span>
         </div>
       )}

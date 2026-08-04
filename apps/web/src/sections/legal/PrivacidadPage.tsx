@@ -19,7 +19,7 @@ export function PrivacidadPage() {
           sincronizarlo entre tus dispositivos.
         </p>
         <p>
-          Los mensajes que enviás a Spider Chat se procesan por el proveedor de inteligencia artificial que
+          Los mensajes que envías a Spider Chat se procesan por el proveedor de inteligencia artificial que
           genera las respuestas, únicamente con el fin de responderte.
         </p>
       </LegalSection>
@@ -36,7 +36,7 @@ export function PrivacidadPage() {
         summary="Supabase (auth y base de datos), Google OAuth, Netlify (hosting), Binance y alternative.me (datos de mercado), y un proveedor de IA para el chat."
       >
         <ul className="list-disc list-inside space-y-1">
-          <li><strong className="text-slate-200">Supabase</strong> — autenticación e infraestructura de base de datos, si elegís crear una cuenta.</li>
+          <li><strong className="text-slate-200">Supabase</strong> — autenticación e infraestructura de base de datos, si eliges crear una cuenta.</li>
           <li><strong className="text-slate-200">Google OAuth</strong> — para el inicio de sesión con Google (opcional).</li>
           <li><strong className="text-slate-200">Netlify</strong> — alojamiento del sitio y las funciones del backend.</li>
           <li><strong className="text-slate-200">Binance / alternative.me / FRED / CoinGecko</strong> — datos públicos de mercado, sin que se les envíen datos personales tuyos.</li>
@@ -50,7 +50,7 @@ export function PrivacidadPage() {
       >
         <p>
           Usamos el almacenamiento local del navegador (localStorage e IndexedDB) para guardar tu progreso,
-          preferencias, aceptación de términos y caché de datos de mercado. Si iniciás sesión, usamos también
+          preferencias, aceptación de términos y caché de datos de mercado. Si inicias sesión, usamos también
           una cookie/token de sesión de Supabase para mantenerte autenticado. No usamos cookies de rastreo
           publicitario de terceros.
         </p>
@@ -58,12 +58,12 @@ export function PrivacidadPage() {
 
       <LegalSection
         title="5. Tus derechos"
-        summary="Podés acceder, exportar o eliminar tus datos en cualquier momento desde el menú de cuenta."
+        summary="Puedes acceder, exportar o eliminar tus datos en cualquier momento desde el menú de cuenta."
       >
         <p>
-          Si tenés una cuenta, desde el menú de cuenta del dashboard podés: exportar todos tus datos en
-          formato JSON, y eliminar tu cuenta junto con todos tus datos de forma permanente. Si no tenés
-          cuenta, tus datos viven solo en tu navegador — podés borrarlos vos mismo desde el respaldo de datos
+          Si tienes una cuenta, desde el menú de cuenta del dashboard puedes: exportar todos tus datos en
+          formato JSON, y eliminar tu cuenta junto con todos tus datos de forma permanente. Si no tienes
+          cuenta, tus datos viven solo en tu navegador — puedes borrarlos tú mismo desde el respaldo de datos
           del menú de ajustes, o limpiando el almacenamiento del sitio desde tu navegador.
         </p>
       </LegalSection>
@@ -80,10 +80,10 @@ export function PrivacidadPage() {
 
       <LegalSection
         title="7. Contacto"
-        summary="Para consultas de privacidad, escribinos por X."
+        summary="Para consultas de privacidad, escríbenos por X."
       >
         <p>
-          Para consultas relacionadas con privacidad o tus datos, podés contactarnos por{" "}
+          Para consultas relacionadas con privacidad o tus datos, puedes contactarnos por{" "}
           <a
             href="https://x.com/Spyde3rAI"
             target="_blank"

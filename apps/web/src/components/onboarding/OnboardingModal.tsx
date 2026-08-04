@@ -40,7 +40,7 @@ export function OnboardingModal() {
             <h2 className="text-xl font-bold text-white mb-2">Bienvenido a Spider Pro</h2>
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
               Una plataforma educativa de trading cripto: terminal de paper trading con datos reales, academia con
-              quizzes, minijuegos de entrenamiento, diario y más. Nada acá es asesoría financiera (NFA) — todo es
+              quizzes, minijuegos de entrenamiento, diario y más. Nada aquí es asesoría financiera (NFA) — todo es
               para practicar sin arriesgar un centavo real.
             </p>
             <button onClick={() => setStep(1)} className="w-full py-2.5 rounded-lg text-sm font-bold bg-neon-green/10 border border-neon-green/40 text-neon-green">
@@ -52,7 +52,7 @@ export function OnboardingModal() {
         {step === 1 && (
           <div>
             <h2 className="text-lg font-bold text-white mb-1">¿Qué tan familiarizado estás con trading?</h2>
-            <p className="text-sm text-slate-400 mb-5">Así te sugerimos por dónde arrancar. Podés cambiar de sección en cualquier momento.</p>
+            <p className="text-sm text-slate-400 mb-5">Así te sugerimos por dónde arrancar. Puedes cambiar de sección en cualquier momento.</p>
             <div className="space-y-2 mb-6">
               {LEVEL_OPTIONS.map((opt) => (
                 <button
@@ -81,12 +81,12 @@ export function OnboardingModal() {
           <div>
             <div className="text-3xl mb-3">{level === "principiante" ? "🎓" : "🚀"}</div>
             <h2 className="text-lg font-bold text-white mb-2">
-              {level === "principiante" ? "Te llevamos a la Academia" : "Listo, explorá la plataforma"}
+              {level === "principiante" ? "Te llevamos a la Academia" : "Listo, explora la plataforma"}
             </h2>
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
               {level === "principiante"
-                ? "Empezá por el Nivel 1: Fundamentos. Cada nivel tiene un quiz corto al final — no es obligatorio aprobarlo para seguir, es solo para que veas qué tan sólido tenés cada tema."
-                : "Tenés la Terminal, el Arcade, el Diario y el Glosario a un clic en el menú lateral. Cualquier duda, Spider Chat está abajo a la derecha."}
+                ? "Empieza por el Nivel 1: Fundamentos. Cada nivel tiene un quiz corto al final — no es obligatorio aprobarlo para seguir, es solo para que veas qué tan sólido tienes cada tema."
+                : "Tienes la Terminal, el Arcade, el Diario y el Glosario a un clic en el menú lateral. Cualquier duda, Spider Chat está abajo a la derecha."}
             </p>
             <button onClick={finish} className="w-full py-2.5 rounded-lg text-sm font-bold bg-neon-green/10 border border-neon-green/40 text-neon-green">
               {level === "principiante" ? "Ir a la Academia" : "Entrar a Spider Pro"}

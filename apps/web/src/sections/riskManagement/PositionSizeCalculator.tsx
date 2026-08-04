@@ -20,12 +20,12 @@ export function PositionSizeCalculator() {
           más que la entrada, más que el indicador que uses. Un trader con una estrategia mediocre pero buen
           tamaño de posición sobrevive lo suficiente como para mejorar. Un trader con la mejor estrategia del
           mundo pero mal tamaño de posición quiebra la cuenta antes de que esa ventaja estadística se
-          manifieste. No es la parte más interesante del trading, pero es la que decide si seguís jugando o
+          manifieste. No es la parte más interesante del trading, pero es la que decide si sigues jugando o
           no.
         </p>
         <p className="text-sm text-slate-400 leading-relaxed">
-          La lógica es simple: definís cuánto estás dispuesto a perder en este trade específico (como % de tu
-          cuenta) y dejás que la distancia a tu stop loss determine el tamaño — nunca al revés. Elegir el
+          La lógica es simple: defines cuánto estás dispuesto a perder en este trade específico (como % de tu
+          cuenta) y dejas que la distancia a tu stop loss determine el tamaño — nunca al revés. Elegir el
           tamaño primero y "ver qué stop loss me queda" es exactamente al revés de cómo se calcula bien.
         </p>
       </div>

@@ -312,3 +312,55 @@ Terminal/Arcade + rediseño completo de la UI de Academia), se construye en este
 **Nota de alcance:** por el tamaño del pedido, se priorizó dejar el Nivel 1 completo y 100% funcional
 como base sólida y verificada antes de replicar el patrón en los 9 niveles restantes, en vez de dejar
 los 10 niveles a medio construir simultáneamente.
+
+## Correcciones reportadas en producción (post-Bloque 12)
+
+- [x] **Bug real de datos: Stablecoins TRON mostraba supply global mal etiquetado como supply de
+      TRON.** El usuario lo detectó comparando contra tronscan.org directamente (USDT mostraba
+      $183.29B en la app vs $90.28B reales en TronScan — casi exactamente el doble). Causa raíz
+      confirmada: cuando TronScan fallaba temporalmente, `/api/market/stablecoins` caía a un
+      fallback de CoinGecko que devuelve el `circulating_supply` GLOBAL de cada stablecoin (todas
+      las cadenas combinadas — Ethereum, Solana, etc.), no el supply específico de TRON. Para USDC
+      la distorsión era mucho peor (~$72B global mostrado vs ~$27M real en TRON, un factor de
+      ~2600x) porque casi todo el USDC circula fuera de TRON. Corregido eliminando por completo el
+      fallback de CoinGecko para este endpoint (`fetchCoinGeckoStablecoinSupply` removida de
+      `providers/coingecko.ts` por no poder responder la pregunta correcta) — ahora, si TronScan
+      falla, cae directo al dataset estático de referencia (`STABLECOIN_STATIC_FALLBACK`, ya
+      etiquetado `live:false` en la UI), que al menos es conceptualmente supply-de-TRON. Verificado
+      contra la API en vivo que el supply de USDT ahora coincide con TronScan ($90.28B) y que
+      `holders` ya no aparece como "—".
+- [x] **Gráficas agregadas donde había datos reales para respaldarlas** (pedido: "se ve mas
+      profecional"). Fear & Greed en Spider Intelligence ahora tiene un gráfico de área de los
+      últimos 120 días (reutiliza `useFearGreedHistory`, ya construido en el Bloque 11, y el
+      componente `PriceLineChart` de lightweight-charts ya usado en Bitcoin/TRON). Bitcoin ganó un
+      gráfico de hashrate del último año — requirió extender `providers/mempool.ts` para traer
+      `/api/v1/mining/hashrate/1y` (histórico diario real, gratis, sin key) además del snapshot
+      actual que ya se usaba; nuevo campo `hashrateHistory` en `BitcoinStatsResponse`. No se agregó
+      gráfica en TRON ni en la tabla de stablecoins porque esos endpoints solo devuelven snapshots
+      actuales, no series históricas — agregar una ahí requeriría fabricar datos, así que se dejó
+      así deliberadamente en vez de inventar una tendencia falsa.
+- [x] **Español mexicano:** corregido "aplicás vos mismo" → "aplicas tú mismo" y "completá" →
+      "completa" en el párrafo principal y las cards de Academia (`AcademyPage.tsx`), que era el
+      lugar específico donde el usuario lo encontró. **Nota importante:** el usuario aclaró ser
+      mexicano y necesitar español mexicano (tuteo) en toda la plataforma — el resto de la app se
+      había escrito originalmente en español rioplatense (voseo: vos/tenés/podés/sos) a lo largo de
+      bloques anteriores de esta sesión. Se guardó como memoria permanente para que todo el
+      contenido nuevo use tuteo desde ahora.
+- [x] **Conversión completa de voseo → tuteo en toda la app** (pedido explícito del usuario:
+      "Convertir todo ahora"). Barrido exhaustivo e iterativo sobre `apps/web/src` (componentes,
+      secciones, contenido de Academia, quizzes, estrategias, glosario, logros del Arcade, páginas
+      legales) y sobre `apps/api/src` — incluyendo el **system prompt de Spider Chat**
+      (`providers/xai.ts`), que también estaba en voseo y regía el tono real de las respuestas en
+      vivo del asistente, no solo texto estático de la UI. Cubre formas imperativas (Calculá →
+      Calcula, Ordená → Ordena, Mirá → Mira, Elegí → Elige, etc.), pronombre "vos" y conjugaciones
+      (tenés/podés/sos/querés), y normalización de "acá" → "aquí" y "plata" → "dinero" donde
+      aparecían junto al resto del texto convertido. El descubrimiento por regex tuvo varias rondas
+      — el `grep` de Git Bash resultó no ser confiable con límites de palabra (`\b`) sobre vocales
+      acentuadas en UTF-8, así que la convergencia final se verificó con el `Grep` (ripgrep,
+      Unicode-aware) más lectura directa de archivos. Verificado: `pnpm run typecheck` y
+      `pnpm run build` limpios en los 4 paquetes; recorrido con Playwright por Academia (incluida
+      una lección completa nivel 1 con sus ejercicios interactivos), Contratos, Gestión de Riesgo,
+      Arcade, Terminal, Diario y las 3 páginas legales — cero coincidencias de voseo en el texto
+      renderizado y cero errores de consola en ninguna ruta.
+
+Build y typecheck limpios en los 4 paquetes, barrido de regresión limpio en las 47 rutas.

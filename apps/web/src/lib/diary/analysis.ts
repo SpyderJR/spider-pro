@@ -79,7 +79,7 @@ export function overallWinRate(entries: DiaryEntry[]): number {
 export function generateInsights(entries: DiaryEntry[]): string[] {
   const decided = entries.filter((e) => e.result === "win" || e.result === "loss");
   if (decided.length < 5) {
-    return ["Registrá al menos 5 operaciones con emoción y resultado para desbloquear insights confiables."];
+    return ["Registra al menos 5 operaciones con emoción y resultado para desbloquear insights confiables."];
   }
 
   const overall = overallWinRate(entries);
@@ -89,11 +89,11 @@ export function generateInsights(entries: DiaryEntry[]): string[] {
     if (bucket.count < MIN_SAMPLE) continue;
     if (bucket.winRate <= overall - 15) {
       insights.push(
-        `Cuando operás sintiéndote "${bucket.label}" tu win rate cae a ${bucket.winRate}% (vs ${overall}% general, en ${bucket.count} operaciones). Vale la pena pensarlo dos veces antes de entrar en ese estado.`,
+        `Cuando operas sintiéndote "${bucket.label}" tu win rate cae a ${bucket.winRate}% (vs ${overall}% general, en ${bucket.count} operaciones). Vale la pena pensarlo dos veces antes de entrar en ese estado.`,
       );
     } else if (bucket.winRate >= overall + 15) {
       insights.push(
-        `Tus mejores resultados llegan cuando te sentís "${bucket.label}": ${bucket.winRate}% de win rate en ${bucket.count} operaciones.`,
+        `Tus mejores resultados llegan cuando te sientes "${bucket.label}": ${bucket.winRate}% de win rate en ${bucket.count} operaciones.`,
       );
     }
   }
@@ -103,7 +103,7 @@ export function generateInsights(entries: DiaryEntry[]): string[] {
     if (bucket.winRate >= overall + 15) {
       insights.push(`Las operaciones basadas en ${bucket.label} tienen ${bucket.winRate}% de win rate — tu señal más confiable hasta ahora.`);
     } else if (bucket.winRate <= overall - 15) {
-      insights.push(`Las operaciones basadas en ${bucket.label} tienen solo ${bucket.winRate}% de win rate — revisá cómo la estás usando.`);
+      insights.push(`Las operaciones basadas en ${bucket.label} tienen solo ${bucket.winRate}% de win rate — revisa cómo la estás usando.`);
     }
   }
 
@@ -115,7 +115,7 @@ export function generateInsights(entries: DiaryEntry[]): string[] {
   }
 
   if (insights.length === 0) {
-    insights.push(`No hay patrones fuertes todavía (${overall}% de win rate general) — seguí registrando para afinar el análisis.`);
+    insights.push(`No hay patrones fuertes todavía (${overall}% de win rate general) — sigue registrando para afinar el análisis.`);
   }
 
   return insights;

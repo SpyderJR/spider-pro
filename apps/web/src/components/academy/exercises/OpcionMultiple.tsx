@@ -39,7 +39,7 @@ export function OpcionMultiple({ data, onSolved }: { data: Data; onSolved: () =>
       {selected !== null && (
         <div className="bg-void-panel rounded-lg p-3 mt-3 text-xs text-slate-400 leading-relaxed">
           <span className={data.opciones[selected]!.correcta ? "text-neon-green font-semibold" : "text-neon-red font-semibold"}>
-            {data.opciones[selected]!.correcta ? "Correcto. " : "Todavía no — probá otra. "}
+            {data.opciones[selected]!.correcta ? "Correcto. " : "Todavía no — prueba otra. "}
           </span>
           {data.opciones[selected]!.explicacion}
         </div>

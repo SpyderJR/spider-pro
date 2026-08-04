@@ -95,7 +95,7 @@ export function TradingToolsPage() {
         {tool === "radar" && <MomentumRadarTool />}
       </div>
 
-      <Disclaimer text="Estas herramientas son ayudas de lectura de mercado, no señales de entrada ni promesas de resultado. Los marcos de tiempo cortos amplifican tanto ganancias como pérdidas — operá solo capital que puedas permitirte perder (NFA)." />
+      <Disclaimer text="Estas herramientas son ayudas de lectura de mercado, no señales de entrada ni promesas de resultado. Los marcos de tiempo cortos amplifican tanto ganancias como pérdidas — opera solo capital que puedas permitirte perder (NFA)." />
     </div>
   );
 }

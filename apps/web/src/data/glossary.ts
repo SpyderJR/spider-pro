@@ -51,10 +51,10 @@ export const GLOSSARY: GlossaryTerm[] = [
   // Riesgo
   { term: "Stop Loss (SL)", definition: "Orden que cierra automáticamente una posición cuando el precio llega a un nivel definido, limitando la pérdida máxima de la operación.", category: "Riesgo" },
   { term: "Take Profit (TP)", definition: "Orden que cierra automáticamente una posición cuando el precio llega a un nivel de ganancia definido.", category: "Riesgo" },
-  { term: "Ratio Riesgo/Beneficio (R:R)", definition: "Relación entre cuánto arriesgás (distancia al SL) y cuánto podés ganar (distancia al TP). Un R:R de 1:3 significa arriesgar $1 para potencialmente ganar $3.", category: "Riesgo" },
+  { term: "Ratio Riesgo/Beneficio (R:R)", definition: "Relación entre cuánto arriesgas (distancia al SL) y cuánto puedes ganar (distancia al TP). Un R:R de 1:3 significa arriesgar $1 para potencialmente ganar $3.", category: "Riesgo" },
   { term: "Tamaño de posición (Position Sizing)", definition: "Cantidad de capital destinada a una operación, calculada en función del % de riesgo que estás dispuesto a asumir sobre tu cuenta total.", category: "Riesgo" },
   { term: "Drawdown", definition: "Caída porcentual desde el punto más alto (peak) del balance de una cuenta hasta un punto más bajo posterior.", category: "Riesgo" },
-  { term: "Apalancamiento", definition: "Multiplicador que permite operar con más capital del que realmente tenés depositado, amplificando tanto ganancias como pérdidas.", category: "Riesgo" },
+  { term: "Apalancamiento", definition: "Multiplicador que permite operar con más capital del que realmente tienes depositado, amplificando tanto ganancias como pérdidas.", category: "Riesgo" },
   { term: "Margen", definition: "Capital que se deja como garantía para abrir una posición apalancada.", category: "Riesgo" },
   { term: "Liquidación", definition: "Cierre forzoso de una posición apalancada cuando las pérdidas consumen el margen disponible.", category: "Riesgo" },
   { term: "Win Rate", definition: "Porcentaje de operaciones cerradas en ganancia sobre el total de operaciones.", category: "Riesgo" },

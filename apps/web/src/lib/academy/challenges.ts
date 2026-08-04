@@ -19,7 +19,7 @@ function riskPercentOfTrade(entry: number, stopLoss: number | null, quantity: nu
 export const ACADEMY_CHALLENGES: Record<string, AcademyChallenge> = {
   "terminal-open-low-risk": {
     id: "terminal-open-low-risk",
-    label: "Abrí una posición spot en la Terminal con stop loss a ≤2% de riesgo de tu cuenta.",
+    label: "Abre una posición spot en la Terminal con stop loss a ≤2% de riesgo de tu cuenta.",
     isMet: () => {
       const { positions, history, balance } = usePaperTradingStore.getState();
       const all = [...positions, ...history];
@@ -31,7 +31,7 @@ export const ACADEMY_CHALLENGES: Record<string, AcademyChallenge> = {
   },
   "terminal-close-in-profit": {
     id: "terminal-close-in-profit",
-    label: "Cerrá un trade en la Terminal con ganancia (spot o futuros).",
+    label: "Cierra un trade en la Terminal con ganancia (spot o futuros).",
     isMet: () => {
       const spotWin = usePaperTradingStore.getState().history.some((t) => t.pnl > 0);
       const futuresWin = useFuturesStore.getState().history.some((t) => t.pnl > 0);
@@ -40,7 +40,7 @@ export const ACADEMY_CHALLENGES: Record<string, AcademyChallenge> = {
   },
   "arcade-streak-10-sube-o-baja": {
     id: "arcade-streak-10-sube-o-baja",
-    label: "Conseguí una racha de 10 aciertos seguidos en \"Sube o Baja\".",
+    label: "Consigue una racha de 10 aciertos seguidos en \"Sube o Baja\".",
     isMet: () => {
       const gameId: ArcadeGameId = "sube-o-baja";
       return (useArcadeStore.getState().gameStats[gameId]?.bestStreak ?? 0) >= 10;
@@ -48,7 +48,7 @@ export const ACADEMY_CHALLENGES: Record<string, AcademyChallenge> = {
   },
   "arcade-survive-20-low-risk": {
     id: "arcade-survive-20-low-risk",
-    label: "Sobreviví las 20 rondas de \"Sobrevive los 20\" arriesgando poco por ronda.",
+    label: "Sobrevive las 20 rondas de \"Sobrevive los 20\" arriesgando poco por ronda.",
     isMet: () => {
       const gameId: ArcadeGameId = "sobrevive-los-20";
       const stat = useArcadeStore.getState().gameStats[gameId];
@@ -57,7 +57,7 @@ export const ACADEMY_CHALLENGES: Record<string, AcademyChallenge> = {
   },
   "terminal-futures-open": {
     id: "terminal-futures-open",
-    label: "Abrí una posición en modo Futuros de la Terminal.",
+    label: "Abre una posición en modo Futuros de la Terminal.",
     isMet: () => {
       const { positions, history } = useFuturesStore.getState();
       return positions.length > 0 || history.length > 0;
@@ -65,7 +65,7 @@ export const ACADEMY_CHALLENGES: Record<string, AcademyChallenge> = {
   },
   "arcade-la-liquidacion-played": {
     id: "arcade-la-liquidacion-played",
-    label: "Jugá una partida completa de \"La Liquidación\" en el Arcade.",
+    label: "Juega una partida completa de \"La Liquidación\" en el Arcade.",
     isMet: () => {
       const gameId: ArcadeGameId = "la-liquidacion";
       return (useArcadeStore.getState().gameStats[gameId]?.plays ?? 0) > 0;

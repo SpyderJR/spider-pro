@@ -39,7 +39,7 @@ export function VerdaderoFalso({ data, onSolved }: { data: Data; onSolved: () =>
       {answer !== null && (
         <div className="bg-void-panel rounded-lg p-3 mt-3 text-xs text-slate-400 leading-relaxed">
           <span className={answer === data.respuesta ? "text-neon-green font-semibold" : "text-neon-red font-semibold"}>
-            {answer === data.respuesta ? "Correcto. " : "Todavía no — probá de nuevo. "}
+            {answer === data.respuesta ? "Correcto. " : "Todavía no — prueba de nuevo. "}
           </span>
           {solved && data.explicacion}
         </div>

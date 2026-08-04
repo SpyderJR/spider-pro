@@ -28,6 +28,7 @@ export const BITCOIN_STATIC_FALLBACK: Omit<BitcoinStatsResponse, "source" | "liv
   fees: { fastestFee: 5, halfHourFee: 3, hourFee: 2, economyFee: 1 },
   mempool: { count: 5_000, vsizeMB: 5, totalFeesBtc: 0.5 },
   difficultyAdjustment: { progressPercent: 50, difficultyChangePercent: 0, estimatedRetargetDate: Date.now(), remainingBlocks: 1000 },
+  hashrateHistory: [],
 };
 
 /** Static M2SL reference points (billions USD, monthly) used only if FRED is unreachable. */

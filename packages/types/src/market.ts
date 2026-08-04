@@ -140,7 +140,7 @@ export type StablecoinData = z.infer<typeof StablecoinDataSchema>;
 export const StablecoinsResponseSchema = z.object({
   stablecoins: z.array(StablecoinDataSchema),
   totalSupply: z.number(),
-  source: z.enum(["tronscan", "coingecko", "static-fallback"]),
+  source: z.enum(["tronscan", "static-fallback"]),
   live: z.boolean(),
 });
 export type StablecoinsResponse = z.infer<typeof StablecoinsResponseSchema>;
@@ -181,6 +181,7 @@ export const BitcoinStatsResponseSchema = z.object({
     estimatedRetargetDate: z.number(),
     remainingBlocks: z.number(),
   }),
+  hashrateHistory: z.array(z.object({ time: z.number(), ehs: z.number() })),
   source: z.literal("mempool.space"),
   live: z.boolean(),
   updatedAt: z.number(),

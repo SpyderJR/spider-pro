@@ -110,7 +110,7 @@ export function CombosSection() {
             "Un CHoCH avisa de un posible giro de estructura.",
             "El primer BOS en la nueva dirección confirma el cambio — entrada en el retroceso al último fractal.",
           ]}
-          footer="El ZigZag acá es solo herramienta de visualización, nunca de entrada — la señal real la dan el fractal confirmado y el BOS."
+          footer="El ZigZag aquí es solo herramienta de visualización, nunca de entrada — la señal real la dan el fractal confirmado y el BOS."
         />
       </div>
 
@@ -161,7 +161,7 @@ export function CombosSection() {
           <span className="flex items-center gap-1.5 text-neon-gold">~ redundantes (miden lo mismo)</span>
           <span className="flex items-center gap-1.5 text-neon-red">✖ sin sinergia real</span>
         </div>
-        <p className="text-xs text-slate-600 mt-2">Pasá el mouse sobre cada símbolo para ver el porqué.</p>
+        <p className="text-xs text-slate-600 mt-2">Pasa el mouse sobre cada símbolo para ver el porqué.</p>
       </div>
 
       {/* 4. Anti-patrón */}

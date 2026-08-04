@@ -43,7 +43,7 @@ export function Quiz({ quiz, onClose }: { quiz: QuizData; onClose: () => void })
         </div>
         {!passed && (
           <p className="text-xs text-slate-500 mb-4">
-            No hay ningún bloqueo — podés seguir explorando la app igual. Pero te recomendamos repasar el
+            No hay ningún bloqueo — puedes seguir explorando la app igual. Pero te recomendamos repasar el
             material de este nivel antes de avanzar al siguiente.
           </p>
         )}

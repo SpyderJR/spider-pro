@@ -36,15 +36,15 @@ export function DiaryAiAnalysis({ entries }: { entries: DiaryEntry[] }) {
     recordMessage();
     try {
       const prompt =
-        `Analizá mis últimas ${last20.length} operaciones de mi diario de trading y dame un resumen breve (máximo 5 líneas) ` +
-        `de patrones de comportamiento — no de análisis de mercado. Enfocate en emociones, señales usadas y horarios. ` +
-        `No dés ninguna recomendación de compra o venta, esto es un análisis de mi propio comportamiento como trader.\n\n` +
+        `Analiza mis últimas ${last20.length} operaciones de mi diario de trading y dame un resumen breve (máximo 5 líneas) ` +
+        `de patrones de comportamiento — no de análisis de mercado. Enfócate en emociones, señales usadas y horarios. ` +
+        `No des ninguna recomendación de compra o venta, esto es un análisis de mi propio comportamiento como trader.\n\n` +
         last20.map(summarizeEntry).join("\n");
       const res = await postChat(prompt, "diario", undefined, []);
       setResult(res.reply);
       if (res.remaining !== undefined) syncFromServer(res.remaining);
     } catch {
-      setError("No se pudo conectar con el asistente. Probá de nuevo en unos segundos.");
+      setError("No se pudo conectar con el asistente. Prueba de nuevo en unos segundos.");
     } finally {
       setLoading(false);
     }

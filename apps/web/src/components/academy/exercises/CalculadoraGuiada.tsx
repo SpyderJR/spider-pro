@@ -26,7 +26,7 @@ export function CalculadoraGuiada({ data, onSolved }: { data: Data; onSolved: ()
 
   return (
     <div className="bg-void-soft rounded-xl p-4 border border-void-border">
-      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">CALCULÁ VOS MISMO</div>
+      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">CALCULA TÚ MISMO</div>
       <p className="text-sm text-white font-medium mb-3">{data.instruccion}</p>
       <div className="grid sm:grid-cols-2 gap-2.5 mb-3">
         {data.campos.map((c) => (
@@ -70,7 +70,7 @@ export function CalculadoraGuiada({ data, onSolved }: { data: Data; onSolved: ()
             <span className="text-neon-green font-semibold">¡Correcto! El resultado es {expected.toFixed(2)} {data.unidad}.</span>
           ) : (
             <span className="text-neon-red font-semibold">
-              Todavía no — revisá los datos que ingresaste y volvé a calcular.
+              Todavía no — revisa los datos que ingresaste y vuelve a calcular.
             </span>
           )}
         </div>

@@ -20,7 +20,7 @@ export function LegalConsentBanner() {
     <div className="fixed bottom-0 inset-x-0 z-[90] bg-void-panel border-t border-void-border px-4 py-3 sm:px-6">
       <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-slate-400 leading-relaxed">
-          Al continuar aceptás los{" "}
+          Al continuar aceptas los{" "}
           <Link to="/terminos" target="_blank" className="text-neon-blue hover:underline">
             Términos y Condiciones
           </Link>{" "}

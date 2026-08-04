@@ -222,8 +222,8 @@ export function LaLiquidacion({ onExit, onFinish }: Props) {
 
         <p className="text-sm text-slate-300 mb-5 text-center max-w-lg mx-auto">
           {everLiquidatedOwn
-            ? "El apalancamiento que elegiste te liquidó antes de completar los 30 días — mirá cómo les hubiera ido a las mismas decisiones con menos apalancamiento."
-            : "Sobreviviste con el apalancamiento que elegiste. Compará el resultado contra usar menos apalancamiento en las mismas decisiones."}
+            ? "El apalancamiento que elegiste te liquidó antes de completar los 30 días — mira cómo les hubiera ido a las mismas decisiones con menos apalancamiento."
+            : "Sobreviviste con el apalancamiento que elegiste. Compara el resultado contra usar menos apalancamiento en las mismas decisiones."}
         </p>
 
         <div className="overflow-x-auto mb-5">
@@ -303,8 +303,8 @@ export function LaLiquidacion({ onExit, onFinish }: Props) {
           {round === 0 && phase === "choose" && (
             <HowToPlayBox
               steps={[
-                "30 días de mercado real, divididos en 5 semanas. Cada semana elegís dirección (long/short) y apalancamiento (1x-50x) antes de que arranque.",
-                "La línea roja 'LIQ' es tu precio de liquidación para esa elección — si el precio la toca en cualquier momento de la semana, perdés el 100% de tu capital.",
+                "30 días de mercado real, divididos en 5 semanas. Cada semana eliges dirección (long/short) y apalancamiento (1x-50x) antes de que arranque.",
+                "La línea roja 'LIQ' es tu precio de liquidación para esa elección — si el precio la toca en cualquier momento de la semana, pierdes el 100% de tu capital.",
                 "Al final de las 5 semanas (o si te liquidan antes) se compara tu resultado contra las mismas decisiones tomadas con 3x y en spot (sin apalancamiento).",
               ]}
               lesson="La lección más directa de todo el Arcade: con apalancamiento alto, el ruido normal del mercado te liquida aunque hayas acertado la dirección."
@@ -324,8 +324,8 @@ export function LaLiquidacion({ onExit, onFinish }: Props) {
           {phase === "choose" && (
             <div className="mt-4">
               <p className="text-sm text-slate-300 mb-3">
-                Semana {round + 1}: elegí dirección y apalancamiento. La línea roja "LIQ" es tu precio de liquidación —
-                si el precio la toca en cualquier momento de la semana, perdés todo.
+                Semana {round + 1}: elige dirección y apalancamiento. La línea roja "LIQ" es tu precio de liquidación —
+                si el precio la toca en cualquier momento de la semana, pierdes todo.
               </p>
               <div className="flex gap-1.5 mb-4">
                 <button

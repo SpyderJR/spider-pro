@@ -17,7 +17,7 @@ export function TerminosPage() {
 
       <LegalSection
         title="2. Todo el trading es simulado"
-        summary="Nunca operás con dinero real acá. Nada de lo que ves es asesoría financiera."
+        summary="Nunca operas con dinero real aquí. Nada de lo que ves es asesoría financiera."
       >
         <p>
           Toda la actividad de "trading" dentro de Spider Pro (Terminal, Arcade, simuladores, calculadoras)
@@ -55,7 +55,7 @@ export function TerminosPage() {
 
       <LegalSection
         title="5. Edad mínima"
-        summary="Tenés que tener al menos 18 años para usar Spider Pro."
+        summary="Tienes que tener al menos 18 años para usar Spider Pro."
       >
         <p>
           Por la naturaleza del contenido (trading, apalancamiento, riesgo financiero), el uso de esta
@@ -65,7 +65,7 @@ export function TerminosPage() {
 
       <LegalSection
         title={'6. El servicio se ofrece "tal cual"'}
-        summary="No hay garantías. Vos sos el único responsable de tus decisiones financieras reales."
+        summary="No hay garantías. Tú eres el único responsable de tus decisiones financieras reales."
       >
         <p>
           Spider Pro se ofrece "tal cual" ("as is"), sin garantías de ningún tipo, expresas o implícitas. En

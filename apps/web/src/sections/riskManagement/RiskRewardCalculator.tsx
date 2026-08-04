@@ -25,10 +25,10 @@ export function RiskRewardCalculator() {
 
       <div className="panel p-5 mb-4">
         <p className="text-sm text-slate-300 leading-relaxed">
-          El ratio riesgo/beneficio compara cuánto arriesgás contra cuánto buscás ganar en el mismo trade. Un
-          ratio de <strong className="text-white">1:2</strong> significa que arriesgás $1 para buscar $2 —
-          y con ese ratio, matemáticamente <strong className="text-white">podés perder más trades de los que
-          ganás y aun así terminar en verde</strong>. Esto es contraintuitivo para la mayoría de los
+          El ratio riesgo/beneficio compara cuánto arriesgas contra cuánto buscas ganar en el mismo trade. Un
+          ratio de <strong className="text-white">1:2</strong> significa que arriesgas $1 para buscar $2 —
+          y con ese ratio, matemáticamente <strong className="text-white">puedes perder más trades de los que
+          ganas y aun así terminar en verde</strong>. Esto es contraintuitivo para la mayoría de los
           principiantes, que buscan sistemas con win rate alto sin prestarle atención al ratio.
         </p>
       </div>
@@ -54,7 +54,7 @@ export function RiskRewardCalculator() {
             <div className="flex items-center gap-4 mb-3">
               <div className="text-2xl font-bold value-mono text-neon-blue">1:{ratio.toFixed(2)}</div>
               <div className="text-sm text-slate-400">
-                Necesitás ganar al menos <strong className="text-white">{minWinRate.toFixed(1)}%</strong> de tus trades para no perder dinero (sin contar comisiones).
+                Necesitas ganar al menos <strong className="text-white">{minWinRate.toFixed(1)}%</strong> de tus trades para no perder dinero (sin contar comisiones).
               </div>
             </div>
             <div className="h-3 rounded-full overflow-hidden flex bg-void-soft">
@@ -94,10 +94,10 @@ export function RiskRewardCalculator() {
                     <td className="py-2 pr-4 value-mono text-neon-blue">{wr.toFixed(1)}%</td>
                     <td className="py-2 text-slate-500 text-xs">
                       {r >= 2
-                        ? `Podés perder ${(100 - wr).toFixed(0)}% de tus trades y seguir siendo rentable`
+                        ? `Puedes perder ${(100 - wr).toFixed(0)}% de tus trades y seguir siendo rentable`
                         : r === 1
-                          ? "Necesitás ganar más de la mitad de tus trades"
-                          : "Necesitás un win rate alto para compensar el ratio bajo"}
+                          ? "Necesitas ganar más de la mitad de tus trades"
+                          : "Necesitas un win rate alto para compensar el ratio bajo"}
                     </td>
                   </tr>
                 );

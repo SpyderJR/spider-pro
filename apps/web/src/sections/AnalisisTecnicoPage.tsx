@@ -163,7 +163,7 @@ export function AnalisisTecnicoPage() {
         <div className="panel p-8 text-center text-sm">
           <div className="text-neon-red font-mono mb-1">No se encontraron velas para {token.symbol}</div>
           <p className="text-slate-500">
-            Puede que este token no tenga suficiente liquidez en Binance/Bybit. Probá con otra búsqueda.
+            Puede que este token no tenga suficiente liquidez en Binance/Bybit. Prueba con otra búsqueda.
           </p>
         </div>
       )}

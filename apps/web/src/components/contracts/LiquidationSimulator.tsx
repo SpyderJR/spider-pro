@@ -37,7 +37,7 @@ export function LiquidationSimulator() {
     <div className="panel p-6 mb-6">
       <h2 className="text-xl font-bold text-white mb-1">Simulador de liquidación</h2>
       <p className="text-sm text-slate-400 mb-5">
-        Moné el apalancamiento y mirá qué tan cerca queda tu precio de liquidación del precio de entrada — y compará esa
+        Mueve el apalancamiento y mira qué tan cerca queda tu precio de liquidación del precio de entrada — y compara esa
         distancia con el movimiento normal de un día de BTC.
       </p>
 

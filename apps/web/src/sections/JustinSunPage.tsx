@@ -155,7 +155,7 @@ export function JustinSunPage() {
         </dl>
       </div>
 
-      <Disclaimer text="Este perfil es informativo y de tono neutral. Cubre litigios en curso y afiliaciones políticas de forma descriptiva, sin tomar posición. No refleja la posición de Spider Pro sobre disputas legales o políticas — verificá siempre fuentes de noticias actualizadas para el estado más reciente de los temas legales mencionados." />
+      <Disclaimer text="Este perfil es informativo y de tono neutral. Cubre litigios en curso y afiliaciones políticas de forma descriptiva, sin tomar posición. No refleja la posición de Spider Pro sobre disputas legales o políticas — verifica siempre fuentes de noticias actualizadas para el estado más reciente de los temas legales mencionados." />
     </div>
   );
 }

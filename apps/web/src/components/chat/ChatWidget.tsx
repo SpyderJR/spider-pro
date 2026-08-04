@@ -42,7 +42,7 @@ export function ChatWidget() {
     } catch {
       addMessage({
         role: "assistant",
-        content: "No pude conectar con el asistente. Probá de nuevo en unos segundos.",
+        content: "No pude conectar con el asistente. Prueba de nuevo en unos segundos.",
       });
     } finally {
       setSending(false);
@@ -86,7 +86,7 @@ export function ChatWidget() {
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
             {messages.length === 0 && (
               <p className="text-xs text-slate-500 leading-relaxed">
-                Preguntame sobre los datos que tenés en pantalla, tu cuenta de la Terminal, o cómo leer un
+                Pregúntame sobre los datos que tienes en pantalla, tu cuenta de la Terminal, o cómo leer un
                 indicador. No doy recomendaciones de compra/venta — esto es educativo (NFA).
               </p>
             )}

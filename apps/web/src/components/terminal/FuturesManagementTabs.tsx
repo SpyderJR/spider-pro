@@ -72,7 +72,7 @@ function PositionsTab({
   onClose: (id: string) => void;
   onUpdateSlTp: (id: string, sl: number | null, tp: number | null) => void;
 }) {
-  if (positions.length === 0) return <EmptyState text="No tenés posiciones de futuros abiertas." />;
+  if (positions.length === 0) return <EmptyState text="No tienes posiciones de futuros abiertas." />;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs min-w-[860px]">
@@ -143,7 +143,7 @@ function SlTpInput({ value, onChange, precision }: { value: number | null; onCha
 }
 
 function OrdersTab({ orders, onCancel }: { orders: FuturesPendingOrder[]; onCancel: (id: string) => void }) {
-  if (orders.length === 0) return <EmptyState text="No tenés órdenes límite de futuros pendientes." />;
+  if (orders.length === 0) return <EmptyState text="No tienes órdenes límite de futuros pendientes." />;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs min-w-[640px]">
@@ -248,7 +248,7 @@ function HistoryTab({ history }: { history: FuturesClosedTrade[] }) {
 }
 
 function StatsTab({ history, balance }: { history: FuturesClosedTrade[]; balance: number }) {
-  if (history.length === 0) return <EmptyState text="Cerrá tu primer trade de futuros para ver estadísticas." />;
+  if (history.length === 0) return <EmptyState text="Cierra tu primer trade de futuros para ver estadísticas." />;
 
   const wins = history.filter((t) => t.pnl > 0);
   const liquidations = history.filter((t) => t.exitReason === "liquidation");

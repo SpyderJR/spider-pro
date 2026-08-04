@@ -202,9 +202,9 @@ export function SobreviveLos20({ onExit, onFinish }: Props) {
       {round === 0 && lastPnl === null && (
         <HowToPlayBox
           steps={[
-            "Arrancás con $1000. En cada uno de los 20 escenarios históricos reales elegís Comprar, Vender o Esperar.",
-            "Antes de decidir, ajustá el slider de % de riesgo — define qué porción de tu balance ponés en juego en esa jugada.",
-            "El objetivo es simple: no llegar a $0. El juego termina antes si te quedás sin capital.",
+            "Arrancas con $1000. En cada uno de los 20 escenarios históricos reales eliges Comprar, Vender o Esperar.",
+            "Antes de decidir, ajusta el slider de % de riesgo — define qué porción de tu balance pones en juego en esa jugada.",
+            "El objetivo es simple: no llegar a $0. El juego termina antes si te quedas sin capital.",
           ]}
           lesson="Demuestra en carne propia por qué el tamaño de posición importa más que acertar la dirección — al final se compara tu resultado contra una estrategia de 1% de riesgo fijo."
         />

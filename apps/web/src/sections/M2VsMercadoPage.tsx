@@ -64,7 +64,7 @@ export function M2VsMercadoPage() {
         howToRead={
           <>
             El gráfico muestra M2 (eje izquierdo, en miles de millones de USD) contra el precio de {asset}{" "}
-            (eje derecho, escala logarítmica) en la misma ventana de tiempo. No mirés si ambas líneas
+            (eje derecho, escala logarítmica) en la misma ventana de tiempo. No mires si ambas líneas
             coinciden vela a vela — M2 es un dato <strong>mensual</strong> y se mueve mucho más lento que el
             precio. Lo que importa es la <strong>dirección y la pendiente</strong> de M2 en periodos de varios
             meses: ¿está acelerando hacia arriba, plana, o cayendo? Y compará esa pendiente contra la
@@ -129,7 +129,7 @@ export function M2VsMercadoPage() {
             <div className="text-neon-red font-mono mb-2">No se pudo cargar la comparación</div>
             <p className="text-slate-500 max-w-md mx-auto">
               Uno de los proveedores de datos (FRED o CoinGecko) no respondió. Los demás datos de la app
-              siguen funcionando con normalidad — probá de nuevo en unos segundos.
+              siguen funcionando con normalidad — prueba de nuevo en unos segundos.
             </p>
           </div>
         )}
@@ -183,7 +183,7 @@ export function M2VsMercadoPage() {
             <p className="text-xs text-slate-400 leading-relaxed">
               Contexto macro neutral — el precio probablemente se está moviendo por otros factores
               (adopción, regulación, ciclos internos de cripto, sentimiento). El análisis técnico pesa más
-              acá que la macro.
+              aquí que la macro.
             </p>
           </div>
           <div className="bg-void-soft rounded-lg p-4 border border-neon-red/20">

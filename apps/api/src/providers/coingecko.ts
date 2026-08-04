@@ -1,4 +1,4 @@
-import type { Asset, Candle, CoinMarketData, PricePoint, StablecoinSymbol } from "@spider/types";
+import type { Asset, Candle, CoinMarketData, PricePoint } from "@spider/types";
 import { env } from "../lib/env.js";
 import { fetchJson } from "../lib/http.js";
 import { COINGECKO_ID } from "./symbols.js";
@@ -106,29 +106,9 @@ export async function fetchCoinGeckoHistory(asset: Asset, days: number): Promise
   return raw.prices.map(([time, price]) => ({ time: Math.floor(time / 1000), price }));
 }
 
-const STABLECOIN_COINGECKO_ID: Record<StablecoinSymbol, string> = {
-  USDT: "tether",
-  USDC: "usd-coin",
-  USDD: "usdd",
-  TUSD: "true-usd",
-  USDJ: "just-stablecoin",
-};
-
-interface CoinGeckoCoinDetail {
-  market_data: {
-    circulating_supply: number;
-  };
-}
-
-export async function fetchCoinGeckoStablecoinSupply(
-  symbol: StablecoinSymbol,
-): Promise<number | null> {
-  const id = STABLECOIN_COINGECKO_ID[symbol];
-  const url = `${env.COINGECKO_BASE_URL}/api/v3/coins/${id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false`;
-  try {
-    const raw = await fetchJson<CoinGeckoCoinDetail>("coingecko", url);
-    return raw.market_data.circulating_supply ?? null;
-  } catch {
-    return null;
-  }
-}
+// NOTE: there used to be a fetchCoinGeckoStablecoinSupply() here, used as a fallback for
+// /api/market/stablecoins when TronScan is unavailable. Removed — CoinGecko only exposes each
+// stablecoin's GLOBAL circulating supply across every chain it's issued on, which is a
+// fundamentally different number from "supply on TRON" and was silently mislabeling e.g.
+// USDC's ~$70B global supply as TRON-specific (real TRON supply is ~$27M). See
+// lib/staticFallback.ts's STABLECOIN_STATIC_FALLBACK for the fallback used instead.

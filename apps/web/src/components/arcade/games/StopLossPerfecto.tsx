@@ -26,7 +26,7 @@ function roundScore(entryPrice: number, slPrice: number, side: Side, structuralM
     note = "Muy ajustado: quedó dentro del ruido normal del mercado.";
   } else if (riskPercent > 8) {
     score -= 30;
-    note = "Demasiado amplio: arriesgás mucho más de lo necesario.";
+    note = "Demasiado amplio: arriesgas mucho más de lo necesario.";
   } else {
     note = "Distancia razonable respecto al precio de entrada.";
   }
@@ -173,7 +173,7 @@ export function StopLossPerfecto({ onExit, onFinish }: Props) {
         <HowToPlayBox
           steps={[
             "Se te da una entrada simulada (compra o venta) al cierre de la última vela visible.",
-            "Hacé clic en la vela donde colocarías tu stop loss — se marca en el precio bajo (long) o alto (short) de esa vela.",
+            "Haz clic en la vela donde colocarías tu stop loss — se marca en el precio bajo (long) o alto (short) de esa vela.",
             "Al confirmar se revelan las próximas 20 velas y te puntuamos 0-100 según distancia, confluencia con estructura y resultado real.",
           ]}
           lesson="Practica la colocación técnica de un stop loss — ni tan ajustado que te saque el ruido normal, ni tan lejos que arriesgues de más."
@@ -187,7 +187,7 @@ export function StopLossPerfecto({ onExit, onFinish }: Props) {
         <>
           <p className="text-sm text-slate-300 mb-2">
             Entrada simulada en <span className={side === "long" ? "text-neon-green" : "text-neon-red"}>{side === "long" ? "COMPRA (long)" : "VENTA (short)"}</span> al cierre de la última vela.
-            Hacé clic en la vela donde colocarías el Stop Loss.
+            Haz clic en la vela donde colocarías el Stop Loss.
           </p>
 
           <ArcadeChart candles={displayCandles} priceLines={priceLines} onCandleClick={confirmed ? undefined : pickSl} height={340} />
@@ -204,7 +204,7 @@ export function StopLossPerfecto({ onExit, onFinish }: Props) {
                     {!slValid && <span className="text-neon-red"> — inválido para {side === "long" ? "compra" : "venta"}</span>}
                   </>
                 ) : (
-                  "Elegí una vela para fijar el SL"
+                  "Elige una vela para fijar el SL"
                 )}
               </div>
               <button

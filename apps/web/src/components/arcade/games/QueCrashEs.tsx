@@ -145,7 +145,7 @@ export function QueCrashEs({ onExit, onFinish }: Props) {
         <HowToPlayBox
           steps={[
             "Se muestra un gráfico real de BTC o TRX sin fechas ni precios visibles — solo la forma del movimiento.",
-            "Elegí, entre 4 opciones, a qué crash histórico de cripto corresponde.",
+            "Elige, entre 4 opciones, a qué crash histórico de cripto corresponde.",
             "8 rondas en total, con contexto (caída % y retorno a 12 meses) revelado después de cada respuesta.",
           ]}
           lesson="Te familiariza con la forma y magnitud de los grandes crashes de Bitcoin y TRON — para reconocer 'esto ya pasó antes' cuando el mercado se desploma."

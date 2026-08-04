@@ -12,7 +12,7 @@ export function RiesgoPage() {
 
       <LegalSection
         title="1. El trading de criptomonedas es de alto riesgo"
-        summary="Los precios de las criptomonedas son extremadamente volátiles. Podés perder parte o todo tu capital."
+        summary="Los precios de las criptomonedas son extremadamente volátiles. Puedes perder parte o todo tu capital."
       >
         <p>
           Las criptomonedas son activos altamente volátiles. Su precio puede moverse con violencia en minutos
@@ -36,7 +36,7 @@ export function RiesgoPage() {
 
       <LegalSection
         title="3. El apalancamiento amplifica pérdidas, no solo ganancias"
-        summary="Con apalancamiento podés perder el 100% del margen de una posición, incluso con movimientos de precio pequeños."
+        summary="Con apalancamiento puedes perder el 100% del margen de una posición, incluso con movimientos de precio pequeños."
       >
         <p>
           Operar con apalancamiento (contratos de futuros/margen) amplifica tanto ganancias como pérdidas en
@@ -57,18 +57,18 @@ export function RiesgoPage() {
           El desempeño dentro de la Terminal, el Arcade o cualquier simulador de Spider Pro no es indicativo
           de cómo te iría operando con dinero real. Los simuladores no replican perfectamente el slippage, la
           liquidez real del mercado, las comisiones de cada exchange, ni — sobre todo — la presión psicológica
-          de arriesgar dinero que de verdad podés perder.
+          de arriesgar dinero que de verdad puedes perder.
         </p>
       </LegalSection>
 
       <LegalSection
-        title="5. Nada acá es asesoría financiera"
+        title="5. Nada aquí es asesoría financiera"
         summary="Spider Pro es educativo. Ninguna herramienta, señal o mensaje del chat es una recomendación de inversión."
       >
         <p>
           Ningún indicador, calculadora, mensaje del Spider Chat, "Spider Score" o contenido de la Academia
           constituye asesoría financiera, de inversión, legal ni fiscal. Todo el contenido es educativo y
-          general. Antes de operar con dinero real, considerá consultar con un asesor financiero
+          general. Antes de operar con dinero real, considera consultar con un asesor financiero
           matriculado y evaluar tu propia situación y tolerancia al riesgo.
         </p>
       </LegalSection>

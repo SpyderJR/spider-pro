@@ -66,7 +66,7 @@ function PositionsTab({
   onClose: (id: string) => void;
   onUpdateSlTp: (id: string, sl: number | null, tp: number | null) => void;
 }) {
-  if (positions.length === 0) return <EmptyState text="No tenés posiciones abiertas." />;
+  if (positions.length === 0) return <EmptyState text="No tienes posiciones abiertas." />;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs min-w-[720px]">
@@ -133,7 +133,7 @@ function SlTpInput({ value, onChange, precision }: { value: number | null; onCha
 }
 
 function OrdersTab({ orders, onCancel }: { orders: PendingOrder[]; onCancel: (id: string) => void }) {
-  if (orders.length === 0) return <EmptyState text="No tenés órdenes límite pendientes." />;
+  if (orders.length === 0) return <EmptyState text="No tienes órdenes límite pendientes." />;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs min-w-[600px]">
@@ -233,7 +233,7 @@ function StatsTab({ history, balance }: { history: ClosedTrade[]; balance: numbe
   const initialBalance = balance - history.reduce((sum, t) => sum + t.pnl, 0);
   const stats = computeStats(history, initialBalance);
 
-  if (history.length === 0) return <EmptyState text="Cerrá tu primer trade para ver estadísticas." />;
+  if (history.length === 0) return <EmptyState text="Cierra tu primer trade para ver estadísticas." />;
 
   const curve = stats.balanceCurve;
   const minBal = Math.min(...curve.map((p) => p.balance));

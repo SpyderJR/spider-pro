@@ -212,7 +212,7 @@ export function CazaElFractal({ onExit, onFinish }: Props) {
       {round === 0 && !resolved && (
         <HowToPlayBox
           steps={[
-            "Se muestra un tramo de gráfico ya cerrado. Hacé clic en la vela que forma un fractal confirmado (alcista o bajista) antes de que se acabe el tiempo.",
+            "Se muestra un tramo de gráfico ya cerrado. Haz clic en la vela que forma un fractal confirmado (alcista o bajista) antes de que se acabe el tiempo.",
             "Cuidado: hay velas 'trampa' que parecen extremos locales pero no cumplen la regla de 5 velas de un fractal real.",
             "El tiempo disponible se reduce en cada ronda — 8 rondas en total.",
           ]}
@@ -227,7 +227,7 @@ export function CazaElFractal({ onExit, onFinish }: Props) {
         <>
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm text-slate-300">
-              Encontrá el {mode === "bos" ? "BOS" : "fractal"}{" "}
+              Encuentra el {mode === "bos" ? "BOS" : "fractal"}{" "}
               <span className={current.type === "bullish" ? "text-neon-green" : "text-neon-red"}>
                 {current.type === "bullish" ? "ALCISTA" : "BAJISTA"}
               </span>{" "}

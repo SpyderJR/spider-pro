@@ -29,7 +29,7 @@ export function AcademyPage() {
     <div>
       <SectionHeader
         title="Academia"
-        subtitle={`Un curso real de ${ACADEMY_LEVELS_V2.length} niveles — teoría, ejemplos y ejercicios que aplicás vos mismo, de cero a poder combinar estrategias completas en la Terminal.`}
+        subtitle={`Un curso real de ${ACADEMY_LEVELS_V2.length} niveles — teoría, ejemplos y ejercicios que aplicas tú mismo, de cero a poder combinar estrategias completas en la Terminal.`}
       />
 
       <div className="grid sm:grid-cols-2 gap-3 mb-8">
@@ -105,7 +105,7 @@ export function AcademyPage() {
                   )}
                   {hasContent && !prevDone && (
                     <p className="text-[11px] text-neon-gold mt-2">
-                      Sugerencia: completá "{prevLevel!.title}" primero — no es obligatorio, pero el orden ayuda.
+                      Sugerencia: completa "{prevLevel!.title}" primero — no es obligatorio, pero el orden ayuda.
                     </p>
                   )}
                 </div>

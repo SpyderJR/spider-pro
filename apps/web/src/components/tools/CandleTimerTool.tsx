@@ -124,7 +124,7 @@ export function CandleTimerTool({ token }: { token: SelectedToken }) {
       </div>
 
       <p className="text-xs text-slate-500 mt-4">
-        Pensado para operativa de vela cerrada en marcos cortos: mirá el conteo antes de decidir una
+        Pensado para operativa de vela cerrada en marcos cortos: mira el conteo antes de decidir una
         entrada, en vez de reaccionar a mitad de vela.
       </p>
     </div>

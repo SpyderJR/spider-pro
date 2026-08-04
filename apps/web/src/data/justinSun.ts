@@ -22,7 +22,7 @@ export const JUSTIN_SUN_PROFILE = {
       "Es un dato de dominio público, repetido por el propio Sun en entrevistas, que durante sus años universitarios en Pekín cursó Historia — no Ingeniería ni Finanzas — antes de reorientar su carrera hacia la tecnología y las criptomonedas. Sun ha citado en varias ocasiones a Jack Ma (fundador de Alibaba) como una influencia temprana en su decisión de emprender.",
       "Ya en la Universidad de Pensilvania, mientras cursaba su máster, empezó a acercarse al mundo blockchain — un giro poco convencional para alguien formado en humanidades, y que él mismo ha usado como parte de su narrativa pública de 'outsider que se abrió camino' en un sector dominado por perfiles técnicos.",
     ],
-    note: "Los detalles biográficos más personales de la infancia y la familia de Sun no están verificados de forma independiente más allá de lo que él mismo ha compartido públicamente — se presentan acá con esa salvedad.",
+    note: "Los detalles biográficos más personales de la infancia y la familia de Sun no están verificados de forma independiente más allá de lo que él mismo ha compartido públicamente — se presentan aquí con esa salvedad.",
   },
 
   timeline: [
@@ -53,7 +53,7 @@ export const JUSTIN_SUN_PROFILE = {
       name: "Vitalik Buterin — Ethereum",
       icon: "⟠",
       summary:
-        "Sun y Buterin se cruzaron en el circuito de conferencias blockchain desde mediados de la década de 2010, cuando ambos eran figuras jóvenes emergentes del espacio cripto. Sun se ha referido públicamente a Buterin en términos amistosos en distintas ocasiones. Como con cualquier relación entre figuras públicas, la naturaleza exacta y profundidad de esa amistad fuera del ámbito profesional no es algo verificable de forma independiente — se presenta acá tal como se conoce públicamente, sin exagerar su alcance.",
+        "Sun y Buterin se cruzaron en el circuito de conferencias blockchain desde mediados de la década de 2010, cuando ambos eran figuras jóvenes emergentes del espacio cripto. Sun se ha referido públicamente a Buterin en términos amistosos en distintas ocasiones. Como con cualquier relación entre figuras públicas, la naturaleza exacta y profundidad de esa amistad fuera del ámbito profesional no es algo verificable de forma independiente — se presenta aquí tal como se conoce públicamente, sin exagerar su alcance.",
     },
   ] as RelationshipEntry[],
 
@@ -72,7 +72,7 @@ export const JUSTIN_SUN_PROFILE = {
       "Entre 2024 y 2025, Sun se convirtió en uno de los inversores más visibles de World Liberty Financial (WLFI), un proyecto de finanzas descentralizadas vinculado públicamente a la familia Trump. Esta inversión generó amplia cobertura periodística y debate sobre una posible relación entre ese respaldo financiero y la evolución del litigio de la SEC en su contra — un tema politizado sobre el que existen interpretaciones encontradas según la fuente.",
     ],
     caveat:
-      "Esta es una situación legal y política en desarrollo. La información acá refleja lo reportado públicamente hasta el corte de conocimiento de este asistente — para el estado actual exacto del litigio y de la relación con WLFI, consultá fuentes de noticias actualizadas antes de sacar conclusiones.",
+      "Esta es una situación legal y política en desarrollo. La información aquí refleja lo reportado públicamente hasta el corte de conocimiento de este asistente — para el estado actual exacto del litigio y de la relación con WLFI, consulta fuentes de noticias actualizadas antes de sacar conclusiones.",
   },
 
   intelligence: {

@@ -61,7 +61,7 @@ export function MarketStructureSection() {
             mínimo local rodeado de velas que no lo superan. SMC le puso un branding y un vocabulario nuevo
             (BOS, CHoCH, y conceptos relacionados como <em>order blocks</em> y <em>liquidez</em>, que quedan
             como temas para una futura pestaña) a una idea que ya existía en 1995. Entender el fractal de la
-            sección 1 significa que ya sabés identificar a mano un swing point de estructura moderna.
+            sección 1 significa que ya sabes identificar a mano un swing point de estructura moderna.
           </p>
           <p>
             Un punto de debate activo en la comunidad SMC es si un BOS/CHoCH debe confirmarse con el{" "}
@@ -90,7 +90,7 @@ export function MarketStructureSection() {
         {
           label: "ZigZag",
           role: "visualización de los swings mayores",
-          reason: "limpia el ruido para ver la secuencia de HH/HL/LH/LL con claridad — nunca se usa como señal de entrada acá tampoco.",
+          reason: "limpia el ruido para ver la secuencia de HH/HL/LH/LL con claridad — nunca se usa como señal de entrada aquí tampoco.",
         },
         {
           label: "Alligator",

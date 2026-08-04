@@ -39,7 +39,7 @@ export function MarcaGrafico({ data, onSolved }: { data: Data; onSolved: () => v
 
   return (
     <div className="bg-void-soft rounded-xl p-4 border border-void-border">
-      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">MARCÁ EN EL GRÁFICO</div>
+      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">MARCA EN EL GRÁFICO</div>
       <p className="text-sm text-white font-medium mb-3">{data.instruccion}</p>
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto" role="img">
         {layout.map((c, i) => {
@@ -61,7 +61,7 @@ export function MarcaGrafico({ data, onSolved }: { data: Data; onSolved: () => v
           {solved ? (
             <span className="text-neon-green font-semibold">¡Ahí está! Esa vela cumple la definición del fractal.</span>
           ) : (
-            <span className="text-neon-red font-semibold">Esa no es — mirá 2 velas antes y 2 después del punto que elegiste.</span>
+            <span className="text-neon-red font-semibold">Esa no es — mira 2 velas antes y 2 después del punto que elegiste.</span>
           )}
         </div>
       )}

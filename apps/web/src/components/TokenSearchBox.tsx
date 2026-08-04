@@ -35,7 +35,7 @@ export function TokenSearchBox({ onSelect }: { onSelect: (token: SelectedToken) 
         <div className="absolute z-20 top-full mt-1.5 w-72 max-h-80 overflow-y-auto panel border-void-border shadow-2xl">
           {search.isLoading && <div className="px-4 py-3 text-xs text-slate-500">Buscando…</div>}
           {search.isError && (
-            <div className="px-4 py-3 text-xs text-neon-red">No se pudo buscar. Probá de nuevo.</div>
+            <div className="px-4 py-3 text-xs text-neon-red">No se pudo buscar. Prueba de nuevo.</div>
           )}
           {search.data && search.data.results.length === 0 && (
             <div className="px-4 py-3 text-xs text-slate-500">Sin resultados para "{query}".</div>

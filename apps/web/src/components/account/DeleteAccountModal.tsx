@@ -39,7 +39,7 @@ export function DeleteAccountModal({ onClose }: { onClose: () => void }) {
             <p className="text-sm text-slate-300 leading-relaxed mb-5">
               Esto borra permanentemente tu cuenta y todos tus datos en la nube (progreso de Academia,
               Arcade, logros, historial de Terminal, Diario y ajustes). Tu progreso guardado en este
-              navegador (localStorage) no se toca — seguís pudiendo usar la app sin cuenta después.
+              navegador (localStorage) no se toca — sigues pudiendo usar la app sin cuenta después.
             </p>
             <button
               onClick={() => setStep(2)}

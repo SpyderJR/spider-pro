@@ -99,7 +99,7 @@ export function CalculadoraPage() {
             </select>
           </div>
           <div>
-            <label className="text-xs text-slate-500 block mb-1">Cantidad que tenés</label>
+            <label className="text-xs text-slate-500 block mb-1">Cantidad que tienes</label>
             <input
               type="number"
               value={scenarioAmount}

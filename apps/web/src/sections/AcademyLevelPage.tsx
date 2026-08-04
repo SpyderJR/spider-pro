@@ -28,7 +28,7 @@ export function AcademyLevelPage() {
   if (showQuiz) {
     return (
       <div>
-        <SectionHeader title={`Quiz — ${level.title}`} subtitle="Necesitás 80% o más para aprobar el nivel. Podés reintentar las veces que quieras." />
+        <SectionHeader title={`Quiz — ${level.title}`} subtitle="Necesitas 80% o más para aprobar el nivel. Puedes reintentar las veces que quieras." />
         <Quiz quiz={{ levelId: level.id, questions: level.quiz }} onClose={() => setShowQuiz(false)} />
         <Disclaimer />
       </div>
@@ -102,7 +102,7 @@ export function AcademyLevelPage() {
           <div>
             <div className="text-sm font-semibold text-white mb-1">Quiz final del nivel</div>
             <p className="text-xs text-slate-500">
-              {level.quiz.length} preguntas · necesitás 80% para aprobar
+              {level.quiz.length} preguntas · necesitas 80% para aprobar
               {!allLessonsDone && " — se recomienda terminar todas las lecciones primero"}
             </p>
             {lp && (

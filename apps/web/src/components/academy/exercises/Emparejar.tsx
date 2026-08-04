@@ -44,7 +44,7 @@ export function Emparejar({ data, onSolved }: { data: Data; onSolved: () => void
 
   return (
     <div className="bg-void-soft rounded-xl p-4 border border-void-border">
-      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">EMPAREJÁ</div>
+      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">EMPAREJA</div>
       <p className="text-sm text-white font-medium mb-3">{data.instruccion}</p>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">

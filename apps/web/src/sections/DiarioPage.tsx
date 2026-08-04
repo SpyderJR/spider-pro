@@ -46,7 +46,7 @@ export function DiarioPage() {
     <div>
       <SectionHeader
         title="Diario de Trading"
-        subtitle="Cada trade cerrado en la Terminal aparece acá automáticamente. Completá la razón, la emoción y la lección para que el análisis tenga sentido."
+        subtitle="Cada trade cerrado en la Terminal aparece aquí automáticamente. Completa la razón, la emoción y la lección para que el análisis tenga sentido."
       />
 
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -78,7 +78,7 @@ export function DiarioPage() {
       {entries.length === 0 ? (
         <div className="panel p-8 text-center text-slate-500 text-sm mb-6">
           {allEntries.length === 0
-            ? "Todavía no hay entradas. Cerrá un trade en la Terminal (Spot o Futuros) o agregá una entrada manual para empezar."
+            ? "Todavía no hay entradas. Cierra un trade en la Terminal (Spot o Futuros) o agrega una entrada manual para empezar."
             : "No hay entradas para este filtro."}
         </div>
       ) : (

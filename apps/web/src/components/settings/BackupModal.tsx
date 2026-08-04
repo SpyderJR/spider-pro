@@ -49,7 +49,7 @@ export function BackupModal({ onClose }: { onClose: () => void }) {
         <p className="text-sm text-slate-400 mb-5">
           {status === "signed-in"
             ? "Tu progreso se sincroniza automáticamente con tu cuenta. Este respaldo JSON es una copia adicional, útil para guardar offline o mover datos a mano."
-            : "Todo lo que hiciste en Spider Pro (Terminal, Academia, Arcade, Diario, Replay y preferencias) vive únicamente en este navegador. Exportalo para no perderlo si limpiás el caché o cambiás de dispositivo — o iniciá sesión con Google para un respaldo automático en la nube."}
+            : "Todo lo que hiciste en Spider Pro (Terminal, Academia, Arcade, Diario, Replay y preferencias) vive únicamente en este navegador. Expórtalo para no perderlo si limpias el caché o cambias de dispositivo — o inicia sesión con Google para un respaldo automático en la nube."}
         </p>
 
         <button

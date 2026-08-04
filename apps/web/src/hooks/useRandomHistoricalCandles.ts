@@ -38,7 +38,7 @@ export function useRandomHistoricalCandles({ symbol = "BTCUSDT", interval = "1h"
         }
       }
       if (!cancelled) {
-        setError("No se pudo cargar el histórico de mercado. Probá de nuevo.");
+        setError("No se pudo cargar el histórico de mercado. Prueba de nuevo.");
         setLoading(false);
       }
     }

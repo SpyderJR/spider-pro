@@ -5,6 +5,7 @@ import { StatCard } from "../components/StatCard";
 import { Disclaimer } from "../components/Disclaimer";
 import { SpiderGauge } from "../components/spider/SpiderGauge";
 import { ExplainButton } from "../components/spider/ExplainButton";
+import { FearGreedChart } from "../components/spider/FearGreedChart";
 import {
   useFearGreed,
   useFearGreedHistory,
@@ -266,6 +267,15 @@ export function SpiderIntelligencePage() {
             );
           })}
         </div>
+      </div>
+
+      {/* Fear & Greed histórico */}
+      <div className="panel p-5 mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <div className="font-semibold text-white">Fear & Greed — últimos 120 días</div>
+          <span className="text-[10px] font-mono text-slate-500">fuente: alternative.me</span>
+        </div>
+        <FearGreedChart points={fearGreedHistory.data?.points ?? []} />
       </div>
 
       {/* Comparación histórica */}

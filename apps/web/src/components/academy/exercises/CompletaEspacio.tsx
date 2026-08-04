@@ -19,7 +19,7 @@ export function CompletaEspacio({ data, onSolved }: { data: Data; onSolved: () =
 
   return (
     <div className="bg-void-soft rounded-xl p-4 border border-void-border">
-      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">COMPLETÁ EL ESPACIO</div>
+      <div className="text-[10px] font-mono font-bold tracking-widest text-neon-blue mb-2">COMPLETA EL ESPACIO</div>
       <p className="text-sm text-white font-medium mb-3">
         {before}
         <span className="inline-block min-w-[70px] border-b-2 border-dashed border-neon-blue/60 text-neon-blue text-center mx-1">

@@ -28,12 +28,12 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
         {
           type: "analogia",
           texto:
-            "Pensalo así: si vos y un amigo quieren llevar la cuenta de quién le debe plata a quién, pueden confiar en un tercero (un banco) que anota todo en su propio libro privado, o pueden usar un cuaderno público que miles de personas copian y verifican al mismo tiempo, de forma que nadie pueda borrar ni falsificar una página sin que el resto se dé cuenta. Bitcoin es ese segundo cuaderno.",
+            "Piénsalo así: si tú y un amigo quieren llevar la cuenta de quién le debe dinero a quién, pueden confiar en un tercero (un banco) que anota todo en su propio libro privado, o pueden usar un cuaderno público que miles de personas copian y verifican al mismo tiempo, de forma que nadie pueda borrar ni falsificar una página sin que el resto se dé cuenta. Bitcoin es ese segundo cuaderno.",
         },
         {
           type: "parrafo",
           texto:
-            "Esto no significa que Bitcoin sea mejor o peor que el dinero tradicional en todos los sentidos — tiene sus propias ventajas (nadie puede imprimir más de los 21 millones de BTC que existirán, es difícil de censurar, funciona 24/7 en todo el mundo) y sus propias desventajas (es volátil, las transacciones son irreversibles si te equivocás, y todavía no todos los comercios lo aceptan). El objetivo de esta Academia es que entiendas cómo funciona antes de decidir si te sirve.",
+            "Esto no significa que Bitcoin sea mejor o peor que el dinero tradicional en todos los sentidos — tiene sus propias ventajas (nadie puede imprimir más de los 21 millones de BTC que existirán, es difícil de censurar, funciona 24/7 en todo el mundo) y sus propias desventajas (es volátil, las transacciones son irreversibles si te equivocas, y todavía no todos los comercios lo aceptan). El objetivo de esta Academia es que entiendas cómo funciona antes de decidir si te sirve.",
         },
         {
           type: "ejercicio",
@@ -124,7 +124,7 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
         {
           type: "parrafo",
           texto:
-            "Bitcoin (BTC) fue la primera criptomoneda, lanzada en enero de 2009. Tiene un suministro máximo fijo de 21,000,000 de monedas — nadie, ni un gobierno ni una empresa, puede decidir imprimir más. Esa emisión limitada y decreciente (cada vez se minan menos BTC nuevos por bloque, algo que estudiás en detalle en la sección Halvings BTC) es una de las razones por las que muchos lo comparan con el oro digital.",
+            "Bitcoin (BTC) fue la primera criptomoneda, lanzada en enero de 2009. Tiene un suministro máximo fijo de 21,000,000 de monedas — nadie, ni un gobierno ni una empresa, puede decidir imprimir más. Esa emisión limitada y decreciente (cada vez se minan menos BTC nuevos por bloque, algo que estudias en detalle en la sección Halvings BTC) es una de las razones por las que muchos lo comparan con el oro digital.",
         },
         {
           type: "tabla",
@@ -169,7 +169,7 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
         {
           type: "parrafo",
           texto:
-            "TRON es otra blockchain, lanzada en 2018, con un enfoque distinto al de Bitcoin: en vez de priorizar ser \"oro digital\", TRON está diseñada para procesar transacciones muy rápido y con comisiones muy bajas — su bloque se confirma cada ~3 segundos, contra los ~10 minutos de Bitcoin. Eso la volvió la red preferida para mover stablecoins como USDT a nivel global (podés ver el detalle en vivo en la sección Stablecoins TRON).",
+            "TRON es otra blockchain, lanzada en 2018, con un enfoque distinto al de Bitcoin: en vez de priorizar ser \"oro digital\", TRON está diseñada para procesar transacciones muy rápido y con comisiones muy bajas — su bloque se confirma cada ~3 segundos, contra los ~10 minutos de Bitcoin. Eso la volvió la red preferida para mover stablecoins como USDT a nivel global (puedes ver el detalle en vivo en la sección Stablecoins TRON).",
         },
         {
           type: "destacado",
@@ -234,7 +234,7 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
           ejercicio: {
             kind: "calculadoraGuiada",
             id: "n1-l5-e1",
-            instruccion: "Un activo tiene un precio de $2.50 y hay 800,000,000 de unidades en circulación. Calculá su market cap en millones de dólares.",
+            instruccion: "Un activo tiene un precio de $2.50 y hay 800,000,000 de unidades en circulación. Calcula su market cap en millones de dólares.",
             campos: [
               { id: "precio", label: "Precio (USD)", placeholder: "2.50" },
               { id: "supply", label: "Supply circulante", placeholder: "800000000" },
@@ -254,7 +254,7 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
         {
           type: "parrafo",
           texto:
-            "Un exchange (como Binance) es una empresa que opera una plataforma para comprar, vender e intercambiar criptomonedas — es el punto de entrada más común para la mayoría de la gente. Una wallet (billetera) es la herramienta que guarda las claves privadas que demuestran que cierta cripto, registrada en la blockchain, te pertenece a vos.",
+            "Un exchange (como Binance) es una empresa que opera una plataforma para comprar, vender e intercambiar criptomonedas — es el punto de entrada más común para la mayoría de la gente. Una wallet (billetera) es la herramienta que guarda las claves privadas que demuestran que cierta cripto, registrada en la blockchain, te pertenece a ti.",
         },
         { type: "diagramaSVG", diagrama: "custodia-wallet", caption: "La diferencia central es quién controla las claves privadas." },
         {
@@ -262,7 +262,7 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
           variante: "advertencia",
           titulo: "\"NOT YOUR KEYS, NOT YOUR COINS\"",
           texto:
-            "Cuando dejás tu cripto en un exchange, técnicamente el exchange tiene las claves — vos tenés una promesa (un registro en su base de datos interna) de que te la van a devolver cuando la pidas. La mayoría de las veces funciona bien, pero la historia de cripto tiene varios casos de exchanges que quebraron o fueron hackeados y los usuarios no pudieron recuperar sus fondos. Mover cripto a una wallet propia elimina ese riesgo específico, a cambio de que ahora VOS sos responsable de no perder tus claves.",
+            "Cuando dejas tu cripto en un exchange, técnicamente el exchange tiene las claves — tú tienes una promesa (un registro en su base de datos interna) de que te la van a devolver cuando la pidas. La mayoría de las veces funciona bien, pero la historia de cripto tiene varios casos de exchanges que quebraron o fueron hackeados y los usuarios no pudieron recuperar sus fondos. Mover cripto a una wallet propia elimina ese riesgo específico, a cambio de que ahora TÚ eres responsable de no perder tus claves.",
         },
         {
           type: "lista",
@@ -289,7 +289,7 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
           ejercicio: {
             kind: "ordenar",
             id: "n1-l6-e1",
-            instruccion: "Ordená estas prácticas de seguridad de MENOS a MÁS crítica si tuvieras que priorizar solo una.",
+            instruccion: "Ordena estas prácticas de seguridad de MENOS a MÁS crítica si tuvieras que priorizar solo una.",
             items: [
               { id: "a", texto: "Usar una contraseña única para el exchange" },
               { id: "b", texto: "Activar 2FA" },
@@ -383,8 +383,8 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
     {
       question: "¿Qué significa la frase \"not your keys, not your coins\"?",
       options: [
-        "Que necesitás una llave física para minar cripto",
-        "Que si no tenés vos las claves privadas (ej. tu cripto está en un exchange), técnicamente dependés de que ese tercero te la devuelva",
+        "Que necesitas una llave física para minar cripto",
+        "Que si no tienes tú las claves privadas (ej. tu cripto está en un exchange), técnicamente dependes de que ese tercero te la devuelva",
         "Que las contraseñas de wallets nunca se pueden recuperar",
         "Que solo los exchanges pueden generar claves privadas",
       ],
@@ -411,7 +411,7 @@ export const NIVEL_01_FUNDAMENTOS: AcademyLevelContent = {
         "Porque es solo para usuarios avanzados",
       ],
       correctIndex: 1,
-      explanation: "El objetivo es aprender: los precios y la ejecución son reales (Binance en vivo), pero el dinero es simulado — el error acá no cuesta nada, la lección sí queda.",
+      explanation: "El objetivo es aprender: los precios y la ejecución son reales (Binance en vivo), pero el dinero es simulado — el error aquí no cuesta nada, la lección sí queda.",
     },
   ],
 };

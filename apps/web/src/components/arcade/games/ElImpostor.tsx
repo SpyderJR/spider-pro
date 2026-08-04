@@ -51,7 +51,7 @@ export function ElImpostor({ onExit, onFinish }: Props) {
       if (!cancelled) {
         setPool(results);
         setLoading(false);
-        if (results.length < 3) setError("No se pudo cargar suficiente histórico. Probá de nuevo.");
+        if (results.length < 3) setError("No se pudo cargar suficiente histórico. Prueba de nuevo.");
       }
     }
     void load();
@@ -187,7 +187,7 @@ export function ElImpostor({ onExit, onFinish }: Props) {
         <HowToPlayBox
           steps={[
             "Vas a ver 3 gráficos lado a lado. Dos son tramos reales de BTC, uno es 100% ruido aleatorio generado por computadora.",
-            "Hacé clic en el gráfico que creés que es el impostor antes de que se acabe el tiempo.",
+            "Haz clic en el gráfico que crees que es el impostor antes de que se acabe el tiempo.",
             "6 rondas en total — sin fechas ni precios visibles, solo la forma del gráfico cuenta.",
           ]}
           lesson="Te enseña a distinguir estructura real de mercado (tendencias, momentum) del puro ruido — clave para no ver patrones donde no los hay."

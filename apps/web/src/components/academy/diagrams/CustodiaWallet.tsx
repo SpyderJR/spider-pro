@@ -6,7 +6,7 @@ export function CustodiaWallet() {
         WALLET PROPIA
       </text>
       <text x={100} y={65} textAnchor="middle" fontFamily="monospace" fontSize={9} fill="#94a3b8">
-        vos tenés las claves
+        tú tienes las claves
       </text>
       <text x={100} y={82} textAnchor="middle" fontFamily="monospace" fontSize={9} fill="#94a3b8">
         "not your keys,
@@ -15,7 +15,7 @@ export function CustodiaWallet() {
         not your coins"
       </text>
       <text x={100} y={112} textAnchor="middle" fontFamily="monospace" fontSize={8} fill="#ffcf4d">
-        vos sos responsable
+        tú eres responsable
       </text>
 
       <rect x={220} y={20} width={160} height={100} rx={10} fill="#0a0d14" stroke="#3ba8ff" strokeWidth={1.5} />
@@ -26,13 +26,13 @@ export function CustodiaWallet() {
         el exchange tiene
       </text>
       <text x={300} y={78} textAnchor="middle" fontFamily="monospace" fontSize={9} fill="#94a3b8">
-        las claves por vos
+        las claves por ti
       </text>
       <text x={300} y={95} textAnchor="middle" fontFamily="monospace" fontSize={9} fill="#94a3b8">
         más cómodo
       </text>
       <text x={300} y={112} textAnchor="middle" fontFamily="monospace" fontSize={8} fill="#ff3b5c">
-        confiás en un tercero
+        confías en un tercero
       </text>
     </svg>
   );

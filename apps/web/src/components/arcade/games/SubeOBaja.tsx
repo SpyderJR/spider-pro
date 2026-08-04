@@ -114,8 +114,8 @@ export function SubeOBaja({ onExit, onFinish }: Props) {
       {round === 0 && lastResult === null && (
         <HowToPlayBox
           steps={[
-            "Mirá el gráfico y predecí si la PRÓXIMA vela va a cerrar arriba o abajo del cierre actual.",
-            "Tenés 3 vidas — cada error te quita una. El juego termina a las 20 rondas o cuando te quedás sin vidas.",
+            "Mira el gráfico y predice si la PRÓXIMA vela va a cerrar arriba o abajo del cierre actual.",
+            "Tienes 3 vidas — cada error te quita una. El juego termina a las 20 rondas o cuando te quedas sin vidas.",
             "Encadenar aciertos activa un multiplicador de puntos por racha.",
           ]}
           lesson="Te entrena a leer el momentum y el contexto de las últimas velas antes de que el movimiento se confirme."

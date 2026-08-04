@@ -179,7 +179,7 @@ export function OrderPanel({ pair, currentPrice, balance, hasOpenPosition, onSub
       {riskAmount !== null && riskPercent !== null && (
         <div className="mb-3 bg-void-soft rounded-lg p-2.5 text-xs">
           <div className={riskPercent > 3 ? "text-neon-red font-semibold" : "text-slate-300"}>
-            Si toca tu SL perdés {formatUsd(riskAmount, 2)} ({riskPercent.toFixed(1)}% de tu cuenta)
+            Si toca tu SL pierdes {formatUsd(riskAmount, 2)} ({riskPercent.toFixed(1)}% de tu cuenta)
           </div>
           {riskPercent > 3 && (
             <Link to="/app/gestion-de-riesgo" className="text-neon-red underline text-[10px]">
@@ -197,7 +197,7 @@ export function OrderPanel({ pair, currentPrice, balance, hasOpenPosition, onSub
 
       {hasOpenPosition && (
         <div className="mb-3 text-xs text-neon-gold bg-neon-gold/5 border border-neon-gold/20 rounded-lg p-2">
-          Ya tenés una posición abierta en {pair}. Cerrala antes de abrir otra.
+          Ya tienes una posición abierta en {pair}. Ciérrala antes de abrir otra.
         </div>
       )}
 

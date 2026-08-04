@@ -26,9 +26,9 @@ export function StreakSimulator() {
 
       <div className="panel p-5 mb-4">
         <p className="text-sm text-slate-300 leading-relaxed">
-          Simulá 100 trades seguidos con un win rate realista del 45% y un ratio riesgo/beneficio de 1:1.5 —
+          Simula 100 trades seguidos con un win rate realista del 45% y un ratio riesgo/beneficio de 1:1.5 —
           un perfil de trader promedio, ni especialmente bueno ni especialmente malo. Lo único que cambia es{" "}
-          <strong className="text-white">cuánto arriesgás por trade</strong>. Movés el slider y vas a ver
+          <strong className="text-white">cuánto arriesgas por trade</strong>. Mueves el slider y vas a ver
           cómo el mismo sistema, con la misma ventaja estadística, puede sobrevivir perfectamente bien o
           quebrar la cuenta — la única diferencia es el tamaño de posición.
         </p>
@@ -79,7 +79,7 @@ export function StreakSimulator() {
           <p className="text-xs text-neon-red mt-3">
             Con {riskPercent.toFixed(1)}% de riesgo por trade, una racha de solo 15-20 pérdidas seguidas
             (estadísticamente esperable con 45% de win rate) es suficiente para quebrar la cuenta casi por
-            completo — corré la simulación varias veces y mirá cuántas terminan en rojo.
+            completo — corre la simulación varias veces y mira cuántas terminan en rojo.
           </p>
         )}
       </div>

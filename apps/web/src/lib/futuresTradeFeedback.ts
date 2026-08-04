@@ -79,7 +79,7 @@ const RULES: Rule[] = [
   // 10. Trade ganador — refuerzo positivo
   (trade) => {
     if (trade.pnl > 0 && trade.exitReason !== "liquidation") {
-      return `Trade cerrado en ganancia (+${trade.pnl.toFixed(2)} USD). Anotá en el Diario qué combinación de apalancamiento, SL y contexto de mercado te funcionó acá.`;
+      return `Trade cerrado en ganancia (+${trade.pnl.toFixed(2)} USD). Anota en el Diario qué combinación de apalancamiento, SL y contexto de mercado te funcionó aquí.`;
     }
     return null;
   },
