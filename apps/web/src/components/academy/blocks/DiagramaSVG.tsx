@@ -1,12 +1,16 @@
 import type { ContentBlock } from "../../../content/academy/types";
 import { CadenaDeBloques } from "../diagrams/CadenaDeBloques";
 import { CustodiaWallet } from "../diagrams/CustodiaWallet";
+import { EscalonesTick } from "../diagrams/EscalonesTick";
+import { RuidoVsATR } from "../diagrams/RuidoVsATR";
 
 type Data = Extract<ContentBlock, { type: "diagramaSVG" }>;
 
 const REGISTRY: Record<string, () => JSX.Element> = {
   "cadena-de-bloques": CadenaDeBloques,
   "custodia-wallet": CustodiaWallet,
+  "escalones-tick": EscalonesTick,
+  "ruido-vs-atr": RuidoVsATR,
 };
 
 export function DiagramaSVG({ data }: { data: Data }) {

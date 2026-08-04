@@ -1,5 +1,6 @@
 import type { AcademyLevelContent } from "./types";
 import { NIVEL_01_FUNDAMENTOS } from "./nivel-01-fundamentos";
+import { NIVEL_06_GESTION_DE_RIESGO } from "./nivel-06-gestion-de-riesgo";
 
 /** Niveles sin contenido de lecciones todavía — quedan visibles en la ruta como "próximamente" (Bloque 12.5). */
 function stub(
@@ -48,14 +49,7 @@ export const ACADEMY_LEVELS_V2: AcademyLevelContent[] = [
     "intermedio",
     "〽",
   ),
-  stub(
-    "gestion-de-riesgo",
-    6,
-    "Gestión de riesgo",
-    "El nivel más importante: tamaño de posición, stop loss, ratio riesgo/beneficio y rachas perdedoras.",
-    "intermedio",
-    "🛡",
-  ),
+  NIVEL_06_GESTION_DE_RIESGO,
   stub(
     "psicologia-del-trading",
     7,

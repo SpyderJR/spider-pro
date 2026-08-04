@@ -436,3 +436,44 @@ Calculadora necesitaba más funciones; Glosario necesitaba más términos.
 
 Build y typecheck limpios en los 4 paquetes. Verificación en navegador de las 5 páginas sin
 errores de consola. Sin push/deploy hasta que se pida explícitamente.
+
+## Nivel 6 de Academia — "Unidades, medidas y costos: cómo se mide de verdad tu riesgo"
+
+Pedido del usuario: primera lección real del Nivel 6 (Gestión de Riesgo, antes "PRÓXIMAMENTE"
+sin contenido) — 7 conceptos que sí se usan en cripto (tick, spread, tamaño de posición, ATR,
+slippage, comisiones maker/taker, valor por movimiento), con los pips mencionados solo como
+contexto breve de Forex, nunca como protagonistas.
+
+- [x] Contenido completo en `content/academy/nivel-06-gestion-de-riesgo.ts`: apertura +
+      caja "¿Y los pips?" (3-4 líneas, deja explícito que es de Forex y que el equivalente cripto
+      es el tick) + 8 secciones (tick, las 3 formas de medir el SL, tamaño de posición/lote/
+      tamaño de contrato, valor por movimiento, ATR, spread, slippage, comisiones maker/taker) +
+      resumen + conecta a la Terminal. Reemplaza el `stub(...)` de "gestion-de-riesgo" en
+      `content/academy/levels.ts` — el nivel deja de mostrar "PRÓXIMAMENTE".
+- [x] 2 diagramas SVG nuevos registrados en `blocks/DiagramaSVG.tsx`: `EscalonesTick.tsx`
+      (precio subiendo escalón por escalón) y `RuidoVsATR.tsx` (mismo trade, stop dentro del
+      ruido que te saca por nada vs. stop fuera del ruido según 1.5× ATR que sobrevive).
+- [x] 8 ejercicios calificados por reglas (sin IA): verdadero/falso sobre pip-vs-tick,
+      completa-el-espacio contando ticks, 4 calculadoras guiadas (% de distancia del stop,
+      tamaño de posición desde riesgo+stop, valor por movimiento, ganancia neta tras spread +
+      comisiones) y 2 de opción múltiple (elegir el mejor stop según ATR, elegir tipo de orden en
+      escenario volátil) — cubre los 6 ejercicios mínimos pedidos más 2 extra. Quiz final de 10
+      preguntas.
+- [x] 7 términos nuevos en `data/glossary.ts`: Tick/Tick size, Pip (marcado explícitamente como
+      término de Forex), Bid/Ask, Comisión maker/taker, Lote, Tamaño de contrato, Valor por
+      movimiento — usables con `<Term>` en cualquier página (Spread, Slippage y ATR ya existían
+      del remaster anterior, no se duplicaron).
+- [x] Integración con la Terminal: `lib/binance/tickSize.ts` (nuevo, tick size real verificado
+      contra el `exchangeInfo` de Binance — $0.01 en BTCUSDT, $0.0001 en TRXUSDT — con
+      `fetchTickSize` disponible para cualquier par futuro no mapeado). `OrderPanel.tsx` ahora
+      muestra "Distancia del SL: $X · Y% · Z ticks" con un link "¿por qué tres?" a la lección,
+      como línea separada de la ya existente "Si toca tu SL pierdes $X (Y% de tu cuenta)" para no
+      mezclar distancia de precio con riesgo de cuenta.
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador: los 8 ejercicios resueltos
+uno por uno con los valores exactos del enunciado (todos coincidieron con el cálculo a mano —
+ej. ganancia neta 50−5−2−2=41 ✓), la lección llega a "Lección completada", el Nivel 6 ya aparece
+desbloqueado en el mapa de Academia, los tooltips `<Term>` se activan automáticamente en el
+cuerpo del texto, y la Terminal muestra la distancia del SL real ($1,920.01 · 2.99% · 192,001
+ticks) verificada a mano. Barrido de regresión limpio en 28 rutas, cero errores de consola. Sin
+push/deploy hasta que se pida explícitamente.

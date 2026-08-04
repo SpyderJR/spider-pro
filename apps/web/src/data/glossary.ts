@@ -69,6 +69,7 @@ export const GLOSSARY: GlossaryTerm[] = [
   { term: "Win Rate", definition: "Porcentaje de operaciones cerradas en ganancia sobre el total de operaciones.", category: "Riesgo" },
   { term: "Profit Factor", definition: "Ganancia bruta total dividida por la pérdida bruta total. Un profit factor mayor a 1 significa que, en conjunto, se ganó más de lo que se perdió.", category: "Riesgo" },
   { term: "Racha (streak)", definition: "Serie consecutiva de operaciones ganadoras o perdedoras.", category: "Riesgo" },
+  { term: "Valor por movimiento", definition: "Cuánto dinero real representa cada 1% (o cada tick, o cada $ de precio) según el tamaño de tu posición — el puente entre 'el gráfico se movió X' y 'gané/perdí Y dólares'. Dos personas con el mismo movimiento en pantalla pueden ganar cantidades muy distintas según su tamaño de posición.", category: "Riesgo" },
 
   // Psicología
   { term: "FOMO", definition: "Fear Of Missing Out: entrar a una operación por miedo a quedarse afuera de un movimiento, sin un plan claro.", category: "Psicología" },
@@ -85,6 +86,12 @@ export const GLOSSARY: GlossaryTerm[] = [
   { term: "Orden límite", definition: "Orden que solo se ejecuta cuando el precio llega a un nivel específico definido de antemano.", category: "Operativa" },
   { term: "Slippage", definition: "Diferencia entre el precio esperado de una operación y el precio al que realmente se ejecuta, común en mercados de baja liquidez o alta volatilidad.", category: "Operativa" },
   { term: "Spread", definition: "Diferencia entre el mejor precio de compra (bid) y el mejor precio de venta (ask) en el order book.", category: "Operativa" },
+  { term: "Tick / Tick size", definition: "El incremento mínimo de precio que un exchange permite para un par — el 'escalón' real de ese activo. En BTC/USDT suele ser $0.01; en TRX, mucho más chico ($0.0001), porque el precio de TRX es mucho menor.", category: "Operativa" },
+  { term: "Pip", definition: "Unidad mínima de movimiento en el mercado Forex (divisas como EUR/USD), típicamente el 4º decimal. Es un término de Forex — en cripto el concepto equivalente se llama tick, no pip.", category: "Operativa" },
+  { term: "Bid / Ask", definition: "Bid es el mejor precio al que alguien está dispuesto a comprar ahora mismo; ask (u 'offer') es el mejor precio al que alguien está dispuesto a vender. La diferencia entre ambos es el spread.", category: "Operativa" },
+  { term: "Comisión maker/taker", definition: "Comisión que cobra el exchange por operar. Taker (orden de mercado, que 'toma' liquidez existente) suele costar más; maker (orden límite, que 'aporta' liquidez nueva al order book) suele costar menos o nada.", category: "Operativa" },
+  { term: "Lote (Lot)", definition: "Unidad estándar de tamaño de operación usada en Forex y futuros tradicionales (ej. un lote estándar de Forex = 100,000 unidades de la divisa base). En cripto spot normalmente no se usa — se habla directo de cantidad (ej. 0.05 BTC) o de su valor en USD.", category: "Operativa" },
+  { term: "Tamaño de contrato", definition: "Cuánto activo representa un solo contrato de futuros. En cripto varía por exchange y por par — a diferencia de Forex, no suele estar estandarizado en 'lotes' fijos.", category: "Operativa" },
   { term: "Long", definition: "Posición que gana si el precio sube (comprar bajo, vender alto).", category: "Operativa" },
   { term: "Short", definition: "Posición que gana si el precio baja (vender alto, recomprar bajo).", category: "Operativa" },
   { term: "Paper Trading", definition: "Práctica de operar con dinero simulado sobre precios reales de mercado, sin arriesgar capital real.", category: "Operativa" },

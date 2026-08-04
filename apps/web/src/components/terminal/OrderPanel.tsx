@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import type { OrderSide } from "../../lib/paperTrading/types";
 import { computeQuantity, computeRiskAmount, computeRiskRewardRatio } from "../../lib/paperTrading/engine";
 import { formatUsd, pricePrecision } from "../../lib/format";
+import { getKnownTickSize } from "../../lib/binance/tickSize";
 
 interface Props {
   pair: string;
@@ -50,6 +51,15 @@ export function OrderPanel({ pair, currentPrice, balance, hasOpenPosition, onSub
     if (!effectivePrice || stopLoss === null || takeProfit === null) return null;
     return computeRiskRewardRatio(effectivePrice, stopLoss, takeProfit, side);
   }, [effectivePrice, stopLoss, takeProfit, side]);
+
+  const stopDistance = useMemo(() => {
+    if (!effectivePrice || stopLoss === null) return null;
+    const usd = Math.abs(effectivePrice - stopLoss);
+    const percent = (usd / effectivePrice) * 100;
+    const tickSize = getKnownTickSize(pair);
+    const ticks = tickSize ? Math.round(usd / tickSize) : null;
+    return { usd, percent, ticks };
+  }, [effectivePrice, stopLoss, pair]);
 
   const canSubmit = effectivePrice !== null && quantity > 0 && !hasOpenPosition;
 
@@ -175,6 +185,28 @@ export function OrderPanel({ pair, currentPrice, balance, hasOpenPosition, onSub
           />
         </div>
       </div>
+
+      {stopDistance !== null && (
+        <div className="mb-3 flex items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
+          <span>
+            Distancia del SL: <span className="text-slate-200">{formatUsd(stopDistance.usd, precision <= 2 ? 2 : precision)}</span> ·{" "}
+            <span className="text-slate-200">{stopDistance.percent.toFixed(2)}%</span>
+            {stopDistance.ticks !== null && (
+              <>
+                {" "}
+                · <span className="text-slate-200">{stopDistance.ticks.toLocaleString("es-MX")} ticks</span>
+              </>
+            )}
+          </span>
+          <Link
+            to="/app/academia/gestion-de-riesgo"
+            title="¿Por qué tres unidades? Ver la lección de Unidades, medidas y costos"
+            className="text-neon-blue shrink-0"
+          >
+            ⓘ ¿por qué tres?
+          </Link>
+        </div>
+      )}
 
       {riskAmount !== null && riskPercent !== null && (
         <div className="mb-3 bg-void-soft rounded-lg p-2.5 text-xs">
