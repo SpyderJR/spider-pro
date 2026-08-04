@@ -15,6 +15,7 @@ export const env = {
   TRONSCAN_BASE_URL:
     process.env.TRONSCAN_BASE_URL ?? "https://apilist.tronscanapi.com",
   TRONGRID_BASE_URL: process.env.TRONGRID_BASE_URL ?? "https://api.trongrid.io",
+  MEMPOOL_BASE_URL: process.env.MEMPOOL_BASE_URL ?? "https://mempool.space",
   XAI_BASE_URL: process.env.XAI_BASE_URL ?? "https://api.x.ai",
 
   // Opcionales — habilitan cuenta con Google (Bloque 11.2). Sin ellas, el chat sigue

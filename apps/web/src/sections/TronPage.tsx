@@ -34,16 +34,19 @@ export function TronPage() {
     networkStats: tronStats.data ?? null,
   });
 
+  const TRON_BLOCK_TIME_SECONDS = 3;
+  const estimatedBlocksPerDay = Math.round(86_400 / TRON_BLOCK_TIME_SECONDS);
+
   const metrics = tronStats.data
     ? [
-        ["Cuentas totales", formatCompactNumber(tronStats.data.totalAccounts ?? 0)],
-        ["Transacciones totales", formatCompactNumber(tronStats.data.totalTransactions ?? 0)],
-        ["TPS actual", tronStats.data.tps?.toFixed(0) ?? "—"],
-        ["TVL", formatCompactUsd(tronStats.data.tvl ?? 0)],
-        ["Nodos", formatCompactNumber(tronStats.data.totalNodes ?? 0)],
-        ["Contratos", formatCompactNumber(tronStats.data.totalContracts ?? 0)],
-        ["Supply USDT-TRC20", formatCompactUsd(tronStats.data.usdtSupply ?? 0)],
-        ["Altura de bloque", tronStats.data.blockHeight ? formatCompactNumber(tronStats.data.blockHeight) : "—"],
+        { label: "Cuentas totales", value: formatCompactNumber(tronStats.data.totalAccounts ?? 0), meaning: "Direcciones que alguna vez tuvieron actividad en la red." },
+        { label: "Transacciones totales", value: formatCompactNumber(tronStats.data.totalTransactions ?? 0), meaning: "Histórico acumulado desde el génesis de la cadena." },
+        { label: "TPS actual", value: tronStats.data.tps?.toFixed(0) ?? "—", meaning: "Transacciones por segundo que está procesando la red ahora mismo." },
+        { label: "Nodos", value: formatCompactNumber(tronStats.data.totalNodes ?? 0), meaning: "Nodos activos participando en el consenso y la propagación de la red." },
+        { label: "Contratos (TRC20)", value: formatCompactNumber(tronStats.data.totalContracts ?? 0), meaning: "Tokens y contratos inteligentes desplegados sobre TRON." },
+        { label: "Supply USDT-TRC20", value: formatCompactUsd(tronStats.data.usdtSupply ?? 0), meaning: "USDT emitido específicamente sobre la red TRON (no el total global de Tether)." },
+        { label: "Altura de bloque", value: tronStats.data.blockHeight ? formatCompactNumber(tronStats.data.blockHeight) : "—", meaning: "Cantidad de bloques minados desde el génesis." },
+        { label: "Bloques/día (estimado)", value: formatCompactNumber(estimatedBlocksPerDay), meaning: "Derivado del tiempo de bloque de TRON (~3 segundos), no un dato de la API." },
       ]
     : [];
 
@@ -82,14 +85,35 @@ export function TronPage() {
       </div>
 
       <div className="panel p-5 mb-6">
-        <div className="font-semibold text-white mb-4">Métricas de red en vivo</div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {metrics.map(([label, value]) => (
-            <div key={label} className="bg-void-soft rounded-lg p-3">
-              <div className="text-[10px] text-slate-500 mb-1 uppercase">{label}</div>
-              <div className="value-mono text-sm text-neon-blue font-semibold">{value}</div>
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-1">
+          <div className="font-semibold text-white">Red TRON en cifras</div>
+          {tronStats.data && (
+            <span className="text-[10px] font-mono text-slate-500">fuente: {tronStats.data.source}</span>
+          )}
+        </div>
+        <p className="text-xs text-slate-500 mb-4">
+          Datos en vivo del bundle público de TronScan (el mismo que alimenta tronscan.org) — refrescado cada
+          60 segundos.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[560px]">
+            <thead>
+              <tr className="text-left text-xs text-slate-500 border-b border-void-border">
+                <th className="py-2 pr-4">Métrica</th>
+                <th className="py-2 pr-4">Valor</th>
+                <th className="py-2">Qué significa</th>
+              </tr>
+            </thead>
+            <tbody>
+              {metrics.map((m) => (
+                <tr key={m.label} className="border-b border-void-border/50 last:border-0">
+                  <td className="py-2.5 pr-4 text-slate-300 font-medium whitespace-nowrap">{m.label}</td>
+                  <td className="py-2.5 pr-4 value-mono text-neon-blue font-semibold whitespace-nowrap">{m.value}</td>
+                  <td className="py-2.5 text-slate-500 text-xs">{m.meaning}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 

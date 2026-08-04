@@ -160,6 +160,33 @@ export const TronStatsResponseSchema = z.object({
 });
 export type TronStatsResponse = z.infer<typeof TronStatsResponseSchema>;
 
+export const BitcoinStatsResponseSchema = z.object({
+  blockHeight: z.number(),
+  hashrateEhs: z.number(),
+  difficulty: z.number(),
+  fees: z.object({
+    fastestFee: z.number(),
+    halfHourFee: z.number(),
+    hourFee: z.number(),
+    economyFee: z.number(),
+  }),
+  mempool: z.object({
+    count: z.number(),
+    vsizeMB: z.number(),
+    totalFeesBtc: z.number(),
+  }),
+  difficultyAdjustment: z.object({
+    progressPercent: z.number(),
+    difficultyChangePercent: z.number(),
+    estimatedRetargetDate: z.number(),
+    remainingBlocks: z.number(),
+  }),
+  source: z.literal("mempool.space"),
+  live: z.boolean(),
+  updatedAt: z.number(),
+});
+export type BitcoinStatsResponse = z.infer<typeof BitcoinStatsResponseSchema>;
+
 export const HealthResponseSchema = z.object({
   status: z.literal("ok"),
   uptime: z.number(),

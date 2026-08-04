@@ -17,9 +17,9 @@ function latestWins<T>(local: T, remote: T | null, localAt: string | null, remot
   return localAt >= remoteAt ? local : remote;
 }
 
-// --- academy_progress: unión por nivel, nunca se pierde un nivel aprobado -----------------
+// --- academy_progress: unión por nivel, nunca se pierde un nivel aprobado NI una lección --
 interface AcademyBlob {
-  progress: Record<string, { bestScorePercent: number; completed: boolean }>;
+  progress: Record<string, { bestScorePercent: number; completed: boolean; lessonsCompleted: string[] }>;
   lastVisitDate: string | null;
   streakDays: number;
 }
@@ -40,6 +40,7 @@ export const academyTarget: BlobSyncTarget<AcademyBlob> = {
       progress[id] = {
         bestScorePercent: Math.max(lp.bestScorePercent, r?.bestScorePercent ?? 0),
         completed: lp.completed || (r?.completed ?? false),
+        lessonsCompleted: [...new Set([...(r?.lessonsCompleted ?? []), ...(lp.lessonsCompleted ?? [])])],
       };
     }
     const localMoreRecent = !remote.lastVisitDate || (!!local.lastVisitDate && local.lastVisitDate >= remote.lastVisitDate);

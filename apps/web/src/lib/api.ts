@@ -7,6 +7,7 @@ import {
   M2ResponseSchema,
   StablecoinsResponseSchema,
   TronStatsResponseSchema,
+  BitcoinStatsResponseSchema,
   ChatResponseSchema,
   TokenSearchResponseSchema,
   type Asset,
@@ -80,6 +81,10 @@ export function fetchStablecoins() {
 
 export function fetchTronStats() {
   return getJson(`/api/tron/stats`, TronStatsResponseSchema);
+}
+
+export function fetchBitcoinStats() {
+  return getJson(`/api/bitcoin/stats`, BitcoinStatsResponseSchema);
 }
 
 export async function postChat(

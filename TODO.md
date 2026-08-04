@@ -224,3 +224,91 @@ que esas claves existan. La app debe seguir funcionando 100% en modo local mient
 - [x] **Fractales en vivo fallaban (y en realidad, cualquier gráfico que pasara por `/api/klines`).** Diagnóstico confirmado con curls directos contra la producción: Binance/Bybit devuelven error desde las IPs de Netlify (bloqueo geo/datacenter documentado desde bloques anteriores) y la clave de `CRYPTOCOMPARE_API_KEY` configurada en Netlify ya superó su cuota gratuita mensual (257/100 llamadas) — con los 3 proveedores del servidor caídos a la vez, `/api/klines` devolvía 502 para CUALQUIER símbolo/timeframe, no solo para Fractales (afectaba también a Análisis Técnico, Radar de Trading, el simulador de liquidación de Contratos, y las señales RSI/MACD de Spider Intelligence). Corregido en la raíz: `lib/api.ts`'s `fetchKlines()` ahora intenta primero el endpoint del servidor y, si falla, cae a pedir las velas directo a Binance desde el propio navegador del visitante (reutilizando `fetchBinanceKlines` de `lib/binance/rest.ts`, el mismo truco que ya usaban la Terminal y el Arcade para evitar el bloqueo por IP de nube) — arregla todos los consumidores de `useKlines` de una sola vez, no solo Fractales. Build y typecheck limpios, barrido de regresión limpio en las 47 rutas.
 - [x] **Contratos: quitada la etiqueta "COMO SI TUVIERAS 5 AÑOS"** de las 7 tarjetas de concepto (`components/contracts/ConceptCard.tsx`) por pedido explícito del usuario — no se veía profesional. Reemplazada por "LA IDEA EN SIMPLE", mismo estilo mono-uppercase que las otras dos columnas ("AHORA EN SERIO" / "LOS NÚMEROS"). El contenido de las analogías en sí (manzana, ascensor, patines, piso es lava, etc.) se mantuvo intacto — el pedido era sobre la etiqueta, no sobre el contenido pedagógico. Verificado en navegador que la frase vieja ya no aparece en ningún lado.
 - [x] **Fear & Greed verificado end-to-end contra producción** — dato real y en vivo confirmado por partida doble: `curl` directo al endpoint de producción (`value:28, classification:"fear"`) y lectura del texto renderizado en la página en vivo (idéntico). El motivo por el que podía sentirse "poco confiable" no era un bug de Fear & Greed en sí, sino que compartía panel con las señales de RSI/MACD que sí estaban rotas por el apagón de `/api/klines` descripto arriba — con el fallback a Binance desde el navegador, esas señales vecinas vuelven a mostrar datos reales y la desconfianza en el panel completo debería desaparecer. No se encontró ninguna inconsistencia en los umbrales de voto (≤25 miedo extremo / ≥75 codicia extrema) ni en el mapeo de clasificación — de paso se detectó que `lib/signalEngine.ts` (el motor de zona viejo, pre-remaster) quedó como código muerto sin ningún import — no se tocó por no ser parte de lo reportado, pero queda anotado para una futura limpieza.
+
+## Remaster de Bitcoin, TRON y Stablecoins TRON con datos reales en vivo
+
+Pedido del usuario: las tres páginas se sentían simples — agregar tablas y datos reales en
+vivo (no inventados), tomados de APIs públicas, tantos como fuera razonable.
+
+- [x] **Bitcoin** — nueva fuente de datos on-chain real: `providers/mempool.ts` + `GET /api/bitcoin/stats` contra la API pública de mempool.space (gratis, sin key) trayendo en paralelo altura de bloque, hashrate (EH/s), dificultad, fees recomendados (sat/vB en 4 niveles), estado de la mempool (tx pendientes, tamaño, fees totales) y progreso hacia el próximo ajuste de dificultad (con fecha estimada). Nuevo tipo `BitcoinStatsResponse` en `@spider/types` + fallback estático si mempool.space no responde. La página ahora explica qué significa cada métrica (por qué importa el hashrate para la seguridad de la red, qué es la mempool y por qué suben las comisiones) en vez de solo mostrar números sueltos.
+- [x] **TRON** — se sacó la tarjeta de "TVL" que SIEMPRE mostraba $0.00 (el campo nunca lo entrega TronScan, era un dato falso disfrazado de real — el tipo de cosa que el usuario pidió evitar explícitamente). La grilla de métricas sueltas se convirtió en una tabla real (Métrica / Valor / Qué significa) con una fila derivada nueva ("Bloques/día estimados", calculada a partir del block time real de TRON, etiquetada explícitamente como derivada y no como dato de la API).
+- [x] **Stablecoins TRON** — la página más pedida en detalle. Agregado: tabla de ranking completa (posición, supply, holders, % del total, promedio por holder — todo calculado en vivo desde `/api/market/stablecoins`), barras de participación de mercado por stablecoin, y 5 tarjetas "qué respalda a cada stablecoin y su riesgo real" (`data/stablecoinInfo.ts` — emisor, tipo de respaldo, riesgo concreto de cada una, incluyendo la capacidad de Tether/Circle de congelar direcciones y el de-peg de USDD en 2022) más una sección que cruza el supply de stablecoins con las métricas de red de TRON (cuentas activas, transacciones, TPS) para explicar la relación. Se mantuvo el gráfico histórico de crecimiento de USDT.
+  **Bug encontrado y corregido durante la verificación:** el gráfico de barras de crecimiento trimestral tenía una altura calculada con `%` dentro de un contenedor flex con `items-end` — como ese contenedor no le da una altura definida a sus hijos (solo los alinea al fondo), el porcentaje de altura de cada barra no tenía contra qué resolverse y las barras colapsaban casi a cero (se veían como líneas finitas, no barras). Corregido envolviendo cada barra en un track intermedio con `flex-1` dentro de una columna de altura fija (`h-40`), que sí le da un alto definido al `%`. Verificado midiendo la altura real en píxeles de cada barra en el navegador (crecen de 65px a 115px seguiendo la curva real de supply) y con una captura de pantalla.
+  Build y typecheck limpios, barrido de regresión limpio en las 47 rutas.
+
+**Nota:** trabajo pendiente de push/deploy por instrucción explícita del usuario ("todavía no
+hagas deploy") — queda commiteado localmente cuando corresponda, no enviado a producción hasta
+que se pida.
+
+## Bloque 12 — Academia completa: de índice de quizzes a curso real (REEMPLAZA el Bloque 4 anterior)
+
+Pedido del usuario, verbatim en estructura: 10 niveles, cada uno con 3-6 LECCIONES reales (teoría +
+ejemplos + ejercicios interactivos calificados por reglas) antes del quiz final. Contenido como datos
+en `src/content/academy/` separado de la UI. Ejercicios de 9 tipos distintos, incluyendo retos que se
+verifican contra el estado real de la Terminal/Arcade. Ruta visual de 10 niveles, progreso por lección
+(no solo por nivel), XP/insignias compartidas con el Arcade. Cero IA en la calificación — todo reglas.
+Costo cero, mismo sistema visual, español, disclaimers NFA.
+
+Dado el tamaño (10 niveles × 3-6 lecciones × contenido real + 9 tipos de ejercicio + integración con
+Terminal/Arcade + rediseño completo de la UI de Academia), se construye en este orden:
+
+- [x] 12.1 — Arquitectura base construida completa: `content/academy/types.ts` (13 tipos de bloque +
+      9 tipos de ejercicio, todo tipado), `components/academy/LessonRenderer.tsx` (recorre los bloques
+      de una lección, trackea qué ejercicios están resueltos, barra de progreso, botón "marcar como
+      leída" para lecciones sin ejercicios), un componente por tipo de bloque en `components/academy/
+      blocks/` (Destacado, Analogia, Lista, Tabla, Conecta, GraficoEjemplo — vela real vía `useKlines`
+      + `layoutCandles`, DiagramaSVG — registro de diagramas reutilizables, empezando con
+      `CadenaDeBloques` y `CustodiaWallet`), y los 9 componentes de ejercicio en `components/academy/
+      exercises/` (OpcionMultiple, VerdaderoFalso, Ordenar — reordenar con botones ▲▼ en vez de
+      drag-and-drop nativo por confiabilidad, Emparejar — click-to-match, MarcaGrafico — reutiliza
+      `detectFractals`+`layoutCandles` sobre velas reales de Binance y valida el click contra los
+      fractales detectados de verdad, CompletaEspacio, CalculadoraGuiada, RetoTerminal, RetoArcade).
+      Todos calificados 100% por reglas (comparación directa, sin IA), con feedback inmediato, y
+      exigen una respuesta CORRECTA (no solo un intento) para marcarse como resueltos — permiten
+      reintentar sin penalidad.
+- [x] 12.2 — Progreso granular por lección: `academyProgressStore` ahora guarda `lessonsCompleted:
+      string[]` por nivel además de `bestScorePercent`/`completed` del quiz (con `merge` en el
+      `persist` de Zustand para no romper saves viejos sin ese campo). `lib/academy/challenges.ts` —
+      6 retos reales verificables por reglas contra `paperTradingStore`/`futuresStore`/`arcadeStore`
+      (abrir posición con SL ≤2% de riesgo, cerrar un trade en ganancia, racha de 10 en "Sube o Baja",
+      sobrevivir "Sobrevive los 20" con bajo riesgo, abrir futuros, jugar "La Liquidación") vía
+      `useChallengeCompletion` (se suscribe a los 3 stores y re-evalúa en cada cambio) — sin bloqueo
+      duro, el usuario puede seguir navegando la app igual. La capa de sincronización en la nube del
+      Bloque 11 se actualizó (`lib/storage/adapters.ts`) para unir `lessonsCompleted` por id (nunca se
+      pierde una lección completada al sincronizar entre dispositivos).
+- [x] 12.3 — Nivel 1 "Fundamentos de cripto" completo end-to-end (`content/academy/nivel-01-
+      fundamentos.ts`): 6 lecciones reales (qué es el dinero y por qué existe Bitcoin, blockchain
+      explicada simple, qué es Bitcoin, qué es TRON, cómo leer un precio, exchanges/wallets/custodia/
+      seguridad), con teoría desarrollada, 2 diagramas SVG, ejemplos, y ejercicios de 6 tipos distintos
+      distribuidos entre las lecciones (opción múltiple, verdadero/falso, completar espacio, emparejar,
+      calculadora guiada, ordenar). Quiz final de 11 preguntas (se reutilizaron y verificaron las 8
+      preguntas ya existentes de la implementación anterior, más 3 nuevas cubriendo blockchain/custodia
+      que no estaban cubiertas antes). Probado exhaustivamente en navegador: las 6 lecciones, los 6
+      tipos de ejercicio uno por uno con clicks reales, y el quiz — todo funcionando.
+      **Bug real encontrado y corregido durante la verificación:** `LessonRenderer` llamaba a
+      `onComplete()` (que dispara un `set()` de Zustand en `academyProgressStore`) desde DENTRO del
+      actualizador funcional de `setSolved` — exactamente el mismo antipatrón de "setState durante la
+      actualización de otro componente" ya diagnosticado y corregido en `LaLiquidacion.tsx` en el
+      Bloque 9, esta vez confirmado por un warning real de React en consola ("Cannot update a component
+      (`Nav`) while rendering a different component (`LessonRenderer`)") capturado durante la
+      verificación automatizada. Corregido separando el cálculo puro del set de ejercicios resueltos
+      de la llamada a `onComplete()`, que ahora vive en un `useEffect` que reacciona al resultado —
+      verificado que el warning desaparece por completo tras el fix.
+- [x] 12.4 — Rediseño de la UI de Academia: `AcademyPage.tsx` (nueva) es la ruta/mapa de los 10
+      niveles — cada card muestra dificultad, estado (aprobado/próximamente), barra de progreso de
+      lecciones y mejor puntaje del quiz; los niveles sin contenido todavía se ven pero están marcados
+      "PRÓXIMAMENTE" y no son clickeables. `AcademyLevelPage.tsx` (nueva, ruta `/app/academia/:levelId`)
+      muestra la lista de lecciones con checkmarks, el detalle de una lección (reusa `LessonRenderer`,
+      con navegación "siguiente lección"), y el quiz final (reusa el componente `Quiz` existente del
+      Bloque 4 sin cambios). Progreso general de la cabecera y racha de días se mantienen.
+- [ ] 12.5 — Niveles 2-10 (Leer el gráfico, Patrones de velas, Indicadores, Estructura y fractales,
+      Gestión de riesgo, Psicología, Contratos y apalancamiento, On-chain y fundamentos, Estrategias
+      completas y tu plan) — mismo estándar de profundidad y verificación que el Nivel 1, uno por uno.
+      Los 9 niveles ya existen como entradas de metadata reales en `content/academy/levels.ts`
+      (título, descripción, dificultad, ícono, orden) — solo falta escribirles `lessons`/`quiz`.
+- [ ] 12.6 — Insignias nuevas de Academia integradas a `data/achievements.ts`, pantalla de "Academia
+      completada" al aprobar los 10 niveles, verificación final de todo el flujo.
+
+**Nota de alcance:** por el tamaño del pedido, se priorizó dejar el Nivel 1 completo y 100% funcional
+como base sólida y verificada antes de replicar el patrón en los 9 niveles restantes, en vez de dejar
+los 10 niveles a medio construir simultáneamente.

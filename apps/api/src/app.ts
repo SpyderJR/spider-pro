@@ -4,6 +4,7 @@ import { registerHealthRoute } from "./routes/health.js";
 import { registerKlinesRoute } from "./routes/klines.js";
 import { registerMarketRoutes } from "./routes/market.js";
 import { registerTronRoutes } from "./routes/tron.js";
+import { registerBitcoinRoutes } from "./routes/bitcoin.js";
 import { registerChatRoute } from "./routes/chat.js";
 import { registerSearchRoute } from "./routes/search.js";
 import { registerAccountRoutes } from "./routes/account.js";
@@ -21,6 +22,7 @@ export async function buildApp() {
   registerKlinesRoute(app);
   registerMarketRoutes(app);
   registerTronRoutes(app);
+  registerBitcoinRoutes(app);
   registerChatRoute(app);
   registerSearchRoute(app);
   registerAccountRoutes(app);

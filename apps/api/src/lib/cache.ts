@@ -40,4 +40,5 @@ export const TTL = {
   m2: 60 * 60_000,
   stablecoins: 60_000,
   tronStats: 60_000,
+  bitcoinStats: 60_000,
 } as const;

@@ -66,3 +66,11 @@ export function useTronStats() {
     refetchInterval: 60_000,
   });
 }
+
+export function useBitcoinStats() {
+  return useQuery({
+    queryKey: ["bitcoin-stats"],
+    queryFn: api.fetchBitcoinStats,
+    refetchInterval: 60_000,
+  });
+}

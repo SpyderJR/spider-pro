@@ -1,4 +1,4 @@
-import type { M2Point, StablecoinData, TronStatsResponse } from "@spider/types";
+import type { BitcoinStatsResponse, M2Point, StablecoinData, TronStatsResponse } from "@spider/types";
 
 /** Reference snapshot used only if TronScan and TronGrid both fail — keeps the TRON section from rendering empty. */
 export const TRON_STATIC_FALLBACK: Omit<TronStatsResponse, "source" | "live" | "updatedAt"> = {
@@ -19,6 +19,16 @@ export const STABLECOIN_STATIC_FALLBACK: StablecoinData[] = [
   { symbol: "TUSD", supply: 150_000_000, holders: null },
   { symbol: "USDJ", supply: 60_000_000, holders: null },
 ];
+
+/** Reference snapshot used only if mempool.space is unreachable — keeps the Bitcoin on-chain section from rendering empty. */
+export const BITCOIN_STATIC_FALLBACK: Omit<BitcoinStatsResponse, "source" | "live" | "updatedAt"> = {
+  blockHeight: 870_000,
+  hashrateEhs: 700,
+  difficulty: 100_000_000_000_000,
+  fees: { fastestFee: 5, halfHourFee: 3, hourFee: 2, economyFee: 1 },
+  mempool: { count: 5_000, vsizeMB: 5, totalFeesBtc: 0.5 },
+  difficultyAdjustment: { progressPercent: 50, difficultyChangePercent: 0, estimatedRetargetDate: Date.now(), remainingBlocks: 1000 },
+};
 
 /** Static M2SL reference points (billions USD, monthly) used only if FRED is unreachable. */
 export const M2_STATIC_FALLBACK: M2Point[] = [

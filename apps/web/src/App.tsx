@@ -10,6 +10,7 @@ import { RiesgoPage } from "./sections/legal/RiesgoPage";
 import { LEGACY_DASHBOARD_PATHS } from "./lib/sections";
 import { SpiderIntelligencePage } from "./sections/SpiderIntelligencePage";
 import { AcademyPage } from "./sections/AcademyPage";
+import { AcademyLevelPage } from "./sections/AcademyLevelPage";
 import { ArcadePage } from "./sections/ArcadePage";
 import { BitcoinPage } from "./sections/BitcoinPage";
 import { TronPage } from "./sections/TronPage";
@@ -48,6 +49,7 @@ export default function App() {
       <Route path="/app" element={<DashboardLayout />}>
         <Route index element={<SpiderIntelligencePage />} />
         <Route path="academia" element={<AcademyPage />} />
+        <Route path="academia/:levelId" element={<AcademyLevelPage />} />
         <Route path="arcade" element={<ArcadePage />} />
         <Route path="bitcoin" element={<BitcoinPage />} />
         <Route path="tron" element={<TronPage />} />

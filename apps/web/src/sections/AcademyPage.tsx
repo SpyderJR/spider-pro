@@ -1,48 +1,50 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SectionHeader } from "../components/SectionHeader";
 import { Disclaimer } from "../components/Disclaimer";
-import { Quiz } from "../components/academy/Quiz";
-import { TermifiedText } from "../components/TermifiedText";
-import { ACADEMY_LEVELS } from "../data/academyLevels";
-import { QUIZZES } from "../data/quizzes";
+import { ACADEMY_LEVELS_V2 } from "../content/academy/levels";
 import { useAcademyProgressStore } from "../store/academyProgressStore";
 import { usePublishContext } from "../hooks/usePublishContext";
 
+const DIFFICULTY_LABEL: Record<string, { text: string; cls: string }> = {
+  principiante: { text: "PRINCIPIANTE", cls: "text-neon-green border-neon-green/30" },
+  intermedio: { text: "INTERMEDIO", cls: "text-neon-gold border-neon-gold/30" },
+  avanzado: { text: "AVANZADO", cls: "text-neon-red border-neon-red/30" },
+};
+
 export function AcademyPage() {
   const { progress, streakDays, touchVisit, overallPercent } = useAcademyProgressStore();
-  const [activeQuizLevel, setActiveQuizLevel] = useState<string | null>(null);
 
   useEffect(() => {
     touchVisit();
   }, [touchVisit]);
 
   usePublishContext("academia", {
-    nivelesCompletados: ACADEMY_LEVELS.filter((l) => progress[l.id]?.completed).length,
-    totalNiveles: ACADEMY_LEVELS.length,
+    nivelesCompletados: ACADEMY_LEVELS_V2.filter((l) => progress[l.id]?.completed).length,
+    totalNiveles: ACADEMY_LEVELS_V2.length,
     rachaDias: streakDays,
   });
-
-  const activeQuiz = activeQuizLevel ? QUIZZES.find((q) => q.levelId === activeQuizLevel) : null;
 
   return (
     <div>
       <SectionHeader
         title="Academia"
-        subtitle={`Una ruta de aprendizaje de ${ACADEMY_LEVELS.length} niveles, de cero a poder combinar estrategias completas en la Terminal.`}
+        subtitle={`Un curso real de ${ACADEMY_LEVELS_V2.length} niveles — teoría, ejemplos y ejercicios que aplicás vos mismo, de cero a poder combinar estrategias completas en la Terminal.`}
       />
 
-      <div className="grid sm:grid-cols-2 gap-3 mb-6">
+      <div className="grid sm:grid-cols-2 gap-3 mb-8">
         <div className="panel p-4 flex items-center gap-3">
           <span className="text-2xl">🔥</span>
           <div>
             <div className="text-[10px] font-mono text-slate-500">RACHA DE DÍAS</div>
-            <div className="value-mono text-lg font-bold text-neon-gold">{streakDays} {streakDays === 1 ? "día" : "días"}</div>
+            <div className="value-mono text-lg font-bold text-neon-gold">
+              {streakDays} {streakDays === 1 ? "día" : "días"}
+            </div>
           </div>
         </div>
         <div className="panel p-4">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-mono text-slate-500">PROGRESO GENERAL</span>
+            <span className="text-[10px] font-mono text-slate-500">PROGRESO GENERAL (NIVELES APROBADOS)</span>
             <span className="value-mono text-xs text-neon-green">{overallPercent()}%</span>
           </div>
           <div className="h-2 bg-void-soft rounded-full overflow-hidden">
@@ -51,87 +53,75 @@ export function AcademyPage() {
         </div>
       </div>
 
-      {activeQuiz ? (
-        <div className="mb-6">
-          <Quiz quiz={activeQuiz} onClose={() => setActiveQuizLevel(null)} />
-        </div>
-      ) : (
-        <div className="space-y-4 mb-6">
-          {ACADEMY_LEVELS.map((level) => {
-            const levelProgress = progress[level.id];
-            const isCompleted = levelProgress?.completed ?? false;
-            const previousLevel = level.recommendedBeforeId
-              ? ACADEMY_LEVELS.find((l) => l.id === level.recommendedBeforeId)
-              : ACADEMY_LEVELS.find((l) => l.order === level.order - 1);
-            const previousCompleted = !previousLevel || (progress[previousLevel.id]?.completed ?? false);
+      <div className="space-y-3">
+        {ACADEMY_LEVELS_V2.map((level, i) => {
+          const lp = progress[level.id];
+          const isCompleted = lp?.completed ?? false;
+          const lessonsDone = lp?.lessonsCompleted.length ?? 0;
+          const totalLessons = level.lessons.length;
+          const hasContent = totalLessons > 0;
+          const prevLevel = level.recommendedBeforeId
+            ? ACADEMY_LEVELS_V2.find((l) => l.id === level.recommendedBeforeId)
+            : ACADEMY_LEVELS_V2[i - 1];
+          const prevDone = !prevLevel || (progress[prevLevel.id]?.completed ?? false);
+          const diff = DIFFICULTY_LABEL[level.difficulty]!;
 
-            return (
-              <div key={level.id} className={`panel p-5 ${isCompleted ? "border border-neon-green/30" : level.advanced ? "border border-neon-red/20" : ""}`}>
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="flex items-start gap-3">
-                    <div className="w-11 h-11 shrink-0 rounded-xl bg-void-soft border border-void-border flex items-center justify-center text-xl">
-                      {level.icon}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono text-slate-600">NIVEL {level.order}</span>
-                        {level.advanced && <span className="badge text-neon-red border-neon-red/30 text-[10px]">AVANZADO</span>}
-                        {isCompleted && <span className="badge text-neon-green border-neon-green/30 text-[10px]">✓ COMPLETADO</span>}
-                      </div>
-                      <h2 className="text-lg font-bold text-white">{level.title}</h2>
-                      <p className="text-sm text-slate-400 mt-1 max-w-xl">
-                        <TermifiedText text={level.description} />
-                      </p>
-                    </div>
+          const card = (
+            <div
+              className={`panel p-5 transition-colors ${
+                isCompleted ? "border border-neon-green/30" : hasContent ? "hover:border-neon-blue/30" : "opacity-60"
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-11 h-11 shrink-0 rounded-xl bg-void-soft border border-void-border flex items-center justify-center text-xl">
+                  {level.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-[10px] font-mono text-slate-600">NIVEL {level.order}</span>
+                    <span className={`badge text-[10px] ${diff.cls}`}>{diff.text}</span>
+                    {isCompleted && <span className="badge text-neon-green border-neon-green/30 text-[10px]">✓ APROBADO</span>}
+                    {!hasContent && <span className="badge text-slate-500 border-void-border text-[10px]">PRÓXIMAMENTE</span>}
                   </div>
-                  {levelProgress && (
-                    <div className="text-right shrink-0">
-                      <div className="text-[10px] font-mono text-slate-500">MEJOR PUNTAJE</div>
-                      <div className={`value-mono text-lg font-bold ${isCompleted ? "text-neon-green" : "text-neon-gold"}`}>
-                        {levelProgress.bestScorePercent}%
+                  <h2 className="text-lg font-bold text-white">{level.title}</h2>
+                  <p className="text-sm text-slate-400 mt-1">{level.description}</p>
+                  {hasContent && (
+                    <div className="flex items-center gap-2 mt-3">
+                      <div className="h-1.5 flex-1 max-w-[160px] bg-void-soft rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-neon-blue transition-all"
+                          style={{ width: `${totalLessons > 0 ? (lessonsDone / totalLessons) * 100 : 0}%` }}
+                        />
                       </div>
+                      <span className="text-[11px] font-mono text-slate-500">
+                        {lessonsDone}/{totalLessons} lecciones
+                      </span>
+                      {lp && (
+                        <span className={`text-[11px] font-mono ${isCompleted ? "text-neon-green" : "text-neon-gold"}`}>
+                          · quiz {lp.bestScorePercent}%
+                        </span>
+                      )}
                     </div>
                   )}
+                  {hasContent && !prevDone && (
+                    <p className="text-[11px] text-neon-gold mt-2">
+                      Sugerencia: completá "{prevLevel!.title}" primero — no es obligatorio, pero el orden ayuda.
+                    </p>
+                  )}
                 </div>
-
-                {!previousCompleted && (
-                  <p className="text-[11px] text-neon-gold mt-3">
-                    Sugerencia: completá "{previousLevel!.title}" primero — no es obligatorio, pero el orden ayuda.
-                  </p>
-                )}
-
-                <ul className="text-sm text-slate-400 list-disc list-inside mt-3 space-y-1">
-                  {level.topics.map((t) => (
-                    <li key={t}>
-                      <TermifiedText text={t} />
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex flex-wrap items-center gap-2 mt-4">
-                  <span className="text-[10px] font-mono text-slate-600">MATERIAL:</span>
-                  {level.relatedPages.map((p) => (
-                    <Link
-                      key={p.path}
-                      to={p.path}
-                      className="text-xs font-mono px-2.5 py-1 rounded-md border border-void-border text-neon-blue hover:border-neon-blue/50"
-                    >
-                      {p.label} →
-                    </Link>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setActiveQuizLevel(level.id)}
-                  className="mt-4 px-4 py-2 rounded-lg text-sm font-bold bg-neon-green/10 border border-neon-green/40 text-neon-green"
-                >
-                  {levelProgress ? "Reintentar quiz" : "Empezar quiz"} ({QUIZZES.find((q) => q.levelId === level.id)?.questions.length} preguntas)
-                </button>
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          );
+
+          return hasContent ? (
+            <Link key={level.id} to={`/app/academia/${level.id}`}>
+              {card}
+            </Link>
+          ) : (
+            <div key={level.id}>{card}</div>
+          );
+        })}
+      </div>
 
       <Disclaimer text="Esta información es contexto educativo, no asesoría financiera (NFA — Not Financial Advice). Ninguna señal técnica es una recomendación de compra o venta." />
     </div>

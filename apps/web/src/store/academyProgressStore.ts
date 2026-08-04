@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ACADEMY_LEVELS } from "../data/academyLevels";
+import { ACADEMY_LEVELS_V2 } from "../content/academy/levels";
 
 interface LevelProgress {
   bestScorePercent: number;
   completed: boolean;
+  lessonsCompleted: string[];
 }
 
 interface AcademyProgressState {
@@ -12,12 +13,18 @@ interface AcademyProgressState {
   lastVisitDate: string | null;
   streakDays: number;
   recordQuizResult: (levelId: string, scorePercent: number) => void;
+  completeLesson: (levelId: string, lessonId: string) => void;
+  isLessonCompleted: (levelId: string, lessonId: string) => boolean;
   touchVisit: () => void;
   overallPercent: () => number;
 }
 
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function emptyLevelProgress(): LevelProgress {
+  return { bestScorePercent: 0, completed: false, lessonsCompleted: [] };
 }
 
 export const useAcademyProgressStore = create<AcademyProgressState>()(
@@ -34,10 +41,31 @@ export const useAcademyProgressStore = create<AcademyProgressState>()(
           return {
             progress: {
               ...s.progress,
-              [levelId]: { bestScorePercent, completed: bestScorePercent >= 80 },
+              [levelId]: {
+                bestScorePercent,
+                completed: bestScorePercent >= 80,
+                lessonsCompleted: prev?.lessonsCompleted ?? [],
+              },
             },
           };
         });
+      },
+
+      completeLesson: (levelId, lessonId) => {
+        set((s) => {
+          const prev = s.progress[levelId] ?? emptyLevelProgress();
+          if (prev.lessonsCompleted.includes(lessonId)) return s;
+          return {
+            progress: {
+              ...s.progress,
+              [levelId]: { ...prev, lessonsCompleted: [...prev.lessonsCompleted, lessonId] },
+            },
+          };
+        });
+      },
+
+      isLessonCompleted: (levelId, lessonId) => {
+        return get().progress[levelId]?.lessonsCompleted.includes(lessonId) ?? false;
       },
 
       touchVisit: () => {
@@ -55,10 +83,26 @@ export const useAcademyProgressStore = create<AcademyProgressState>()(
 
       overallPercent: () => {
         const s = get();
-        const completedCount = ACADEMY_LEVELS.filter((l) => s.progress[l.id]?.completed).length;
-        return Math.round((completedCount / ACADEMY_LEVELS.length) * 100);
+        const completedCount = ACADEMY_LEVELS_V2.filter((l) => s.progress[l.id]?.completed).length;
+        return Math.round((completedCount / ACADEMY_LEVELS_V2.length) * 100);
       },
     }),
-    { name: "spider-academy-progress" },
+    {
+      name: "spider-academy-progress",
+      // Los saves viejos no tienen `lessonsCompleted` por nivel — se agrega vacío en vez de
+      // undefined para que el resto del código no tenga que chequear presencia del campo.
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState ?? {}) as Partial<AcademyProgressState>;
+        const mergedProgress: Record<string, LevelProgress> = { ...currentState.progress };
+        for (const [levelId, lp] of Object.entries(persisted.progress ?? {})) {
+          mergedProgress[levelId] = {
+            bestScorePercent: lp.bestScorePercent ?? 0,
+            completed: lp.completed ?? false,
+            lessonsCompleted: lp.lessonsCompleted ?? [],
+          };
+        }
+        return { ...currentState, ...persisted, progress: mergedProgress };
+      },
+    },
   ),
 );
