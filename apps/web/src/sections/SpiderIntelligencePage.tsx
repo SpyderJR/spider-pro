@@ -160,7 +160,7 @@ export function SpiderIntelligencePage() {
       reading: m2TrendPercent !== null ? formatPercent(m2TrendPercent) : "—",
       vote: m2TrendPercent !== null ? (m2TrendPercent > 0.5 ? 1 : m2TrendPercent < -0.5 ? -1 : 0) : 0,
       explanation: "M2 en expansión históricamente se leyó como viento de cola para activos de riesgo; en contracción, como viento en contra.",
-      link: "/app/m2-vs-mercado",
+      link: "/app/analisis-macro",
     });
 
     return list;

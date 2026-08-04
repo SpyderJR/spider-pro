@@ -7,12 +7,12 @@ export interface FredPoint {
 }
 
 /**
- * FRED publishes the M2SL series as a public CSV with no API key required,
- * via fredgraph.csv — the JSON API at api.stlouisfed.org needs a key, so we
+ * FRED publishes most public series as a CSV with no API key required, via
+ * fredgraph.csv — the JSON API at api.stlouisfed.org needs a key, so we
  * deliberately avoid it here per the "no auth required" design in the PRD.
  */
-export async function fetchM2Series(): Promise<FredPoint[]> {
-  const url = `${env.FRED_BASE_URL}/graph/fredgraph.csv?id=M2SL`;
+export async function fetchFredSeries(seriesId: string): Promise<FredPoint[]> {
+  const url = `${env.FRED_BASE_URL}/graph/fredgraph.csv?id=${seriesId}`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
   let text: string;
@@ -38,3 +38,5 @@ export async function fetchM2Series(): Promise<FredPoint[]> {
   }
   return points;
 }
+
+export const fetchM2Series = () => fetchFredSeries("M2SL");

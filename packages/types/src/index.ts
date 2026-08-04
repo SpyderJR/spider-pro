@@ -1,3 +1,4 @@
 export * from "./market.js";
 export * from "./indicators.js";
 export * from "./chat.js";
+export * from "./backtest.js";

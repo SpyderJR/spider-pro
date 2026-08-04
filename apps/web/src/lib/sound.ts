@@ -49,3 +49,33 @@ export function playClickSound(): void {
     // Web Audio unavailable in this environment — the click sound is a nice-to-have, never a hard requirement.
   }
 }
+
+/**
+ * Order-fill chime — two ascending notes, distinct from the global click's downward sweep
+ * so a filled order is recognizable by ear. Opt-in only (see `orderSoundEnabled` in
+ * `terminalPreferencesStore`), unlike the click sound which plays unconditionally.
+ */
+export function playOrderFillSound(): void {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    [523.25, 783.99].forEach((freq, i) => {
+      const start = now + i * 0.09;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.14, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.22);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.24);
+    });
+  } catch {
+    // Web Audio unavailable in this environment — never a hard requirement.
+  }
+}

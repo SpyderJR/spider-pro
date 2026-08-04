@@ -5,8 +5,10 @@ import type { TerminalIndicators } from "../../hooks/useTerminalIndicators";
 import type { TerminalIndicatorToggles } from "../../hooks/useTerminalIndicators";
 import type { Position, PendingOrder } from "../../lib/paperTrading/types";
 import { pricePrecision } from "../../lib/format";
+import { VolumeProfileOverlay } from "./VolumeProfileOverlay";
 
 const EMA_COLORS = { ema20: "#3ba8ff", ema50: "#ffcf4d", ema200: "#a78bfa" };
+const VWAP_COLOR = "#ff8ad8";
 
 export interface ExtraPriceLine {
   price: number;
@@ -26,9 +28,12 @@ interface Props {
    * spot paper-trading path above stays untouched. */
   extraPriceLines?: ExtraPriceLine[];
   height?: number;
+  /** Fired once, right after the chart+series are created — lets a parent (e.g. the
+   * multi-asset synced Replay) sync visible range and crosshair against another chart. */
+  onChartReady?: (chart: IChartApi, series: ISeriesApi<"Candlestick">) => void;
 }
 
-export function TerminalChart({ candles, liveKline, toggles, indicators, position, pendingOrders, extraPriceLines = [], height = 440 }: Props) {
+export function TerminalChart({ candles, liveKline, toggles, indicators, position, pendingOrders, extraPriceLines = [], height = 440, onChartReady }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -67,6 +72,8 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
     });
     chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.85, bottom: 0 } });
     volumeSeriesRef.current = volumeSeries;
+
+    onChartReady?.(chart, candleSeries);
 
     const resize = () => {
       if (containerRef.current) chart.applyOptions({ width: containerRef.current.clientWidth });
@@ -151,6 +158,7 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
     addLine(indicators.ema20, EMA_COLORS.ema20, "EMA20");
     addLine(indicators.ema50, EMA_COLORS.ema50, "EMA50");
     addLine(indicators.ema200, EMA_COLORS.ema200, "EMA200");
+    addLine(indicators.vwapValues, VWAP_COLOR, "VWAP");
 
     if (toggles.alligator && indicators.alligatorData) {
       addLine(indicators.alligatorData.map((p) => p.jaw), "#3ba8ff", "Mandíbula");
@@ -294,5 +302,15 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
     };
   }, [position, pendingOrders, extraPriceLines]);
 
-  return <div ref={containerRef} className="w-full" />;
+  return (
+    <div className="relative w-full">
+      <div ref={containerRef} className="w-full" />
+      <VolumeProfileOverlay
+        chart={chartRef.current}
+        candleSeries={candleSeriesRef.current}
+        candles={candles}
+        visible={toggles.volumeProfile}
+      />
+    </div>
+  );
 }

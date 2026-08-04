@@ -11,6 +11,8 @@ const ITEMS: Array<{ key: keyof TerminalIndicatorToggles; label: string; icon: s
   { key: "volume", label: "Volumen", icon: "▮" },
   { key: "rsi", label: "RSI", icon: "◐" },
   { key: "ao", label: "AO", icon: "≋" },
+  { key: "vwap", label: "VWAP", icon: "Σ" },
+  { key: "volumeProfile", label: "Perfil Vol.", icon: "▤" },
 ];
 
 export function IndicatorTogglesPanel() {

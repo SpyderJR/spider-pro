@@ -16,6 +16,7 @@ import { FuturesManagementTabs } from "../components/terminal/FuturesManagementT
 import { ReplayTerminal } from "../components/terminal/replay/ReplayTerminal";
 import { useBinanceKlinesQuery } from "../hooks/useBinanceKlinesQuery";
 import { useBinanceStreams } from "../lib/binance/websocket";
+import { useOrderBookDepth } from "../hooks/useOrderBookDepth";
 import { useTerminalIndicators } from "../hooks/useTerminalIndicators";
 import { useTerminalPreferencesStore } from "../store/terminalPreferencesStore";
 import { usePaperTradingStore } from "../lib/paperTrading/store";
@@ -46,10 +47,11 @@ export function TerminalPage() {
   const historyQuery = useBinanceKlinesQuery(pair, interval, 300);
   const dailyQuery = useBinanceKlinesQuery(pair, "1d", 15);
   const streams = useBinanceStreams(pair, interval);
+  const depthSnapshot = useOrderBookDepth(pair, streams.orderBook);
   const fearGreed = useFearGreed();
   const fundingQuery = useFundingRate(pair);
 
-  const { toggles } = useTerminalPreferencesStore();
+  const { toggles, orderSoundEnabled, toggleOrderSound, panelOrder, movePanel } = useTerminalPreferencesStore();
   const store = usePaperTradingStore();
   const futuresStore = useFuturesStore();
 
@@ -398,7 +400,18 @@ export function TerminalPage() {
                 </button>
               ))}
             </div>
-            <IndicatorTogglesPanel />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleOrderSound}
+                title="Sonido de ejecución de orden"
+                className={`px-2 py-1 rounded-md text-[10px] font-mono border transition-colors ${
+                  orderSoundEnabled ? "border-neon-green/50 text-neon-green bg-neon-green/10" : "border-void-border text-slate-500 hover:border-slate-600"
+                }`}
+              >
+                {orderSoundEnabled ? "🔊" : "🔇"} Sonido
+              </button>
+              <IndicatorTogglesPanel />
+            </div>
           </div>
 
           <div className="panel p-3">
@@ -425,25 +438,44 @@ export function TerminalPage() {
         </div>
 
         <div className="space-y-4">
-          {market === "spot" ? (
-            <OrderPanel
-              pair={pair}
-              currentPrice={currentPrice}
-              balance={store.balance}
-              hasOpenPosition={positionForPair !== null}
-              onSubmit={handleSubmitOrder}
-            />
-          ) : (
-            <FuturesOrderPanel
-              pair={pair}
-              currentPrice={currentPrice}
-              balance={futuresStore.balance}
-              hasOpenPosition={futuresPositionForPair !== null}
-              onSubmit={handleSubmitFuturesOrder}
-            />
-          )}
-          <OrderBookPanel orderBook={streams.orderBook} />
-          <TradesFeed trades={streams.trades} />
+          {panelOrder.map((id, i) => {
+            const panel =
+              id === "order" ? (
+                market === "spot" ? (
+                  <OrderPanel pair={pair} currentPrice={currentPrice} balance={store.balance} hasOpenPosition={positionForPair !== null} onSubmit={handleSubmitOrder} />
+                ) : (
+                  <FuturesOrderPanel pair={pair} currentPrice={currentPrice} balance={futuresStore.balance} hasOpenPosition={futuresPositionForPair !== null} onSubmit={handleSubmitFuturesOrder} />
+                )
+              ) : id === "orderbook" ? (
+                <OrderBookPanel orderBook={streams.orderBook} depthSnapshot={depthSnapshot} />
+              ) : id === "trades" ? (
+                <TradesFeed trades={streams.trades} />
+              ) : null;
+            if (!panel) return null;
+            return (
+              <div key={id}>
+                <div className="flex justify-end gap-1 mb-1">
+                  <button
+                    disabled={i === 0}
+                    onClick={() => movePanel(id, "up")}
+                    className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-void-border text-slate-500 disabled:opacity-30 hover:border-slate-600"
+                    title="Subir panel"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    disabled={i === panelOrder.length - 1}
+                    onClick={() => movePanel(id, "down")}
+                    className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-void-border text-slate-500 disabled:opacity-30 hover:border-slate-600"
+                    title="Bajar panel"
+                  >
+                    ▼
+                  </button>
+                </div>
+                {panel}
+              </div>
+            );
+          })}
         </div>
       </div>
 

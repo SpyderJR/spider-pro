@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ema, rsi, ao, alligator, type AlligatorPoint } from "@spider/indicators";
+import { ema, rsi, ao, alligator, vwap, type AlligatorPoint } from "@spider/indicators";
 import { detectFractals, type FractalPoint } from "../lib/fractals";
 import { classicPivots, type PivotLevels } from "../lib/pivotPoints";
 import type { BinanceCandle } from "../lib/binance/types";
@@ -14,6 +14,8 @@ export interface TerminalIndicatorToggles {
   volume: boolean;
   rsi: boolean;
   ao: boolean;
+  vwap: boolean;
+  volumeProfile: boolean;
 }
 
 export const DEFAULT_TOGGLES: TerminalIndicatorToggles = {
@@ -26,6 +28,8 @@ export const DEFAULT_TOGGLES: TerminalIndicatorToggles = {
   volume: true,
   rsi: true,
   ao: false,
+  vwap: false,
+  volumeProfile: false,
 };
 
 export interface TerminalIndicators {
@@ -37,6 +41,7 @@ export interface TerminalIndicators {
   ema200: (number | null)[] | null;
   rsiValues: (number | null)[] | null;
   aoValues: (number | null)[] | null;
+  vwapValues: number[] | null;
 }
 
 /**
@@ -66,6 +71,7 @@ export function useTerminalIndicators(
       ema200: toggles.ema200 ? ema(closes, 200) : null,
       rsiValues: toggles.rsi ? rsi(closes, 14) : null,
       aoValues: toggles.ao ? ao(candles) : null,
+      vwapValues: toggles.vwap ? vwap(candles) : null,
     };
   }, [candles, toggles, dailyCandles]);
 }

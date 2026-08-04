@@ -42,6 +42,30 @@ export function useM2() {
   });
 }
 
+export function useDxy() {
+  return useQuery({
+    queryKey: ["dxy"],
+    queryFn: api.fetchDxy,
+    refetchInterval: 60 * 60_000,
+  });
+}
+
+export function useFedFunds() {
+  return useQuery({
+    queryKey: ["fedfunds"],
+    queryFn: api.fetchFedFunds,
+    refetchInterval: 60 * 60_000,
+  });
+}
+
+export function useSp500() {
+  return useQuery({
+    queryKey: ["sp500"],
+    queryFn: api.fetchSp500,
+    refetchInterval: 60 * 60_000,
+  });
+}
+
 export function useFearGreedHistory() {
   return useQuery({
     queryKey: ["fear-greed-history"],

@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { ClosedTrade, ExitReason, OrderSide, PendingOrder, Position } from "./types";
 import { checkPositionExit, computePnl, computePnlPercent, shouldFillLimitOrder } from "./engine";
+import { playOrderFillSound } from "../sound";
+import { useTerminalPreferencesStore } from "../../store/terminalPreferencesStore";
 
 const INITIAL_BALANCE = 10_000;
 
@@ -63,6 +65,7 @@ export const usePaperTradingStore = create<PaperTradingState>()(
           openedAt: Date.now(),
         };
         set((s) => ({ positions: [...s.positions, position] }));
+        if (useTerminalPreferencesStore.getState().orderSoundEnabled) playOrderFillSound();
       },
 
       placeLimitOrder: ({ pair, side, quantity, limitPrice, stopLoss, takeProfit }) => {

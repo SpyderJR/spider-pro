@@ -10,7 +10,7 @@ const PAGE_TITLES: Record<string, string> = {
   "velas-japonesas": "Velas Japonesas",
   estrategias: "Estrategias & Cómo Invertir",
   halvings: "Halvings BTC",
-  "m2-vs-mercado": "M2 vs Mercado",
+  "analisis-macro": "Análisis Macro",
   stablecoins: "Stablecoins TRON",
   crashes: "Crashes Históricos",
   roadmap: "TRON Roadmap",

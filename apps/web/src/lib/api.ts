@@ -5,6 +5,7 @@ import {
   FearGreedResponseSchema,
   FearGreedHistoryResponseSchema,
   M2ResponseSchema,
+  MacroSeriesResponseSchema,
   StablecoinsResponseSchema,
   TronStatsResponseSchema,
   BitcoinStatsResponseSchema,
@@ -69,6 +70,18 @@ export function fetchFearGreed() {
 
 export function fetchM2() {
   return getJson(`/api/market/m2`, M2ResponseSchema);
+}
+
+export function fetchDxy() {
+  return getJson(`/api/market/dxy`, MacroSeriesResponseSchema);
+}
+
+export function fetchFedFunds() {
+  return getJson(`/api/market/fedfunds`, MacroSeriesResponseSchema);
+}
+
+export function fetchSp500() {
+  return getJson(`/api/market/sp500`, MacroSeriesResponseSchema);
 }
 
 export function fetchFearGreedHistory() {

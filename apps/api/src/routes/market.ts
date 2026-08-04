@@ -5,6 +5,7 @@ import {
   ASSETS,
   type Asset,
   type M2Response,
+  type MacroSeriesResponse,
   type MarketCoinsResponse,
   type MarketHistoryResponse,
   type StablecoinsResponse,
@@ -14,9 +15,15 @@ import { cache, TTL } from "../lib/cache.js";
 import { fetchCoinGeckoHistory, fetchCoinGeckoMarkets } from "../providers/coingecko.js";
 import { fetchCryptoCompareDailyHistory } from "../providers/cryptocompare.js";
 import { fetchFearGreed, fetchFearGreedHistory } from "../providers/alternativeMe.js";
-import { fetchM2Series } from "../providers/fred.js";
+import { fetchM2Series, fetchFredSeries } from "../providers/fred.js";
 import { fetchTronStablecoinSupply } from "../providers/tron.js";
-import { M2_STATIC_FALLBACK, STABLECOIN_STATIC_FALLBACK } from "../lib/staticFallback.js";
+import {
+  M2_STATIC_FALLBACK,
+  STABLECOIN_STATIC_FALLBACK,
+  DXY_STATIC_FALLBACK,
+  FEDFUNDS_STATIC_FALLBACK,
+  SP500_STATIC_FALLBACK,
+} from "../lib/staticFallback.js";
 
 const CoinsQuerySchema = z.object({
   ids: z.string().default("bitcoin,tron"),
@@ -128,6 +135,33 @@ export function registerMarketRoutes(app: FastifyInstance) {
       return reply.status(502).send({ error: "m2 provider unavailable" });
     }
   });
+
+  const MACRO_SERIES: Record<string, { fredId: string; fallback: MacroSeriesResponse["points"] }> = {
+    dxy: { fredId: "DTWEXBGS", fallback: DXY_STATIC_FALLBACK },
+    fedfunds: { fredId: "FEDFUNDS", fallback: FEDFUNDS_STATIC_FALLBACK },
+    sp500: { fredId: "SP500", fallback: SP500_STATIC_FALLBACK },
+  };
+
+  for (const [route, { fredId, fallback }] of Object.entries(MACRO_SERIES)) {
+    app.get(`/api/market/${route}`, async (request, reply) => {
+      try {
+        const result = await cache.wrap<MacroSeriesResponse>(`market:${route}`, TTL.macro, async () => {
+          try {
+            const fredPoints = await fetchFredSeries(fredId);
+            const points = fredPoints.map((p) => ({ time: p.time, value: p.value }));
+            return { points, source: "fred" as const, live: true };
+          } catch (err) {
+            request.log.warn({ err }, `market/${route}: FRED unavailable, using static reference dataset`);
+            return { points: fallback, source: "static-fallback" as const, live: false };
+          }
+        });
+        return reply.send(result);
+      } catch (err) {
+        request.log.error({ err }, `market/${route} failed`);
+        return reply.status(502).send({ error: `${route} provider unavailable` });
+      }
+    });
+  }
 
   app.get("/api/market/stablecoins", async (request, reply) => {
     try {

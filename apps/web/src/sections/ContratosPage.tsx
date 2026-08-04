@@ -3,6 +3,7 @@ import { SectionHeader } from "../components/SectionHeader";
 import { Disclaimer } from "../components/Disclaimer";
 import { ConceptCard } from "../components/contracts/ConceptCard";
 import { LiquidationSimulator } from "../components/contracts/LiquidationSimulator";
+import { LeverageZonesPanel } from "../components/contracts/LeverageZonesPanel";
 import {
   AppleIcon,
   HandshakeBetIcon,
@@ -273,6 +274,8 @@ export function ContratosPage() {
       />
 
       <LiquidationSimulator />
+
+      <LeverageZonesPanel />
 
       <div className="panel p-6 mb-6">
         <h2 className="text-lg font-bold text-white mb-3">La realidad, sin filtro</h2>

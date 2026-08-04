@@ -8,7 +8,7 @@ export interface RateBucket {
   winRate: number;
 }
 
-const MIN_SAMPLE = 3;
+export const MIN_SAMPLE = 3;
 
 function toBuckets<K extends string>(
   entries: DiaryEntry[],
@@ -38,7 +38,7 @@ export function winRateBySignal(entries: DiaryEntry[]): RateBucket[] {
   return toBuckets(entries, (e) => e.signals, SIGNAL_LABELS);
 }
 
-const DAY_LABELS: Record<string, string> = {
+export const DAY_LABELS: Record<string, string> = {
   "0": "Domingo",
   "1": "Lunes",
   "2": "Martes",
@@ -52,14 +52,14 @@ export function winRateByDayOfWeek(entries: DiaryEntry[]): RateBucket[] {
   return toBuckets(entries, (e) => [String(new Date(e.createdAt).getDay())], DAY_LABELS);
 }
 
-const SESSION_LABELS: Record<string, string> = {
+export const SESSION_LABELS: Record<string, string> = {
   madrugada: "Madrugada (00-06h)",
   manana: "Mañana (06-12h)",
   tarde: "Tarde (12-18h)",
   noche: "Noche (18-24h)",
 };
 
-function sessionOf(hour: number): keyof typeof SESSION_LABELS {
+export function sessionOf(hour: number): keyof typeof SESSION_LABELS {
   if (hour < 6) return "madrugada";
   if (hour < 12) return "manana";
   if (hour < 18) return "tarde";

@@ -127,6 +127,19 @@ export const M2ResponseSchema = z.object({
 });
 export type M2Response = z.infer<typeof M2ResponseSchema>;
 
+export const MacroPointSchema = z.object({
+  time: z.number().int(),
+  value: z.number(),
+});
+export type MacroPoint = z.infer<typeof MacroPointSchema>;
+
+export const MacroSeriesResponseSchema = z.object({
+  points: z.array(MacroPointSchema),
+  source: z.enum(["fred", "static-fallback"]),
+  live: z.boolean(),
+});
+export type MacroSeriesResponse = z.infer<typeof MacroSeriesResponseSchema>;
+
 export const StablecoinSymbolSchema = z.enum(["USDT", "USDC", "USDD", "TUSD", "USDJ"]);
 export type StablecoinSymbol = z.infer<typeof StablecoinSymbolSchema>;
 

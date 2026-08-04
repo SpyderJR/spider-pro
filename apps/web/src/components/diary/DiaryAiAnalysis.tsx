@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { DiaryEntry } from "../../lib/diary/types";
 import { EMOTION_LABELS, SIGNAL_LABELS } from "../../lib/diary/types";
+import { buildDiaryBehavioralStatsBlock } from "../../lib/diary/behavioralStats";
 import { useChatRateLimitStore, DAILY_CHAT_LIMIT } from "../../store/chatRateLimitStore";
 import { postChat } from "../../lib/api";
 
@@ -35,12 +36,15 @@ export function DiaryAiAnalysis({ entries }: { entries: DiaryEntry[] }) {
     setError(null);
     recordMessage();
     try {
+      const statsBlock = buildDiaryBehavioralStatsBlock(entries);
       const prompt =
         `Analiza mis últimas ${last20.length} operaciones de mi diario de trading y dame un resumen breve (máximo 5 líneas) ` +
         `de patrones de comportamiento — no de análisis de mercado. Enfócate en emociones, señales usadas y horarios. ` +
+        `Si hay estadísticas verificadas de rachas o de día/horario, menciónalas con la cifra exacta que aparece ahí — ` +
+        `no calcules ni inventes ningún porcentaje por tu cuenta a partir del texto de las operaciones. ` +
         `No des ninguna recomendación de compra o venta, esto es un análisis de mi propio comportamiento como trader.\n\n` +
         last20.map(summarizeEntry).join("\n");
-      const res = await postChat(prompt, "diario", undefined, []);
+      const res = await postChat(prompt, "diario", statsBlock ? { estadisticasVerificadas: statsBlock } : undefined, []);
       setResult(res.reply);
       if (res.remaining !== undefined) syncFromServer(res.remaining);
     } catch {

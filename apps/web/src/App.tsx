@@ -17,6 +17,7 @@ import { TronPage } from "./sections/TronPage";
 import { AnalisisTecnicoPage } from "./sections/AnalisisTecnicoPage";
 import { TradingToolsPage } from "./sections/TradingToolsPage";
 import { TerminalPage } from "./sections/TerminalPage";
+import { BacktesterPage } from "./sections/BacktesterPage";
 import { RiskManagementPage } from "./sections/RiskManagementPage";
 import { DiarioPage } from "./sections/DiarioPage";
 import { VelasJaponesasPage } from "./sections/VelasJaponesasPage";
@@ -24,7 +25,7 @@ import { FractalesEstructuraPage } from "./sections/FractalesEstructuraPage";
 import { EstrategiasPage } from "./sections/EstrategiasPage";
 import { ContratosPage } from "./sections/ContratosPage";
 import { HalvingsPage } from "./sections/HalvingsPage";
-import { M2VsMercadoPage } from "./sections/M2VsMercadoPage";
+import { MacroAnalysisPage } from "./sections/MacroAnalysisPage";
 import { StablecoinsPage } from "./sections/StablecoinsPage";
 import { CrashesPage } from "./sections/CrashesPage";
 import { RoadmapPage } from "./sections/RoadmapPage";
@@ -56,6 +57,7 @@ export default function App() {
         <Route path="analisis-tecnico" element={<AnalisisTecnicoPage />} />
         <Route path="radar-de-trading" element={<TradingToolsPage />} />
         <Route path="terminal" element={<TerminalPage />} />
+        <Route path="backtester" element={<BacktesterPage />} />
         <Route path="gestion-de-riesgo" element={<RiskManagementPage />} />
         <Route path="diario" element={<DiarioPage />} />
         <Route path="velas-japonesas" element={<VelasJaponesasPage />} />
@@ -63,7 +65,8 @@ export default function App() {
         <Route path="estrategias" element={<EstrategiasPage />} />
         <Route path="contratos" element={<ContratosPage />} />
         <Route path="halvings" element={<HalvingsPage />} />
-        <Route path="m2-vs-mercado" element={<M2VsMercadoPage />} />
+        <Route path="analisis-macro" element={<MacroAnalysisPage />} />
+        <Route path="m2-vs-mercado" element={<Navigate to="/app/analisis-macro" replace />} />
         <Route path="stablecoins" element={<StablecoinsPage />} />
         <Route path="crashes" element={<CrashesPage />} />
         <Route path="roadmap" element={<RoadmapPage />} />

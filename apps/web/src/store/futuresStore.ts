@@ -4,6 +4,8 @@ import type { FuturesClosedTrade, FuturesExitReason, FuturesPendingOrder, Future
 import type { FuturesSide } from "../lib/futures/liquidation";
 import { computeLiquidationPrice, computeRequiredMargin, isLiquidated } from "../lib/futures/liquidation";
 import { checkFuturesPositionExit, computeFundingPayment, computeFuturesPnl, computeFuturesPnlPercent, shouldFillFuturesLimitOrder } from "../lib/futures/engine";
+import { playOrderFillSound } from "../lib/sound";
+import { useTerminalPreferencesStore } from "./terminalPreferencesStore";
 
 const INITIAL_FUTURES_BALANCE = 10_000;
 const FUNDING_INTERVAL_MS = 8 * 60 * 60 * 1000;
@@ -76,6 +78,7 @@ export const useFuturesStore = create<FuturesState>()(
           fundingPaid: 0,
         };
         set((s) => ({ positions: [...s.positions, position] }));
+        if (useTerminalPreferencesStore.getState().orderSoundEnabled) playOrderFillSound();
       },
 
       placeLimitOrder: ({ pair, side, leverage, marginMode, quantity, limitPrice, stopLoss, takeProfit }) => {

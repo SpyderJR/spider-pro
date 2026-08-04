@@ -1,4 +1,4 @@
-import type { BitcoinStatsResponse, M2Point, StablecoinData, TronStatsResponse } from "@spider/types";
+import type { BitcoinStatsResponse, M2Point, MacroPoint, StablecoinData, TronStatsResponse } from "@spider/types";
 
 /** Reference snapshot used only if TronScan and TronGrid both fail — keeps the TRON section from rendering empty. */
 export const TRON_STATIC_FALLBACK: Omit<TronStatsResponse, "source" | "live" | "updatedAt"> = {
@@ -38,4 +38,31 @@ export const M2_STATIC_FALLBACK: M2Point[] = [
   { time: Date.parse("2024-01-01") / 1000, m2: 20800, btcPrice: null, trxPrice: null },
   { time: Date.parse("2024-07-01") / 1000, m2: 21000, btcPrice: null, trxPrice: null },
   { time: Date.parse("2025-01-01") / 1000, m2: 21500, btcPrice: null, trxPrice: null },
+];
+
+/** Static DTWEXBGS (trade-weighted dollar index) reference points, used only if FRED is unreachable. */
+export const DXY_STATIC_FALLBACK: MacroPoint[] = [
+  { time: Date.parse("2023-01-01") / 1000, value: 118.5 },
+  { time: Date.parse("2023-07-01") / 1000, value: 120.4 },
+  { time: Date.parse("2024-01-01") / 1000, value: 122.1 },
+  { time: Date.parse("2024-07-01") / 1000, value: 121.0 },
+  { time: Date.parse("2025-01-01") / 1000, value: 123.8 },
+];
+
+/** Static FEDFUNDS reference points (effective federal funds rate, %), used only if FRED is unreachable. */
+export const FEDFUNDS_STATIC_FALLBACK: MacroPoint[] = [
+  { time: Date.parse("2023-01-01") / 1000, value: 4.33 },
+  { time: Date.parse("2023-07-01") / 1000, value: 5.12 },
+  { time: Date.parse("2024-01-01") / 1000, value: 5.33 },
+  { time: Date.parse("2024-07-01") / 1000, value: 5.33 },
+  { time: Date.parse("2025-01-01") / 1000, value: 4.33 },
+];
+
+/** Static SP500 reference points, used only if FRED is unreachable. */
+export const SP500_STATIC_FALLBACK: MacroPoint[] = [
+  { time: Date.parse("2023-01-01") / 1000, value: 3824 },
+  { time: Date.parse("2023-07-01") / 1000, value: 4589 },
+  { time: Date.parse("2024-01-01") / 1000, value: 4783 },
+  { time: Date.parse("2024-07-01") / 1000, value: 5522 },
+  { time: Date.parse("2025-01-01") / 1000, value: 5882 },
 ];
