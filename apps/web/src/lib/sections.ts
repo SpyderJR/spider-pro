@@ -18,6 +18,7 @@ export const SECTIONS: SectionMeta[] = [
   { path: "/app/diario", label: "Diario de Trading", icon: "📔" },
   { path: "/app/velas-japonesas", label: "Velas Japonesas", icon: "🕯" },
   { path: "/app/fractales-estructura", label: "Fractales & Estructura", icon: "〽" },
+  { path: "/app/on-chain", label: "On-Chain", icon: "🔗" },
   { path: "/app/estrategias", label: "Estrategias & Cómo Invertir", icon: "🧭" },
   { path: "/app/contratos", label: "Contratos", icon: "⚖️" },
   { path: "/app/halvings", label: "Halvings BTC", icon: "⏳" },

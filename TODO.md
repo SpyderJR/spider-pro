@@ -477,3 +477,46 @@ desbloqueado en el mapa de Academia, los tooltips `<Term>` se activan automátic
 cuerpo del texto, y la Terminal muestra la distancia del SL real ($1,920.01 · 2.99% · 192,001
 ticks) verificada a mano. Barrido de regresión limpio en 28 rutas, cero errores de consola. Sin
 push/deploy hasta que se pida explícitamente.
+
+## Pestaña On-Chain — contenido educativo propio, sin APIs de pago
+
+Pedido del usuario: una pestaña nueva del sidebar dedicada al análisis on-chain, explícitamente
+**sin** integrar ninguna API de terceros de pago (Arkham/Nansen/Glassnode/etc. son de pago) —
+todo el "wow" viene de contenido educativo original y diagramas SVG propios, no de datos en vivo
+de terceros. El enlace a herramientas externas es solo eso: enlaces, nunca datos embebidos.
+
+- [x] `data/onchainTools.ts` — directorio centralizado de 9 herramientas gratuitas/freemium
+      (Tronscan, Etherscan, Blockchain.com Explorer, DeFiLlama, Arkham Intelligence, Bubblemaps,
+      Nansen, Glassnode, Dune), cada una con etiquetado honesto GRATIS/FREEMIUM y, cuando aplica,
+      una nota aclarando qué parte es de pago (ej. Arkham: "la visualización básica es gratis,
+      los datos avanzados y alertas por API requieren plan de pago"). Nunca se presenta una
+      herramienta freemium como si fuera 100% gratis.
+- [x] 3 diagramas SVG originales nuevos (`components/onchain/diagrams/`): `DireccionSeudonima.tsx`
+      (comparación "esto se ve" vs. "esto no se ve" para una dirección TRON), `GrafoDeFlujos.tsx`
+      (grafo estilo Arkham con nodo central y flujos de entrada/salida coloreados, grosor de
+      línea proporcional al tamaño), `EntidadEtiquetada.tsx` (código anónimo → cruce de datos →
+      entidad etiquetada, con la salvedad "etiqueta = atribución, no certeza"). Reutiliza
+      `CadenaDeBloques` de los diagramas de Academia en vez de duplicarlo.
+- [x] `sections/OnChainPage.tsx` — 7 secciones: hero con caja "por qué importa" (la ventaja del
+      inversor pequeño: mismos datos que ven ballenas e instituciones, gratis); 4 tarjetas de
+      concepto con diagrama (blockchain pública, direcciones seudónimas, grafo de flujos, entidad
+      etiquetada); 6 tarjetas de caso de uso (ballenas, flujos de exchanges, instituciones,
+      hackeos/estafas, stablecoins con link a Stablecoins TRON, salud de red); caja roja **"Lo
+      que on-chain NO puede hacer"** (no revela identidad con certeza, no predice el futuro, no
+      es señal de compra/venta por sí sola — con link a Spider Intelligence y Gestión de Riesgo,
+      cuidado con cuentas de "alerta de ballenas" que fabrican FOMO); directorio de las 9
+      herramientas con botón "Abrir" (`rel="noopener noreferrer"`, nueva pestaña); tutorial
+      práctico de 4 pasos "Tu primera investigación on-chain" con Tronscan y una dirección TRON
+      real de ejemplo; cross-links a Stablecoins TRON, Spider Intelligence y Academia Nivel 9 más
+      un botón "Explícame esto" que precarga una pregunta en Spider Chat.
+- [x] Pestaña agregada a `lib/sections.ts` (ícono 🔗, ubicada junto a Fractales & Estructura) y
+      ruta `/app/on-chain` en `App.tsx`.
+
+Build y typecheck limpios en los 4 paquetes (incluyendo un fix de un atributo JSX con comillas
+escapadas inválidas — `title="...\"...\""` no es válido dentro de un string JSX plano, se
+corrigió envolviéndolo en una expresión `{'...'}`). Verificado en navegador: título, tarjetas de
+Tronscan y Arkham presentes en el DOM, cero errores de consola, captura de página completa
+confirma que los 4 diagramas SVG, el grid de 9 herramientas y todas las secciones se ven
+correctas y con la estética de la plataforma. Barrido de regresión limpio en las 28 rutas de la
+app. Sin push/deploy hasta que se pida explícitamente — es contenido nuevo e independiente, no
+se envía hasta indicación directa.

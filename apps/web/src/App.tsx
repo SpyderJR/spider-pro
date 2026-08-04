@@ -22,6 +22,7 @@ import { RiskManagementPage } from "./sections/RiskManagementPage";
 import { DiarioPage } from "./sections/DiarioPage";
 import { VelasJaponesasPage } from "./sections/VelasJaponesasPage";
 import { FractalesEstructuraPage } from "./sections/FractalesEstructuraPage";
+import { OnChainPage } from "./sections/OnChainPage";
 import { EstrategiasPage } from "./sections/EstrategiasPage";
 import { ContratosPage } from "./sections/ContratosPage";
 import { HalvingsPage } from "./sections/HalvingsPage";
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="diario" element={<DiarioPage />} />
         <Route path="velas-japonesas" element={<VelasJaponesasPage />} />
         <Route path="fractales-estructura" element={<FractalesEstructuraPage />} />
+        <Route path="on-chain" element={<OnChainPage />} />
         <Route path="estrategias" element={<EstrategiasPage />} />
         <Route path="contratos" element={<ContratosPage />} />
         <Route path="halvings" element={<HalvingsPage />} />
