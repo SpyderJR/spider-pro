@@ -74,10 +74,15 @@ interface TronScanTrc20Response {
   trc20_tokens?: Array<{ symbol: string; total_supply_with_decimals: string; decimals: number }>;
 }
 
+// Verified directly against CoinGecko's authoritative per-chain contract listing (2026-08-04)
+// after a user report of wrong TRON supply numbers — the old USDD address below turned out to
+// be a deprecated/abandoned contract (TronScan itself labels it "USDDOLD"): it still returns
+// valid-looking data, just for a token nobody uses anymore (~$7M supply vs. the real ~$1.28B).
+// Never trust a contract address here without cross-checking it against a second source first.
 const TRC20_CONTRACT: Record<StablecoinSymbol, string> = {
   USDT: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
   USDC: "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8",
-  USDD: "TPYmHEhy5n8TCEfYGqW2rPxsghSfzghPDn",
+  USDD: "TXDk8mbtRbXeYuMNS83CfKPaYYT8XWv9Hz",
   TUSD: "TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4",
   USDJ: "TMwFHYXLJaRUPeW6421aqXL4ZEzPRFGkGT",
 };

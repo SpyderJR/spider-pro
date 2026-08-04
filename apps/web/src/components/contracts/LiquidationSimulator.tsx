@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useMarketCoins, useKlines } from "../../hooks/useMarketData";
 import { computeLiquidationPrice, liquidationDistancePercent, type FuturesSide } from "../../lib/futures/liquidation";
 import { formatUsd, pricePrecision } from "../../lib/format";
+import { SpiderGauge } from "../spider/SpiderGauge";
 
 const FALLBACK_ENTRY_PRICE = 63000;
 const FALLBACK_NOISE_PERCENT = 3;
@@ -25,6 +26,14 @@ export function LiquidationSimulator() {
   const liqPrice = computeLiquidationPrice(entryPrice, leverage, side);
   const inNoiseBand = distancePercent <= avgDailyRangePercent;
   const precision = pricePrecision(entryPrice);
+
+  // Risk gauge: 100 = liquidación muy lejos del ruido diario normal (seguro), 0 = el ruido
+  // diario normal ya alcanza o supera la distancia a liquidación (extremo). El punto medio
+  // (score 50) es exactamente cuando la distancia iguala al ruido — el mismo umbral que ya
+  // dispara el aviso rojo de abajo.
+  const riskScore = Math.max(0, Math.min(100, (distancePercent / avgDailyRangePercent) * 50));
+  const riskLabel = riskScore >= 75 ? "SEGURO" : riskScore >= 50 ? "MODERADO" : riskScore >= 25 ? "PELIGROSO" : "EXTREMO";
+  const riskColor = riskScore >= 75 ? "text-neon-green" : riskScore >= 50 ? "text-neon-gold" : "text-neon-red";
 
   // Visualization scale: whichever is bigger between the liquidation distance and the
   // noise band, plus headroom, so both are always visible.
@@ -81,6 +90,12 @@ export function LiquidationSimulator() {
         </div>
 
         <div>
+          <div className="flex flex-col items-center bg-void-soft rounded-xl p-3 mb-4">
+            <SpiderGauge score={riskScore} size={180} />
+            <div className={`value-mono text-lg font-bold -mt-2 ${riskColor}`}>{riskLabel}</div>
+            <div className="text-[10px] font-mono text-slate-500 tracking-widest">NIVEL DE RIESGO A {leverage}X</div>
+          </div>
+
           <div className="flex gap-1.5 mb-4">
             <button
               onClick={() => setSide("long")}

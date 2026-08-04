@@ -389,3 +389,50 @@ Build y typecheck limpios en los 4 paquetes. Los 9 sub-bloques verificados indiv
 con datos reales — sin push/deploy hasta que se pida explícitamente.
 
 Plan detallado en `C:\Users\Emmanuel\.claude\plans\partitioned-wishing-panda.md`.
+
+## Remaster de Contratos, Stablecoins TRON, TRON Roadmap, Calculadora y Glosario
+
+Pedido del usuario: Contratos se sentía "puro texto" sin nada visual llamativo; Stablecoins TRON
+tenía datos mal (a verificar solo contra TronScan, nunca inventados); TRON Roadmap muy simple;
+Calculadora necesitaba más funciones; Glosario necesitaba más términos.
+
+- [x] **Contratos** — el Simulador de Liquidación (ya interactivo) y el panel de Zonas de
+      Apalancamiento se movieron al principio de la página, antes de las 7 tarjetas de texto, y
+      el Simulador ganó un velocímetro de riesgo (`SpiderGauge`, reutilizado de Spider
+      Intelligence) que responde en vivo al slider de apalancamiento — SEGURO/MODERADO/
+      PELIGROSO/EXTREMO según qué tan cerca está la liquidación del ruido diario normal de BTC.
+      Verificado en navegador: el gauge es lo primero que se ve al entrar a la página.
+- [x] **Stablecoins TRON — bug real de datos encontrado y corregido.** El contrato de USDD
+      configurado (`TPYmHEhy5n8TCEfYGqW2rPxsghSfzghPDn`) resultó ser una versión abandonada
+      (TronScan la etiqueta "USDDOLD") con ~$7M de supply — el contrato real y activo, verificado
+      de forma cruzada contra la API de CoinGecko (`TXDk8mbtRbXeYuMNS83CfKPaYYT8XWv9Hz`), tiene
+      ~$1.28B de supply — un factor de ~181x de diferencia. USDT/USDC/TUSD/USDJ se verificaron
+      contra CoinGecko también y ya apuntaban al contrato correcto. Además, `/api/market/
+      stablecoins` pedía las 5 monedas con `Promise.all` (5 requests en paralelo contra un límite
+      público de TronScan de 3 req/s) y si UNA fallaba por rate-limit, las 5 caían a datos
+      estáticos aunque las otras 4 hubieran funcionado — corregido a fetch secuencial con
+      fallback por símbolo individual, nunca todo-o-nada. Verificado en vivo contra la API real:
+      `source:"tronscan"`, `live:true`, USDD ahora en $1.28B (antes ~$7M), badge "EN VIVO ·
+      tronscan" visible en la página.
+- [x] **TRON Roadmap** — expandido de 3 líneas por fase a un explicador completo: qué es un
+      roadmap y cómo leerlo (con la salvedad honesta de que las fases 1-4 son verificables
+      on-chain, la 5 parcialmente y la 6 es solo visión declarada), el lema original de cada fase
+      del whitepaper, una sección "por qué importó" por fase, y de 3 a 4 hitos por fase en vez de
+      3 genéricos — incluyendo la corrección de que la adquisición de BitTorrent fue en 2018
+      (fase Exodus), no en 2020-2021 como decía el dato anterior.
+- [x] **Calculadora** — de 2 a 8 herramientas en pestañas: Convertidor y Escenario de precio
+      (ya existían) más Tamaño de posición, Ratio Riesgo/Beneficio, Precio de liquidación, P&L de
+      un trade, Precio promedio de compra (DCA) y Recuperación de drawdown — todas reutilizando
+      funciones puras ya existentes en el proyecto (`riskMath.ts`, `paperTrading/engine.ts`,
+      `futures/liquidation.ts`), cero lógica nueva duplicada. Verificado a mano cifra por cifra en
+      las 6 herramientas nuevas (todas correctas) y que el resultado de Liquidación coincide
+      exacto con el de Contratos ($57,015 / 9.50% a 10x).
+- [x] **Glosario** — de 70 a 99 términos: 3 categorías nuevas (Contratos y apalancamiento,
+      Indicadores avanzados, Análisis macro) cubriendo términos que la app ya enseña en otras
+      páginas pero que faltaban aquí (Funding Rate, Margen aislado/cruzado, MACD, Bandas de
+      Bollinger, ATR, ADX, VWAP, Volume Profile/POC, DXY, M2, Correlación, Backtesting,
+      Expectancy, etc.). De paso, corregido "explicados en criollo" (modismo rioplatense) a
+      "explicados de forma simple y directa".
+
+Build y typecheck limpios en los 4 paquetes. Verificación en navegador de las 5 páginas sin
+errores de consola. Sin push/deploy hasta que se pida explícitamente.

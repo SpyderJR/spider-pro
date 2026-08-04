@@ -20,7 +20,7 @@ export function GlosarioPage() {
 
   return (
     <div>
-      <SectionHeader title="Glosario" subtitle={`${GLOSSARY.length} términos de trading y cripto explicados en criollo.`} />
+      <SectionHeader title="Glosario" subtitle={`${GLOSSARY.length} términos de trading y cripto explicados de forma simple y directa.`} />
 
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <input

@@ -170,22 +170,23 @@ export function registerMarketRoutes(app: FastifyInstance) {
         TTL.stablecoins,
         async () => {
           const symbols = StablecoinSymbolSchema.options;
-          const tronResults = await Promise.all(
-            symbols.map((symbol) => fetchTronStablecoinSupply(symbol)),
-          );
 
-          if (tronResults.every((r) => r !== null)) {
-            const stablecoins = symbols.map((symbol, i) => ({
-              symbol,
-              supply: tronResults[i]!.supply,
-              holders: tronResults[i]!.holders,
-            }));
-            return {
-              stablecoins,
-              totalSupply: stablecoins.reduce((sum, s) => sum + s.supply, 0),
-              source: "tronscan" as const,
-              live: true,
-            };
+          // Sequential, not Promise.all — TronScan's public (unkeyed) rate limit is
+          // 3 req/s, and firing all 5 symbols at once routinely tripped it, which used
+          // to blank out every symbol (even the ones that had already succeeded) down
+          // to static reference data. Fetching one at a time avoids self-inflicted
+          // rate-limiting entirely.
+          const tronResults: Array<{ supply: number; holders: number | null } | null> = [];
+          for (const symbol of symbols) {
+            tronResults.push(await fetchTronStablecoinSupply(symbol));
+          }
+
+          const allLive = tronResults.every((r) => r !== null);
+          if (!allLive) {
+            request.log.warn(
+              { failed: symbols.filter((_, i) => tronResults[i] === null) },
+              "market/stablecoins: some TronScan symbols failed, using static reference for those only",
+            );
           }
 
           // Deliberately no CoinGecko fallback here: CoinGecko only exposes each
@@ -193,15 +194,21 @@ export function registerMarketRoutes(app: FastifyInstance) {
           // (e.g. USDC is ~$70B+ across all of Ethereum/Solana/Base/etc., but only
           // ~$27M of that is actually on TRON). Showing that number on a page titled
           // "Stablecoins TRON" would silently mislabel global supply as TRON-specific —
-          // confirmed as a real bug by comparing against tronscan.org directly. The
-          // static reference dataset below is at least conceptually TRON-specific.
-          request.log.warn("market/stablecoins: TronScan unavailable, using static reference dataset");
+          // confirmed as a real bug by comparing against tronscan.org directly. Any
+          // symbol TronScan fails to answer falls back to that symbol's own static
+          // reference point instead — never a different chain's number.
+          const fallbackBySymbol = new Map(STABLECOIN_STATIC_FALLBACK.map((s) => [s.symbol, s]));
+          const stablecoins = symbols.map((symbol, i) => {
+            const real = tronResults[i];
+            if (real) return { symbol, supply: real.supply, holders: real.holders };
+            return fallbackBySymbol.get(symbol) ?? { symbol, supply: 0, holders: null };
+          });
 
           return {
-            stablecoins: STABLECOIN_STATIC_FALLBACK,
-            totalSupply: STABLECOIN_STATIC_FALLBACK.reduce((sum, s) => sum + s.supply, 0),
-            source: "static-fallback" as const,
-            live: false,
+            stablecoins,
+            totalSupply: stablecoins.reduce((sum, s) => sum + s.supply, 0),
+            source: allLive ? ("tronscan" as const) : ("static-fallback" as const),
+            live: allLive,
           };
         },
       );

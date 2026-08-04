@@ -1,7 +1,16 @@
 export interface GlossaryTerm {
   term: string;
   definition: string;
-  category: "Mercado" | "Velas y gráfico" | "Fractales y estructura" | "Riesgo" | "Psicología" | "Operativa";
+  category:
+    | "Mercado"
+    | "Velas y gráfico"
+    | "Fractales y estructura"
+    | "Riesgo"
+    | "Psicología"
+    | "Operativa"
+    | "Contratos y apalancamiento"
+    | "Indicadores avanzados"
+    | "Análisis macro";
 }
 
 export const GLOSSARY: GlossaryTerm[] = [
@@ -85,4 +94,40 @@ export const GLOSSARY: GlossaryTerm[] = [
   { term: "P&L", definition: "Profit & Loss: la ganancia o pérdida, realizada o no realizada, de una posición o cuenta.", category: "Operativa" },
   { term: "Posición abierta", definition: "Operación que todavía no se cerró y cuyo resultado depende del precio actual del mercado.", category: "Operativa" },
   { term: "NFA", definition: "Not Financial Advice: aclaración de que un contenido es solo educativo/informativo y no una recomendación de inversión.", category: "Operativa" },
+
+  // Contratos y apalancamiento
+  { term: "Contrato perpetuo", definition: "Contrato de futuros sin fecha de vencimiento — se mantiene abierto indefinidamente mientras haya margen suficiente, a diferencia de un futuro tradicional que expira en una fecha fija.", category: "Contratos y apalancamiento" },
+  { term: "Funding Rate", definition: "Pago periódico (típicamente cada 8h) entre longs y shorts en un contrato perpetuo, que mantiene el precio del contrato anclado al precio spot real. Si tu lado es mayoritario, generalmente pagas.", category: "Contratos y apalancamiento" },
+  { term: "Margen aislado (Isolated)", definition: "Modo de margen donde solo el capital que asignaste a esa posición específica está en riesgo — si se liquida, el resto de tu cuenta queda intacto.", category: "Contratos y apalancamiento" },
+  { term: "Margen cruzado (Cross)", definition: "Modo de margen donde todo el balance de tu cuenta respalda todas tus posiciones abiertas — reduce el riesgo de liquidación de una posición puntual, pero expone tu cuenta completa.", category: "Contratos y apalancamiento" },
+  { term: "Precio de marca (Mark Price)", definition: "Precio de referencia que usan los exchanges para calcular liquidaciones y P&L no realizado — suele ser un promedio ponderado, no el último precio negociado, para evitar liquidaciones por manipulación puntual.", category: "Contratos y apalancamiento" },
+  { term: "Margen de mantenimiento (MMR)", definition: "Porcentaje mínimo del valor de la posición que debe quedar como colateral antes de que el exchange la liquide forzosamente.", category: "Contratos y apalancamiento" },
+  { term: "Interés abierto (Open Interest)", definition: "Valor total de todos los contratos de futuros abiertos (sin cerrar) en un momento dado — mide cuánto capital apalancado está actualmente expuesto al mercado.", category: "Contratos y apalancamiento" },
+  { term: "ROE", definition: "Return on Equity: la ganancia o pérdida de una posición apalancada expresada como % sobre el margen que realmente pusiste, no sobre el valor total de la posición — por eso puede superar el 100%.", category: "Contratos y apalancamiento" },
+  { term: "Notional (exposición)", definition: "Valor total real de una posición apalancada (cantidad × precio), sin importar cuánto margen hayas puesto — es lo que realmente está en juego, no lo que depositaste.", category: "Contratos y apalancamiento" },
+
+  // Indicadores avanzados
+  { term: "MACD", definition: "Moving Average Convergence Divergence: indicador de momentum que compara dos medias móviles exponenciales (línea MACD) contra una tercera (línea de señal). El histograma muestra la distancia entre ambas.", category: "Indicadores avanzados" },
+  { term: "Bandas de Bollinger", definition: "Canal formado por una media móvil central y dos bandas a una distancia de desviaciones estándar del precio — se expanden en alta volatilidad y se contraen en baja volatilidad.", category: "Indicadores avanzados" },
+  { term: "ATR (Average True Range)", definition: "Mide la volatilidad promedio de un activo en un período, sin importar la dirección del movimiento — útil para calibrar el tamaño de un stop loss según qué tan volátil está el mercado.", category: "Indicadores avanzados" },
+  { term: "ADX", definition: "Average Directional Index: mide la fuerza de una tendencia (no su dirección) en una escala de 0 a 100. Por debajo de 20 suele indicar mercado en rango; por encima de 25, tendencia establecida.", category: "Indicadores avanzados" },
+  { term: "Estocástico (Stochastic)", definition: "Oscilador que compara el precio de cierre actual contra su rango de máximo/mínimo reciente, para identificar condiciones de sobrecompra/sobreventa de corto plazo.", category: "Indicadores avanzados" },
+  { term: "Williams %R", definition: "Oscilador similar al Estocástico, invertido en escala (0 a -100), que mide qué tan cerca cierra el precio de sus máximos o mínimos recientes.", category: "Indicadores avanzados" },
+  { term: "CCI (Commodity Channel Index)", definition: "Mide qué tan lejos está el precio actual de su media estadística reciente, en unidades de desviación — no está acotado a un rango fijo como el RSI.", category: "Indicadores avanzados" },
+  { term: "OBV (On-Balance Volume)", definition: "Acumula el volumen de cada vela sumándolo en velas alcistas y restándolo en bajistas — busca confirmar si el volumen real respalda la tendencia del precio.", category: "Indicadores avanzados" },
+  { term: "ROC (Rate of Change)", definition: "Mide el % de cambio del precio actual respecto a N velas atrás — un ROC que crece cada vez más rápido indica aceleración del momentum.", category: "Indicadores avanzados" },
+  { term: "MFI (Money Flow Index)", definition: "Similar al RSI pero incorpora volumen, no solo precio — a veces llamado 'RSI ponderado por volumen'.", category: "Indicadores avanzados" },
+  { term: "Parabolic SAR", definition: "Indicador de puntos que sigue la tendencia y se usa como referencia dinámica de stop loss — los puntos se ubican debajo del precio en tendencia alcista y arriba en tendencia bajista.", category: "Indicadores avanzados" },
+  { term: "VWAP", definition: "Volume Weighted Average Price: el precio promedio de un activo ponderado por el volumen negociado en cada nivel — muy usado por traders institucionales como referencia de 'precio justo' de la sesión.", category: "Indicadores avanzados" },
+  { term: "Volume Profile (VPVR)", definition: "Muestra cuánto volumen se negoció en cada nivel de precio (no en cada momento de tiempo) — las zonas de mayor volumen suelen actuar como soporte/resistencia.", category: "Indicadores avanzados" },
+  { term: "POC (Point of Control)", definition: "El nivel de precio con más volumen negociado dentro de un Volume Profile — el nivel que el mercado 'aceptó' más como precio justo en ese período.", category: "Indicadores avanzados" },
+  { term: "Expectancy", definition: "Ganancia o pérdida promedio esperada por operación, combinando win rate y el tamaño promedio de ganancias/pérdidas — el número que realmente determina si un sistema es rentable a largo plazo.", category: "Indicadores avanzados" },
+
+  // Análisis macro
+  { term: "DXY", definition: "Índice del dólar: mide la fortaleza del dólar estadounidense frente a una canasta de divisas principales. Un DXY fuerte suele coincidir con debilidad en activos de riesgo como cripto.", category: "Análisis macro" },
+  { term: "M2", definition: "Medida amplia de la oferta monetaria de EE. UU. (efectivo + depósitos + ahorros + fondos money market) publicada por la Reserva Federal — su expansión o contracción se usa como termómetro de liquidez global.", category: "Análisis macro" },
+  { term: "Tasa de fondos federales", definition: "Tasa de interés de referencia que fija la Reserva Federal de EE. UU. — subirla encarece el crédito y suele presionar a la baja a los activos de riesgo; bajarla tiende a favorecerlos.", category: "Análisis macro" },
+  { term: "Dominancia de Bitcoin", definition: "Porcentaje que representa Bitcoin sobre la capitalización total del mercado cripto — sube cuando el capital rota hacia BTC, baja cuando rota hacia altcoins.", category: "Análisis macro" },
+  { term: "Correlación", definition: "Medida de qué tan sincronizados se mueven dos activos — una correlación alta con el S&P 500, por ejemplo, sugiere que cripto se está moviendo más por factores macro que por su propia narrativa.", category: "Análisis macro" },
+  { term: "Backtesting", definition: "Probar una estrategia de trading contra datos históricos reales para ver cómo le habría ido — no garantiza resultados futuros, pero ayuda a descartar estrategias que ni siquiera funcionaron en el pasado.", category: "Análisis macro" },
 ];

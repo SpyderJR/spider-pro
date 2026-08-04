@@ -40,6 +40,10 @@ export function ContratosPage() {
         </p>
       </div>
 
+      <LiquidationSimulator />
+
+      <LeverageZonesPanel />
+
       <ConceptCard
         icon="🍎"
         title="Spot vs Contratos"
@@ -272,10 +276,6 @@ export function ContratosPage() {
           </>
         }
       />
-
-      <LiquidationSimulator />
-
-      <LeverageZonesPanel />
 
       <div className="panel p-6 mb-6">
         <h2 className="text-lg font-bold text-white mb-3">La realidad, sin filtro</h2>

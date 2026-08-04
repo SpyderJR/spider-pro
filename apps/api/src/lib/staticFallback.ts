@@ -12,12 +12,14 @@ export const TRON_STATIC_FALLBACK: Omit<TronStatsResponse, "source" | "live" | "
   blockHeight: null,
 };
 
+// Reference points only, used symbol-by-symbol when that specific TronScan call fails —
+// verified against real TronScan supply figures (2026-08-04), not global/other-chain numbers.
 export const STABLECOIN_STATIC_FALLBACK: StablecoinData[] = [
-  { symbol: "USDT", supply: 58_000_000_000, holders: null },
-  { symbol: "USDC", supply: 3_000_000_000, holders: null },
-  { symbol: "USDD", supply: 340_000_000, holders: null },
-  { symbol: "TUSD", supply: 150_000_000, holders: null },
-  { symbol: "USDJ", supply: 60_000_000, holders: null },
+  { symbol: "USDT", supply: 90_000_000_000, holders: 75_000_000 },
+  { symbol: "USDC", supply: 28_000_000, holders: 380_000 },
+  { symbol: "USDD", supply: 1_280_000_000, holders: 460_000 },
+  { symbol: "TUSD", supply: 168_000_000, holders: 310_000 },
+  { symbol: "USDJ", supply: 2_500_000, holders: 22_000 },
 ];
 
 /** Reference snapshot used only if mempool.space is unreachable — keeps the Bitcoin on-chain section from rendering empty. */
