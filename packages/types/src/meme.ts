@@ -46,6 +46,23 @@ export const MemeHolderSchema = z.object({
 });
 export type MemeHolder = z.infer<typeof MemeHolderSchema>;
 
+export const MemeTransferSchema = z.object({
+  from: z.string(),
+  to: z.string(),
+  amount: z.number(),
+  timestamp: z.number(),
+});
+export type MemeTransfer = z.infer<typeof MemeTransferSchema>;
+
+export const MemeTransfersResponseSchema = z.object({
+  address: z.string(),
+  transfers: z.array(MemeTransferSchema),
+  source: z.string(),
+  live: z.boolean(),
+  updatedAt: z.number(),
+});
+export type MemeTransfersResponse = z.infer<typeof MemeTransfersResponseSchema>;
+
 export const MemeHoldersResponseSchema = z.object({
   address: z.string(),
   totalSupply: z.number().nullable(),

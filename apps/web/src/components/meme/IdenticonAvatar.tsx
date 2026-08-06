@@ -7,26 +7,36 @@ interface Props {
 }
 
 export function IdenticonAvatar({ seed, size = 40, className = "" }: Props) {
-  const { hue, cells } = identiconParams(seed);
-  const color = `hsl(${hue}, 70%, 60%)`;
-  const cell = size / 5;
+  const { hueA, hueB, angle, label } = identiconParams(seed);
+  const gradientId = `meme-avatar-${seed.slice(0, 12)}-${size}`;
 
   return (
     <svg
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox="0 0 100 100"
       width={size}
       height={size}
       className={`rounded-lg shrink-0 ${className}`}
-      style={{ background: `hsl(${hue}, 45%, 14%)` }}
       role="img"
       aria-label="Avatar generado para este token"
     >
-      {cells.map((row, r) =>
-        row.map(
-          (filled, c) =>
-            filled && <rect key={`${r}-${c}`} x={c * cell} y={r * cell} width={cell} height={cell} fill={color} />,
-        ),
-      )}
+      <defs>
+        <linearGradient id={gradientId} gradientTransform={`rotate(${angle})`}>
+          <stop offset="0%" stopColor={`hsl(${hueA}, 70%, 45%)`} />
+          <stop offset="100%" stopColor={`hsl(${hueB}, 70%, 32%)`} />
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="18" fill={`url(#${gradientId})`} />
+      <text
+        x="50"
+        y="58"
+        textAnchor="middle"
+        fontFamily="monospace"
+        fontWeight="bold"
+        fontSize="34"
+        fill="rgba(255,255,255,0.85)"
+      >
+        {label}
+      </text>
     </svg>
   );
 }

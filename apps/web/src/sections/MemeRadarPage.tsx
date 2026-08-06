@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import type { ClusterGroup, MemeHolder } from "@spider/types";
+import type { ClusterGroup, MemeHolder, MemeTransfer } from "@spider/types";
 import { SectionHeader } from "../components/SectionHeader";
 import { Disclaimer } from "../components/Disclaimer";
 import { ExplainButton } from "../components/spider/ExplainButton";
@@ -13,7 +13,7 @@ import { ActivityTicker } from "../components/meme/ActivityTicker";
 import { useMemeToken } from "../hooks/useMemeToken";
 import { useRecentMemeTokens } from "../hooks/useRecentMemeTokens";
 import { useMemeActivity } from "../hooks/useMemeActivity";
-import { fetchMemeHolders, fetchMemeClustering } from "../lib/api";
+import { fetchMemeHolders, fetchMemeClustering, fetchMemeTransfers } from "../lib/api";
 import { useMemeWatchlistStore } from "../store/memeWatchlistStore";
 import { usePublishContext } from "../hooks/usePublishContext";
 
@@ -26,6 +26,7 @@ export function MemeRadarPage() {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [holders, setHolders] = useState<MemeHolder[] | null>(null);
   const [holdersError, setHoldersError] = useState(false);
+  const [transfers, setTransfers] = useState<MemeTransfer[] | null>(null);
   const [clustering, setClustering] = useState<ClusterGroup[] | null>(null);
   const [clusteringLoading, setClusteringLoading] = useState(false);
 
@@ -39,6 +40,7 @@ export function MemeRadarPage() {
   useEffect(() => {
     setHolders(null);
     setHoldersError(false);
+    setTransfers(null);
     setClustering(null);
     if (!selectedAddress) return;
 
@@ -49,6 +51,13 @@ export function MemeRadarPage() {
       })
       .catch(() => {
         if (!cancelled) setHoldersError(true);
+      });
+    fetchMemeTransfers(selectedAddress)
+      .then((res) => {
+        if (!cancelled) setTransfers(res.transfers);
+      })
+      .catch(() => {
+        // Non-critical — the bubble map just renders without connection lines.
       });
     return () => {
       cancelled = true;
@@ -125,12 +134,14 @@ export function MemeRadarPage() {
                 {holdersError ? (
                   <p className="text-xs text-neon-red">No se pudieron cargar los holders.</p>
                 ) : (
-                  <HolderBubbleMap holders={holders ?? []} clustering={clustering} />
+                  <HolderBubbleMap holders={holders ?? []} clustering={clustering} transfers={transfers} />
                 )}
                 <p className="text-[10px] text-slate-500 mt-3">
-                  El tamaño de cada burbuja es proporcional al balance. El clustering agrupa carteras fondeadas desde
-                  el mismo origen — es una <strong className="text-neon-gold">estimación propia</strong>, no una
-                  identificación certera de que sean la misma persona.
+                  El tamaño de cada burbuja es proporcional al balance. Haz clic en cualquiera para abrir esa cartera
+                  en Tronscan. Las líneas doradas son transferencias reales de este token entre los holders
+                  mostrados. El clustering agrupa carteras fondeadas desde el mismo origen — es una{" "}
+                  <strong className="text-neon-gold">estimación propia</strong>, no una identificación certera de
+                  que sean la misma persona.
                 </p>
               </div>
             </>

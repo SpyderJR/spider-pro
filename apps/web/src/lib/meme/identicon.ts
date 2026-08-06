@@ -1,11 +1,13 @@
 /**
- * Deterministic per-address avatar (GitHub-identicon style: a symmetric 5x5 grid + a hue derived
- * from the address itself) — used whenever a token has no real image on file. Never presented as
- * the token's actual logo, just a stable visual identifier so cards don't all look identical.
+ * Deterministic per-address avatar — a two-tone gradient blob plus the address's first two
+ * characters, used whenever a token has no real image on file. Never presented as the token's
+ * actual logo, just a stable visual identifier so cards don't all look identical.
  */
 export interface IdenticonParams {
-  hue: number;
-  cells: boolean[][];
+  hueA: number;
+  hueB: number;
+  angle: number;
+  label: string;
 }
 
 function hashString(input: string): number {
@@ -19,18 +21,12 @@ function hashString(input: string): number {
 
 export function identiconParams(seed: string): IdenticonParams {
   const hash = hashString(seed);
-  const hue = hash % 360;
-
-  // 5x5 grid, mirrored left-right for a symmetric blob — only need bits for the left 3 columns.
-  const cells: boolean[][] = [];
-  let bits = hash;
-  for (let row = 0; row < 5; row++) {
-    const rowCells: boolean[] = [];
-    for (let col = 0; col < 3; col++) {
-      bits = (bits * 1103515245 + 12345) & 0x7fffffff;
-      rowCells.push(bits % 2 === 0);
-    }
-    cells.push([...rowCells, rowCells[1]!, rowCells[0]!]);
-  }
-  return { hue, cells };
+  const hueA = hash % 360;
+  // Offset the second hue well away from the first so the gradient always has real contrast,
+  // instead of deriving both from adjacent bits of the same LCG step (which produced
+  // near-identical, flat-looking colors in an earlier version of this function).
+  const hueB = (hueA + 90 + (hash % 60)) % 360;
+  const angle = hash % 360;
+  const label = seed.replace(/^T/, "").slice(0, 2).toUpperCase();
+  return { hueA, hueB, angle, label };
 }

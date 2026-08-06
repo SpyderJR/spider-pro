@@ -4,6 +4,7 @@ import type {
   MemeActivityResponse,
   MemeHoldersResponse,
   MemeTokenSummary,
+  MemeTransfersResponse,
   RecentTokenCreationsResponse,
 } from "@spider/types";
 import { cache, TTL } from "../lib/cache.js";
@@ -14,6 +15,7 @@ import {
   fetchTokenBasicInfo,
   fetchTokenHolders,
   fetchTokenMarketData,
+  fetchTokenTransfers,
   SUNPUMP_CONTRACT,
 } from "../providers/sunpump.js";
 
@@ -59,16 +61,38 @@ export function registerMemeRoutes(app: FastifyInstance) {
         `meme:token:${address}`,
         TTL.memeToken,
         async () => {
-          const [info, market] = await Promise.all([
+          // Independent try/catch per source — a DexScreener hiccup shouldn't blank out the
+          // name/symbol TronScan already has, and vice versa. Retries live one layer down in
+          // the provider; this is the last-resort fallback if both attempts there still fail.
+          const [infoResult, marketResult] = await Promise.allSettled([
             fetchTokenBasicInfo(address),
             fetchTokenMarketData(address),
           ]);
+          if (infoResult.status === "rejected" && marketResult.status === "rejected") {
+            throw infoResult.reason;
+          }
+          const info =
+            infoResult.status === "fulfilled"
+              ? infoResult.value
+              : { name: null, symbol: null, decimals: null, totalSupply: null, holdersCount: null };
+          const market =
+            marketResult.status === "fulfilled"
+              ? marketResult.value
+              : {
+                  status: "bonding-curve" as const,
+                  priceUsd: null,
+                  liquidityUsd: null,
+                  volume24hUsd: null,
+                  marketCapUsd: null,
+                  dexUrl: null,
+                  imageUrl: null,
+                };
           return {
             address,
             ...info,
             ...market,
             source: "tronscan+dexscreener",
-            live: true,
+            live: infoResult.status === "fulfilled" && marketResult.status === "fulfilled",
             updatedAt: Date.now(),
           };
         },
@@ -117,6 +141,27 @@ export function registerMemeRoutes(app: FastifyInstance) {
       } catch (err) {
         request.log.error({ err, address }, "meme/token/holders failed");
         return reply.status(502).send({ error: "meme holders unavailable" });
+      }
+    },
+  );
+
+  app.get<{ Params: { address: string } }>(
+    "/api/meme/token/:address/transfers",
+    async (request, reply) => {
+      const { address } = request.params;
+      try {
+        const result = await cache.wrap<MemeTransfersResponse>(
+          `meme:transfers:${address}`,
+          TTL.memeTransfers,
+          async () => {
+            const transfers = await fetchTokenTransfers(address, 50);
+            return { address, transfers, source: "tronscan", live: true, updatedAt: Date.now() };
+          },
+        );
+        return reply.send(result);
+      } catch (err) {
+        request.log.error({ err, address }, "meme/token/transfers failed");
+        return reply.status(502).send({ error: "meme transfers unavailable" });
       }
     },
   );

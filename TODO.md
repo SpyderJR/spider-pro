@@ -603,3 +603,41 @@ reales resueltos en vivo), 78 identicons renderizados sin errores de consola, ma
 seguimiento funcionando igual que antes. Un 502 transitorio visto durante pruebas en paralelo se
 confirmó como rate-limit momentáneo (no un bug) al repetir la misma llamada exitosamente.
 Barrido de regresión limpio en las 29 rutas. Push y deploy pedidos por el usuario inmediatamente después — ver commit.
+
+### Meme Radar v3 — fix de confiabilidad, identicons reales y burbujas interactivas
+
+Feedback del usuario probando en producción: algunos tokens fallaban al cargar ("no se pudo
+cargar este token"), los avatares se veían como cuadros sólidos sin forma ("no da fotos"), y
+pidió que hacer clic en una burbuja llevara directo a la cartera y mostrara si hubo
+transferencias reales entre los holders visualizados.
+
+- [x] **Bug de confiabilidad encontrado y corregido**: reproducido en vivo contra producción —
+      ráfagas de llamadas concurrentes (feed + ticker + selección de token) superaban el límite
+      de tasa de TronScan y producían 502 intermitentes (confirmado disparando 6-12 llamadas
+      concurrentes contra `spider-pro-ai.netlify.app`). Arreglado con: reintentos con backoff y
+      jitter, una cola interna que serializa todas las llamadas a TronScan con espaciado mínimo
+      (en vez de dejar que compitan y choquen entre sí), un caché corto de 20s en la info básica
+      del token (se pedía duplicado desde 3 lugares distintos), y `/api/meme/token/:address`
+      ahora degrada con gracia (`Promise.allSettled`) — si falla TronScan o DexScreener, la otra
+      fuente igual responde en vez de tumbar todo el endpoint. Verificado: la misma ráfaga de 10
+      llamadas concurrentes que antes fallaba a la mitad ahora responde 200 en todas.
+- [x] **Identicons rediseñados**: el generador anterior (grilla de píxeles vía un LCG) tenía un
+      bug real — el bit más bajo de un LCG clásico tiene un patrón casi constante, por eso los
+      avatares se veían como cuadros sólidos sin textura. Reemplazado por un avatar de gradiente
+      de dos tonos + las 2 primeras letras de la dirección — determinístico, siempre con
+      contraste visible, cero dependencia nueva. Las imágenes reales de DexScreener (cuando
+      existen) se siguen priorizando sobre el identicon.
+- [x] **Burbujas interactivas**: clic en cualquier burbuja abre esa cartera directo en Tronscan
+      (`tronscan.org/#/address/...`, pestaña nueva) — verificado con Playwright. Nuevo endpoint
+      `/api/meme/token/:address/transfers` (TronScan `token_trc20/transfers`, verificado en
+      vivo) dibuja líneas doradas entre dos holders del mapa cuando existe una transferencia real
+      de ese token entre ellos — con conteo y monto real en el tooltip. La mayoría de los tokens
+      en fase de curva de lanzamiento no van a mostrar líneas (las compras/ventas pasan por el
+      contrato de SunPump, no de holder a holder directo) — se muestra un texto honesto
+      ("sin transferencias directas detectadas todavía") en vez de dejarlo en blanco sin
+      explicación.
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador: identicons con gradiente y
+letras visibles, 49 burbujas renderizadas para un token con 67 holders, clic en burbuja confirma
+apertura de `tronscan.org` en pestaña nueva, líneas de conexión renderizan cuando hay datos.
+Barrido de regresión limpio en las 29 rutas.

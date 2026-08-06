@@ -16,6 +16,7 @@ import {
   MemeHoldersResponseSchema,
   MemeClusteringResponseSchema,
   MemeActivityResponseSchema,
+  MemeTransfersResponseSchema,
   type Asset,
   type Timeframe,
   type ChatMessage,
@@ -119,6 +120,10 @@ export function fetchMemeToken(address: string) {
 
 export function fetchMemeHolders(address: string) {
   return getJson(`/api/meme/token/${address}/holders`, MemeHoldersResponseSchema);
+}
+
+export function fetchMemeTransfers(address: string) {
+  return getJson(`/api/meme/token/${address}/transfers`, MemeTransfersResponseSchema);
 }
 
 export function fetchMemeClustering(address: string) {

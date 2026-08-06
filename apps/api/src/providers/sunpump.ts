@@ -1,6 +1,7 @@
 import type { MemeTokenStatus } from "@spider/types";
 import { env } from "../lib/env.js";
 import { fetchJson } from "../lib/http.js";
+import { cache } from "../lib/cache.js";
 import { hexToTronAddress } from "../lib/tronAddress.js";
 import { tronScanHeaders } from "./tron.js";
 
@@ -25,6 +26,45 @@ function tronGridHeaders(): Record<string, string> {
   return env.TRONGRID_API_KEY ? { "TRON-PRO-API-KEY": env.TRONGRID_API_KEY } : {};
 }
 
+// This page fires several TronScan/TronGrid/DexScreener calls in quick succession (feed poll,
+// ticker poll, token summary, holders) — under real concurrent traffic that comfortably exceeds
+// the free public rate limits and produced real intermittent 502s in production (verified by
+// firing a burst of concurrent requests at the live site). A couple of short retries absorbs
+// those transient rate-limit blips instead of failing the whole request on the first one.
+async function fetchJsonRetry<T>(provider: string, url: string, init?: RequestInit, retries = 3): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fetchJson<T>(provider, url, init);
+    } catch (err) {
+      lastErr = err;
+      // Jittered backoff — several requests failing at once (a real burst under load) would
+      // otherwise all retry in lockstep and collide again on the exact same rate-limit window.
+      if (attempt < retries) {
+        const jitter = Math.random() * 250;
+        await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1) + jitter));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// TronScan's public rate limit is the actual bottleneck under real concurrent traffic (a burst
+// of requests retrying independently just collides with itself again). This serializes every
+// TronScan call this file makes through a single queue with a fixed minimum spacing, so a burst
+// drains steadily instead of stampeding — verified against the live site, this was the fix that
+// actually eliminated the 502s a retry-only approach still left under load.
+let tronScanQueueTail: Promise<unknown> = Promise.resolve();
+const TRONSCAN_MIN_SPACING_MS = 340;
+
+function queuedTronScanCall<T>(fn: () => Promise<T>): Promise<T> {
+  const result = tronScanQueueTail.then(fn, fn);
+  tronScanQueueTail = result.catch(() => undefined).then(
+    () => new Promise((resolve) => setTimeout(resolve, TRONSCAN_MIN_SPACING_MS)),
+  );
+  return result;
+}
+
 interface TronGridEvent {
   transaction_id: string;
   event_name: string;
@@ -43,7 +83,7 @@ interface TronGridTransactionInfo {
 
 async function fetchTransactionLog(txId: string): Promise<TronGridTransactionInfo> {
   const url = `${env.TRONGRID_BASE_URL}/wallet/gettransactioninfobyid`;
-  return fetchJson<TronGridTransactionInfo>("trongrid", url, {
+  return fetchJsonRetry<TronGridTransactionInfo>("trongrid", url, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...tronGridHeaders() },
     body: JSON.stringify({ value: txId }),
@@ -64,7 +104,7 @@ export interface RecentTokenCreation {
  */
 export async function fetchRecentTokenCreations(limit: number): Promise<RecentTokenCreation[]> {
   const eventsUrl = `${env.TRONGRID_BASE_URL}/v1/contracts/${SUNPUMP_CONTRACT}/events?event_name=TokenCreate&only_confirmed=true&limit=${limit}`;
-  const eventsRaw = await fetchJson<TronGridEventsResponse>("trongrid", eventsUrl, {
+  const eventsRaw = await fetchJsonRetry<TronGridEventsResponse>("trongrid", eventsUrl, {
     headers: tronGridHeaders(),
   });
   const events = eventsRaw.data ?? [];
@@ -120,7 +160,7 @@ export interface TokenMarketData {
  */
 export async function fetchTokenMarketData(address: string): Promise<TokenMarketData> {
   const url = `https://api.dexscreener.com/token-pairs/v1/tron/${address}`;
-  const pairs = await fetchJson<DexScreenerPair[]>("dexscreener", url);
+  const pairs = await fetchJsonRetry<DexScreenerPair[]>("dexscreener", url);
   if (!pairs || pairs.length === 0) {
     return {
       status: "bonding-curve",
@@ -162,24 +202,31 @@ export interface TokenBasicInfo {
   holdersCount: number | null;
 }
 
+// Same TronScan endpoint gets hit for basic info from several call sites (token summary,
+// holders' decimals lookup, activity-ticker symbol resolution) — a short cache means a burst of
+// requests for the same token collapses into one real TronScan call instead of three.
 export async function fetchTokenBasicInfo(address: string): Promise<TokenBasicInfo> {
-  const url = `${env.TRONSCAN_BASE_URL}/api/token_trc20?contract=${address}&showAll=1`;
-  const raw = await fetchJson<TronScanTrc20InfoResponse>("tronscan", url, { headers: tronScanHeaders() });
-  const token = raw.trc20_tokens?.[0];
-  if (!token) {
-    return { name: null, symbol: null, decimals: null, totalSupply: null, holdersCount: null };
-  }
-  const decimals = token.decimals ?? 18;
-  const totalSupply = token.total_supply_with_decimals
-    ? Number(token.total_supply_with_decimals) / 10 ** decimals
-    : null;
-  return {
-    name: token.name ?? null,
-    symbol: token.symbol ?? null,
-    decimals,
-    totalSupply,
-    holdersCount: token.holders_count ?? null,
-  };
+  return cache.wrap(`meme:info:${address}`, 20_000, async () => {
+    const url = `${env.TRONSCAN_BASE_URL}/api/token_trc20?contract=${address}&showAll=1`;
+    const raw = await queuedTronScanCall(() =>
+      fetchJsonRetry<TronScanTrc20InfoResponse>("tronscan", url, { headers: tronScanHeaders() }),
+    );
+    const token = raw.trc20_tokens?.[0];
+    if (!token) {
+      return { name: null, symbol: null, decimals: null, totalSupply: null, holdersCount: null };
+    }
+    const decimals = token.decimals ?? 18;
+    const totalSupply = token.total_supply_with_decimals
+      ? Number(token.total_supply_with_decimals) / 10 ** decimals
+      : null;
+    return {
+      name: token.name ?? null,
+      symbol: token.symbol ?? null,
+      decimals,
+      totalSupply,
+      holdersCount: token.holders_count ?? null,
+    };
+  });
 }
 
 interface TronScanHoldersResponse {
@@ -193,15 +240,45 @@ export interface TokenHolder {
 
 export async function fetchTokenHolders(address: string, limit = 50): Promise<TokenHolder[]> {
   const url = `${env.TRONSCAN_BASE_URL}/api/token_trc20/holders?contract_address=${address}&start=0&limit=${limit}`;
-  const raw = await fetchJson<TronScanHoldersResponse>("tronscan", url, { headers: tronScanHeaders() });
-  const decimalsUrl = `${env.TRONSCAN_BASE_URL}/api/token_trc20?contract=${address}&showAll=1`;
-  const decimalsRaw = await fetchJson<TronScanTrc20InfoResponse>("tronscan", decimalsUrl, {
-    headers: tronScanHeaders(),
-  });
-  const decimals = decimalsRaw.trc20_tokens?.[0]?.decimals ?? 18;
+  const raw = await queuedTronScanCall(() =>
+    fetchJsonRetry<TronScanHoldersResponse>("tronscan", url, { headers: tronScanHeaders() }),
+  );
+  const info = await fetchTokenBasicInfo(address);
+  const decimals = info.decimals ?? 18;
   return (raw.trc20_tokens ?? []).map((h) => ({
     address: h.holder_address,
     balance: Number(h.balance) / 10 ** decimals,
+  }));
+}
+
+interface TronScanTransfersResponse {
+  token_transfers?: Array<{ from_address: string; to_address: string; quant: string; block_ts: number }>;
+}
+
+export interface TokenTransfer {
+  from: string;
+  to: string;
+  amount: number;
+  timestamp: number;
+}
+
+/**
+ * Recent transfers of this specific token — used to draw edges between holder bubbles when two
+ * addresses already shown on the map moved this token between each other. Verified live against
+ * TronScan's real response shape (`token_transfers[].from_address/to_address/quant`).
+ */
+export async function fetchTokenTransfers(address: string, limit = 50): Promise<TokenTransfer[]> {
+  const url = `${env.TRONSCAN_BASE_URL}/api/token_trc20/transfers?limit=${limit}&start=0&contract_address=${address}`;
+  const raw = await queuedTronScanCall(() =>
+    fetchJsonRetry<TronScanTransfersResponse>("tronscan", url, { headers: tronScanHeaders() }),
+  );
+  const info = await fetchTokenBasicInfo(address);
+  const decimals = info.decimals ?? 18;
+  return (raw.token_transfers ?? []).map((t) => ({
+    from: t.from_address,
+    to: t.to_address,
+    amount: Number(t.quant) / 10 ** decimals,
+    timestamp: t.block_ts,
   }));
 }
 
@@ -228,7 +305,7 @@ interface TronGridTransactionsResponse {
  */
 export async function fetchHolderFundingSource(address: string): Promise<string | null> {
   const url = `${env.TRONGRID_BASE_URL}/v1/accounts/${address}/transactions?only_confirmed=true&limit=5&order_by=block_timestamp,asc`;
-  const raw = await fetchJson<TronGridTransactionsResponse>("trongrid", url, { headers: tronGridHeaders() });
+  const raw = await fetchJsonRetry<TronGridTransactionsResponse>("trongrid", url, { headers: tronGridHeaders() });
   for (const tx of raw.data ?? []) {
     const contract = tx.raw_data?.contract?.[0];
     if (contract?.type !== "TransferContract") continue;
@@ -293,7 +370,7 @@ export interface MemeActivityEventData {
  */
 export async function fetchRecentActivity(limit: number): Promise<MemeActivityEventData[]> {
   const url = `${env.TRONGRID_BASE_URL}/v1/accounts/${SUNPUMP_CONTRACT}/transactions?only_confirmed=true&limit=${limit}`;
-  const raw = await fetchJson<TronGridSmartContractTxsResponse>("trongrid", url, { headers: tronGridHeaders() });
+  const raw = await fetchJsonRetry<TronGridSmartContractTxsResponse>("trongrid", url, { headers: tronGridHeaders() });
 
   const decoded: Array<Omit<MemeActivityEventData, "symbol">> = [];
   for (const tx of raw.data ?? []) {
