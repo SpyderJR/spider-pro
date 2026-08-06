@@ -42,4 +42,9 @@ export const TTL = {
   stablecoins: 60_000,
   tronStats: 60_000,
   bitcoinStats: 60_000,
+  memeRecent: 30_000,
+  memeActivity: 15_000,
+  memeToken: 30_000,
+  memeHolders: 2 * 60_000,
+  memeClustering: 10 * 60_000,
 } as const;

@@ -11,6 +11,11 @@ import {
   BitcoinStatsResponseSchema,
   ChatResponseSchema,
   TokenSearchResponseSchema,
+  RecentTokenCreationsResponseSchema,
+  MemeTokenSummarySchema,
+  MemeHoldersResponseSchema,
+  MemeClusteringResponseSchema,
+  MemeActivityResponseSchema,
   type Asset,
   type Timeframe,
   type ChatMessage,
@@ -98,6 +103,26 @@ export function fetchTronStats() {
 
 export function fetchBitcoinStats() {
   return getJson(`/api/bitcoin/stats`, BitcoinStatsResponseSchema);
+}
+
+export function fetchRecentMemeTokens() {
+  return getJson(`/api/meme/recent`, RecentTokenCreationsResponseSchema);
+}
+
+export function fetchMemeActivity() {
+  return getJson(`/api/meme/activity`, MemeActivityResponseSchema);
+}
+
+export function fetchMemeToken(address: string) {
+  return getJson(`/api/meme/token/${address}`, MemeTokenSummarySchema);
+}
+
+export function fetchMemeHolders(address: string) {
+  return getJson(`/api/meme/token/${address}/holders`, MemeHoldersResponseSchema);
+}
+
+export function fetchMemeClustering(address: string) {
+  return getJson(`/api/meme/token/${address}/clustering`, MemeClusteringResponseSchema);
 }
 
 export async function postChat(

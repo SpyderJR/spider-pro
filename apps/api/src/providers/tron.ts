@@ -27,7 +27,7 @@ interface TronScanHomepageBundleResponse {
   };
 }
 
-function tronScanHeaders(): Record<string, string> {
+export function tronScanHeaders(): Record<string, string> {
   return env.TRONSCAN_API_KEY ? { "TRON-PRO-API-KEY": env.TRONSCAN_API_KEY } : {};
 }
 

@@ -27,6 +27,15 @@ export default {
         "neon-blue": "0 0 12px rgba(59, 168, 255, 0.35)",
         "neon-gold": "0 0 12px rgba(255, 207, 77, 0.35)",
       },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 40s linear infinite",
+      },
     },
   },
   plugins: [],

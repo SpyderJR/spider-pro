@@ -520,3 +520,86 @@ confirma que los 4 diagramas SVG, el grid de 9 herramientas y todas las seccione
 correctas y con la estética de la plataforma. Barrido de regresión limpio en las 28 rutas de la
 app. Sin push/deploy hasta que se pida explícitamente — es contenido nuevo e independiente, no
 se envía hasta indicación directa.
+
+## Bloque 14 — Meme Radar: buscador y analizador de memecoins de SunPump (TRON)
+
+Pedido del usuario: un buscador/analizador de memecoins estilo Bubblemaps directo desde
+SunPump.meme (el launchpad de memecoins de TRON), mostrando qué carteras compraron y cuánto,
+liquidez, y watchlist — todo sin APIs de pago. SunPump no tiene API pública gratuita propia (la
+única, de Bitquery, solo da un trial de 7 días), así que se investigó y verificó en vivo, antes
+de construir nada, que su contrato inteligente es 100% legible gratis on-chain.
+
+- [x] **Contrato de SunPump verificado en vivo**: `TTfvyrAz86hbZk5iDpKD78pqLGgi8C7AAw`
+      ("LaunchPadProxy", etiqueta azul oficial "SUN" de sun.io, activo desde 2024-08-09, 3.5M+
+      transacciones). Es un único contrato para todo (sin pool por token), con eventos reales
+      confirmados vía TronGrid: `TokenCreate`, `TokenPurchased`, `TokenSold`.
+- [x] **Detección de tokens nuevos, probada de punta a punta con casos reales**: cuando el
+      contrato emite `TokenCreate`, el token TRC20 recién creado emite su propio evento
+      `Transfer` (de mint) en la misma transacción — su dirección es la del token nuevo. Se
+      decodificó exitosamente 5/5 creaciones reales consecutivas, incluyendo una que se hace
+      pasar por "Tether USDT" (mismo nombre y símbolo) — evidencia útil de por qué el disclaimer
+      de riesgo importa. `lib/tronAddress.ts` (nuevo) convierte hex→base58check TRON, validado
+      contra estos casos reales.
+- [x] **Estado bonding-curve vs. graduado resuelto con DexScreener** (gratis, sin API key):
+      `token-pairs/v1/tron/{address}` devuelve `[]` si el token no tiene pool todavía (curva de
+      lanzamiento) o datos reales de precio/liquidez/volumen si ya migró a SunSwap — verificado
+      en vivo con un par real (BTC/USDT en SunSwap, $2.06M de liquidez).
+- [x] **Backend nuevo**: `providers/sunpump.ts` + `routes/meme.ts` (4 endpoints: `/api/meme/
+      recent`, `/api/meme/token/:address`, `/token/:address/holders`,
+      `/token/:address/clustering`), `packages/types/src/meme.ts` (schemas Zod). Holders vía
+      TronScan (ya integrado, `token_trc20/holders` — la reserva no vendida del propio contrato
+      SunPump se detecta y reporta aparte, no se mezcla con holders reales para no distorsionar
+      el mapa de burbujas). Clustering: heurística propia (carteras fondeadas desde el mismo
+      origen vía TronGrid), siempre etiquetada `isEstimate: true` — nunca presentada como
+      certeza, mismo criterio que las Zonas de Apalancamiento de Contratos.
+- [x] **Mapa de burbujas de holders construido desde cero**: no existe ninguna librería de
+      grafos en el repo (d3-force/react-flow/sigma/cytoscape) — `lib/meme/forceLayout.ts` es un
+      motor de física de repulsión/atracción hecho a mano, corriendo en un Web Worker
+      (`bubbleLayout.worker.ts` + `useBubbleLayout.ts`, mismo patrón Comlink que el backtester)
+      para no bloquear la UI con 50-100 nodos.
+- [x] **Watchlist personal**: `store/memeWatchlistStore.ts` (Zustand + `persist`, mismo patrón
+      que el Diario), agregar/quitar desde el panel de resumen de cada token.
+- [x] Nueva pestaña "Meme Radar" (🫧) en el nav, ruta `/app/meme-radar`, con disclaimer de
+      riesgo extremo específico de memecoins (no solo el NFA genérico) — explícito: sin conexión
+      de wallet, sin compra/venta dentro de la app, solo información.
+- [x] `TRONGRID_API_KEY` (provista por el usuario) agregada a `.env` local — pendiente
+      configurarla en Netlify producción antes del deploy (el clasificador de permisos bloqueó
+      hacerlo por API en esta sesión).
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador contra datos reales: feed
+de 20 tokens recién creados carga en vivo, seleccionar uno muestra su estado real (probado tanto
+en curva de lanzamiento como graduado con precio/liquidez reales), holders reales se separan
+correctamente de la reserva del contrato, mapa de burbujas renderiza sin errores de consola,
+seguir/dejar de seguir funciona y persiste tras recargar la página. Barrido de regresión limpio
+en las 29 rutas de la app.
+
+### Meme Radar v2 — ticker en vivo, identicons e imágenes reales
+
+Pedido de seguimiento del usuario: la v1 se veía "muy simple", pidió llevarla a otro nivel —
+más tecnológica, con sensación de estar en vivo, idealmente con un ticker de actividad arriba
+(como el de sunpump.meme) e imágenes de los tokens, pero con estilo propio de Spider.
+
+- [x] **Ticker de actividad en vivo, decodificado directo del contrato**: nuevo endpoint
+      `/api/meme/activity` lee las transacciones recientes del contrato de SunPump y decodifica
+      compras/ventas directo de su calldata (sin llamadas extra por evento, a diferencia de la
+      detección de tokens nuevos) — el monto real en TRX de una compra sale del `call_value` de
+      la transacción (confirmado en vivo: el mismo campo reveló la comisión real de creación de
+      20 TRX, cruzando con el dato ya conocido). Las ventas no cargan TRX en la llamada, así que
+      se muestran sin monto en vez de inventar una cifra. `ActivityTicker.tsx` (nuevo) — marquee
+      CSS puro (keyframes nuevos en `tailwind.config.js`), sin librería externa.
+- [x] **Imágenes reales cuando existen, identicon generado cuando no**: `imageUrl` nuevo en
+      `MemeTokenSummary`, tomado de `info.imageUrl` de DexScreener — verificado en vivo que solo
+      está presente para tokens con perfil enviado (los establecidos/graduados), nunca para
+      tokens recién creados. Nunca se inventa una imagen — `lib/meme/identicon.ts` (nuevo)
+      genera un avatar determinístico por dirección (estilo GitHub identicon, hecho a mano, sin
+      dependencia) para cuando no hay imagen real, usado en el feed, la watchlist, el panel de
+      resumen y el ticker.
+- [x] **Feed de "recién creados" rediseñado** como tarjetas con identicon, borde con glow al
+      pasar el mouse, y badge "● NUEVO" pulsante en el primero.
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador: 58 píldoras del ticker
+(29 eventos × 2 para el loop continuo) con compras reales (USDT, 波牛, GNS, etc. — símbolos
+reales resueltos en vivo), 78 identicons renderizados sin errores de consola, mapa de burbujas y
+seguimiento funcionando igual que antes. Un 502 transitorio visto durante pruebas en paralelo se
+confirmó como rate-limit momentáneo (no un bug) al repetir la misma llamada exitosamente.
+Barrido de regresión limpio en las 29 rutas. Push y deploy pedidos por el usuario inmediatamente después — ver commit.

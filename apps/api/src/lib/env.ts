@@ -1,6 +1,7 @@
 export const env = {
   PORT: Number(process.env.PORT ?? 8787),
   TRONSCAN_API_KEY: process.env.TRONSCAN_API_KEY ?? "",
+  TRONGRID_API_KEY: process.env.TRONGRID_API_KEY ?? "",
   XAI_API_KEY: process.env.XAI_API_KEY ?? "",
   CRYPTOCOMPARE_API_KEY: process.env.CRYPTOCOMPARE_API_KEY ?? "",
 
