@@ -11,6 +11,8 @@ import { formatUsd } from "../lib/format";
 import { BINANCE_PAIRS, type BinancePair } from "../lib/binance/types";
 import type { BacktestCondition, BacktestConfig, BacktestResult } from "@spider/types";
 
+type StopLossMode = BacktestConfig["stopLossMode"];
+
 const PAIR_LABELS: Record<BinancePair, string> = { BTCUSDT: "BTC/USDT", TRXUSDT: "TRX/USDT" };
 
 const BACKTEST_INTERVALS = ["15m", "1h", "4h", "1d"] as const;
@@ -36,7 +38,9 @@ export function BacktesterPage() {
   const [direction, setDirection] = useState<"long" | "short">("long");
   const [initialBalance, setInitialBalance] = useState(10_000);
   const [riskPercent, setRiskPercent] = useState(1);
+  const [stopLossMode, setStopLossMode] = useState<StopLossMode>("percent");
   const [stopLossPercent, setStopLossPercent] = useState(2);
+  const [atrMultiplier, setAtrMultiplier] = useState(1.5);
   const [takeProfitEnabled, setTakeProfitEnabled] = useState(true);
   const [takeProfitPercent, setTakeProfitPercent] = useState(4);
   const [entryConditions, setEntryConditions] = useState<BacktestCondition[]>([DEFAULT_CONDITION]);
@@ -83,6 +87,8 @@ export function BacktesterPage() {
         initialBalance,
         riskPercent,
         stopLossPercent,
+        stopLossMode,
+        atrMultiplier: stopLossMode === "atr" ? atrMultiplier : null,
         takeProfitPercent: takeProfitEnabled ? takeProfitPercent : null,
         direction,
         entryConditions,
@@ -245,15 +251,51 @@ export function BacktesterPage() {
             <p className="text-[10px] text-slate-600 mt-1">% del balance que se pierde si el Stop Loss se activa — define el tamaño de cada posición, no lo eliges tú directamente.</p>
           </div>
           <div>
-            <label className="text-[10px] font-mono text-slate-500 block mb-1">STOP LOSS (%)</label>
-            <input
-              type="number"
-              step={0.1}
-              value={stopLossPercent}
-              onChange={(e) => setStopLossPercent(Number(e.target.value))}
-              className="w-full bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm value-mono text-slate-100 outline-none focus:border-neon-blue/50"
-            />
-            <p className="text-[10px] text-slate-600 mt-1">Qué tan lejos del precio de entrada, en %, se cierra la operación en pérdida.</p>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[10px] font-mono text-slate-500">STOP LOSS</label>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => setStopLossMode("percent")}
+                  className={`px-1.5 py-0.5 rounded text-[9px] font-mono border ${stopLossMode === "percent" ? "border-neon-blue/50 text-neon-blue" : "border-void-border text-slate-500"}`}
+                >
+                  % FIJO
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStopLossMode("atr")}
+                  className={`px-1.5 py-0.5 rounded text-[9px] font-mono border ${stopLossMode === "atr" ? "border-neon-blue/50 text-neon-blue" : "border-void-border text-slate-500"}`}
+                >
+                  ATR
+                </button>
+              </div>
+            </div>
+            {stopLossMode === "percent" ? (
+              <>
+                <input
+                  type="number"
+                  step={0.1}
+                  value={stopLossPercent}
+                  onChange={(e) => setStopLossPercent(Number(e.target.value))}
+                  className="w-full bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm value-mono text-slate-100 outline-none focus:border-neon-blue/50"
+                />
+                <p className="text-[10px] text-slate-600 mt-1">Qué tan lejos del precio de entrada, en %, se cierra la operación en pérdida — el mismo número en cada trade, sin importar la volatilidad del momento.</p>
+              </>
+            ) : (
+              <>
+                <input
+                  type="number"
+                  step={0.1}
+                  min={0.1}
+                  value={atrMultiplier}
+                  onChange={(e) => setAtrMultiplier(Number(e.target.value))}
+                  className="w-full bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm value-mono text-slate-100 outline-none focus:border-neon-blue/50"
+                />
+                <p className="text-[10px] text-slate-600 mt-1">
+                  Múltiplo de <TermifiedText text="ATR" /> (14): el stop se coloca a <strong className="text-white">{atrMultiplier}× el ATR</strong> del precio de entrada, así que se ensancha solo en velas volátiles y se ajusta solo en velas tranquilas — la forma profesional de colocar el stop, en vez de un % arbitrario.
+                </p>
+              </>
+            )}
           </div>
           <div>
             <label className="text-[10px] font-mono text-slate-500 flex items-center gap-1.5 mb-1">

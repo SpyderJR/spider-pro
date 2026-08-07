@@ -11,7 +11,7 @@ export function TerminalOscillators({
   toggles: TerminalIndicatorToggles;
   indicators: TerminalIndicators;
 }) {
-  if (!toggles.rsi && !toggles.ao) return null;
+  if (!toggles.rsi && !toggles.ao && !toggles.atr && !toggles.cmf) return null;
 
   return (
     <div className="space-y-3 mt-3">
@@ -25,6 +25,18 @@ export function TerminalOscillators({
         <div className="panel p-3">
           <div className="text-[10px] font-mono text-slate-500 mb-1.5">AWESOME OSCILLATOR</div>
           <AoHistogram candles={candles} values={indicators.aoValues} />
+        </div>
+      )}
+      {toggles.atr && indicators.atrValues && (
+        <div className="panel p-3">
+          <div className="text-[10px] font-mono text-slate-500 mb-1.5">ATR (14) — VOLATILIDAD ABSOLUTA</div>
+          <IndicatorPaneChart kind="line" candles={candles} values={indicators.atrValues} color="#ffcf4d" height={90} />
+        </div>
+      )}
+      {toggles.cmf && indicators.cmfValues && (
+        <div className="panel p-3">
+          <div className="text-[10px] font-mono text-slate-500 mb-1.5">CHAIKIN MONEY FLOW (20)</div>
+          <IndicatorPaneChart kind="line" candles={candles} values={indicators.cmfValues} color="#39ff9c" refLines={[0]} height={90} />
         </div>
       )}
     </div>

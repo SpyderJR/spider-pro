@@ -2,15 +2,24 @@ import { useTerminalPreferencesStore } from "../../store/terminalPreferencesStor
 import type { TerminalIndicatorToggles } from "../../hooks/useTerminalIndicators";
 
 const ITEMS: Array<{ key: keyof TerminalIndicatorToggles; label: string; icon: string }> = [
+  { key: "heikinAshi", label: "Heikin Ashi", icon: "🕯" },
   { key: "fractals", label: "Fractales", icon: "〽" },
   { key: "alligator", label: "Alligator", icon: "🐊" },
-  { key: "pivots", label: "Pivots", icon: "⌗" },
+  { key: "pivots", label: "Pivots (D)", icon: "⌗" },
+  { key: "pivotsWeekly", label: "Pivots (S)", icon: "⌗" },
+  { key: "fibonacci", label: "Fibonacci", icon: "𝜙" },
   { key: "ema20", label: "EMA 20", icon: "〰" },
   { key: "ema50", label: "EMA 50", icon: "〰" },
   { key: "ema200", label: "EMA 200", icon: "〰" },
+  { key: "donchian", label: "Donchian", icon: "▭" },
+  { key: "keltner", label: "Keltner", icon: "▯" },
+  { key: "superTrend", label: "SuperTrend", icon: "⇡" },
+  { key: "ichimoku", label: "Ichimoku", icon: "雲" },
   { key: "volume", label: "Volumen", icon: "▮" },
   { key: "rsi", label: "RSI", icon: "◐" },
   { key: "ao", label: "AO", icon: "≋" },
+  { key: "atr", label: "ATR", icon: "⇕" },
+  { key: "cmf", label: "CMF", icon: "◑" },
   { key: "vwap", label: "VWAP", icon: "Σ" },
   { key: "volumeProfile", label: "Perfil Vol.", icon: "▤" },
 ];

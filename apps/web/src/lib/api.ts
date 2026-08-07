@@ -17,6 +17,8 @@ import {
   MemeClusteringResponseSchema,
   MemeActivityResponseSchema,
   MemeTransfersResponseSchema,
+  WhaleListResponseSchema,
+  WhaleDetailResponseSchema,
   type Asset,
   type Timeframe,
   type ChatMessage,
@@ -128,6 +130,14 @@ export function fetchMemeTransfers(address: string) {
 
 export function fetchMemeClustering(address: string) {
   return getJson(`/api/meme/token/${address}/clustering`, MemeClusteringResponseSchema);
+}
+
+export function fetchWhales() {
+  return getJson(`/api/whales`, WhaleListResponseSchema);
+}
+
+export function fetchWhaleDetail(id: string) {
+  return getJson(`/api/whales/${id}`, WhaleDetailResponseSchema);
 }
 
 export async function postChat(

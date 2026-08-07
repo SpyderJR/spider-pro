@@ -24,6 +24,7 @@ import { VelasJaponesasPage } from "./sections/VelasJaponesasPage";
 import { FractalesEstructuraPage } from "./sections/FractalesEstructuraPage";
 import { OnChainPage } from "./sections/OnChainPage";
 import { MemeRadarPage } from "./sections/MemeRadarPage";
+import { WhaleWatcherPage } from "./sections/WhaleWatcherPage";
 import { EstrategiasPage } from "./sections/EstrategiasPage";
 import { ContratosPage } from "./sections/ContratosPage";
 import { HalvingsPage } from "./sections/HalvingsPage";
@@ -66,6 +67,7 @@ export default function App() {
         <Route path="fractales-estructura" element={<FractalesEstructuraPage />} />
         <Route path="on-chain" element={<OnChainPage />} />
         <Route path="meme-radar" element={<MemeRadarPage />} />
+        <Route path="whale-watcher" element={<WhaleWatcherPage />} />
         <Route path="estrategias" element={<EstrategiasPage />} />
         <Route path="contratos" element={<ContratosPage />} />
         <Route path="halvings" element={<HalvingsPage />} />

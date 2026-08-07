@@ -13,6 +13,7 @@ import {
   LavaFloorIcon,
   ClockRentIcon,
   ScaleIcon,
+  SeismographIcon,
 } from "../components/contracts/icons";
 import { usePublishContext } from "../hooks/usePublishContext";
 
@@ -272,6 +273,52 @@ export function ContratosPage() {
             <p>
               A 10x, el margen bloqueado es $500. A 25x, es $200. En ambos casos sigues arriesgando los mismos $100
               si tu SL se ejecuta — el apalancamiento solo cambió el margen, no el riesgo real.
+            </p>
+          </>
+        }
+      />
+
+      <ConceptCard
+        icon="📏"
+        title="Stop Loss profesional: con ATR, no a ojo"
+        kidIllustration={<SeismographIcon />}
+        kidText="Un cinturón de seguridad de talla fija aprieta demasiado en un camino tranquilo y afloja demasiado en uno lleno de baches. El stop con ATR se ajusta solo según qué tan movido está el mercado ahora mismo."
+        seriousContent={
+          <>
+            <p>
+              El error más común al colocar un Stop Loss es usar el mismo % fijo (ej. "siempre 2%") sin importar si el
+              activo está tranquilo o extremadamente volátil ese día. Un stop calculado con{" "}
+              <Link to="/app/analisis-tecnico" className="text-neon-blue underline">
+                ATR (Average True Range)
+              </Link>{" "}
+              en cambio se coloca a un múltiplo de la volatilidad real reciente — se ensancha solo cuando el mercado
+              se mueve más, y se ajusta solo cuando se calma.
+            </p>
+            <p>
+              El Take Profit se puede calcular con la misma lógica: definiendo primero un ratio riesgo/beneficio (ej.
+              1:2) sobre la distancia de ATR, en vez de un número redondo elegido sin relación con la volatilidad
+              real del activo.
+            </p>
+          </>
+        }
+        numbersContent={
+          <>
+            <p className="mb-2">
+              BTC en 1h con ATR(14) = $600. Un stop de <strong className="text-white">1.5× ATR</strong> = $900 de
+              distancia del precio de entrada — se calcula solo, sin adivinar un %.
+            </p>
+            <p className="mb-2">
+              Si al día siguiente la volatilidad sube y el ATR pasa a $1,100, el mismo múltiplo produce un stop de
+              $1,650: se adapta automáticamente en vez de que el ruido de un día más movido lo saque de la operación
+              sin que la idea original haya estado mal.
+            </p>
+            <p>
+              Puedes probar esta lógica exacta en el{" "}
+              <Link to="/app/backtester" className="text-neon-blue underline">
+                Backtester
+              </Link>{" "}
+              (modo de Stop Loss "ATR") y en el panel de Futuros de la Terminal, que sugiere un SL con ATR con un
+              botón.
             </p>
           </>
         }

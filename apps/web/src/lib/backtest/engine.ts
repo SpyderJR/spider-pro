@@ -1,6 +1,9 @@
+import { atr } from "@spider/indicators";
 import type { BacktestConfig, BacktestTrade, EquityPoint } from "@spider/types";
 import type { BinanceCandle } from "../binance/types";
 import { computeIndicatorSeries, evaluateConditions } from "./conditions";
+
+const ATR_PERIOD = 14;
 
 interface OpenPosition {
   side: "long" | "short";
@@ -20,16 +23,25 @@ function computeStopLossPrice(entryPrice: number, side: "long" | "short", stopLo
   return side === "long" ? entryPrice * (1 - stopLossPercent / 100) : entryPrice * (1 + stopLossPercent / 100);
 }
 
+/** ATR-based stop — same direction logic as the percent version, but the distance from entry
+ * is `atrMultiplier` × the current ATR reading instead of a fixed percent, so it widens on
+ * volatile candles and tightens on calm ones. */
+function computeAtrStopLossPrice(entryPrice: number, side: "long" | "short", atrValue: number, atrMultiplier: number): number {
+  const distance = atrValue * atrMultiplier;
+  return side === "long" ? entryPrice - distance : entryPrice + distance;
+}
+
 function computeTakeProfitPrice(entryPrice: number, side: "long" | "short", takeProfitPercent: number | null): number | null {
   if (takeProfitPercent === null) return null;
   return side === "long" ? entryPrice * (1 + takeProfitPercent / 100) : entryPrice * (1 - takeProfitPercent / 100);
 }
 
 /** Sized so that a stop-loss hit costs exactly `riskPercent`% of balance at entry — the same
- * risk-first sizing philosophy already taught in Gestión de Riesgo, applied mechanically. */
-function computeQuantityForRisk(balance: number, riskPercent: number, entryPrice: number, stopLossPercent: number): number {
+ * risk-first sizing philosophy already taught in Gestión de Riesgo, applied mechanically.
+ * Takes the SL distance in price terms directly so it works identically whether that distance
+ * came from a fixed percent or from an ATR multiple. */
+function computeQuantityForRisk(balance: number, riskPercent: number, slDistanceUsd: number): number {
   const riskAmountUsd = balance * (riskPercent / 100);
-  const slDistanceUsd = entryPrice * (stopLossPercent / 100);
   return slDistanceUsd > 0 ? riskAmountUsd / slDistanceUsd : 0;
 }
 
@@ -51,6 +63,7 @@ function computePnlPercent(side: "long" | "short", entryPrice: number, exitPrice
 export function runBacktestLoop(candles: BinanceCandle[], config: BacktestConfig): BacktestRunResult {
   const allConditions = [...config.entryConditions, ...(config.exitConditions ?? [])];
   const series = computeIndicatorSeries(candles, allConditions);
+  const atrSeries = config.stopLossMode === "atr" ? atr(candles, ATR_PERIOD) : null;
 
   const trades: BacktestTrade[] = [];
   const equityCurve: EquityPoint[] = [];
@@ -108,13 +121,28 @@ export function runBacktestLoop(candles: BinanceCandle[], config: BacktestConfig
 
     if (!position && evaluateConditions(config.entryConditions, series, i)) {
       const entryPrice = candle.close;
+      const atrValue = atrSeries?.[i] ?? null;
+
+      // In ATR mode, a bar without enough history for a 14-period ATR reading yet just isn't
+      // tradeable — skip it rather than silently falling back to a percent-based stop, which
+      // would misrepresent what the backtest actually simulated.
+      if (config.stopLossMode === "atr" && (atrValue === null || config.atrMultiplier === null)) {
+        equityCurve.push({ time: candle.time, value: balance });
+        continue;
+      }
+
+      const stopLoss =
+        config.stopLossMode === "atr"
+          ? computeAtrStopLossPrice(entryPrice, config.direction, atrValue!, config.atrMultiplier!)
+          : computeStopLossPrice(entryPrice, config.direction, config.stopLossPercent);
+
       position = {
         side: config.direction,
         entryPrice,
         entryTime: candle.time * 1000,
-        stopLoss: computeStopLossPrice(entryPrice, config.direction, config.stopLossPercent),
+        stopLoss,
         takeProfit: computeTakeProfitPrice(entryPrice, config.direction, config.takeProfitPercent),
-        quantity: computeQuantityForRisk(balance, config.riskPercent, entryPrice, config.stopLossPercent),
+        quantity: computeQuantityForRisk(balance, config.riskPercent, Math.abs(entryPrice - stopLoss)),
       };
     }
 

@@ -90,6 +90,7 @@ export const MemeActivityEventSchema = z.object({
   type: MemeActivityTypeSchema,
   tokenAddress: z.string(),
   symbol: z.string().nullable(),
+  imageUrl: z.string().nullable(),
   trxAmount: z.number().nullable(),
   walletAddress: z.string(),
   txId: z.string(),

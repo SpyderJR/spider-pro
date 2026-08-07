@@ -48,4 +48,6 @@ export const TTL = {
   memeHolders: 2 * 60_000,
   memeTransfers: 2 * 60_000,
   memeClustering: 10 * 60_000,
+  whaleList: 60_000,
+  whaleDetail: 60_000,
 } as const;

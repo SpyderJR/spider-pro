@@ -20,6 +20,7 @@ export const SECTIONS: SectionMeta[] = [
   { path: "/app/fractales-estructura", label: "Fractales & Estructura", icon: "〽" },
   { path: "/app/on-chain", label: "On-Chain", icon: "🔗" },
   { path: "/app/meme-radar", label: "Meme Radar", icon: "🫧" },
+  { path: "/app/whale-watcher", label: "Whale Watcher", icon: "🐋" },
   { path: "/app/estrategias", label: "Estrategias & Cómo Invertir", icon: "🧭" },
   { path: "/app/contratos", label: "Contratos", icon: "⚖️" },
   { path: "/app/halvings", label: "Halvings BTC", icon: "⏳" },

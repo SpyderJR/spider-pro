@@ -695,3 +695,128 @@ Build y typecheck limpios en los 4 paquetes. Verificado en navegador: los 4 bloq
 nuevos visibles, un backtest real ejecutado de punta a punta (51 operaciones, BTC/USDT 4h RSI
 14) muestra la explicación de resultados correctamente con los términos enlazados al glosario.
 Barrido de regresión limpio en las 29 rutas.
+
+## Meme Radar — fix leve: imágenes reales en el ticker de actividad
+
+Feedback del usuario: la fila del ticker de actividad (arriba de la página) no mostraba las
+imágenes reales de los tokens, aunque sí aparecían más abajo en el panel de resumen y en el mapa
+de burbujas.
+
+- [x] **`fetchRecentActivity` ahora resuelve también el logo de SunPump** por token (con caché en
+      memoria de vida del proceso, igual que ya se hacía con el símbolo) y lo incluye en cada
+      evento de compra/venta.
+- [x] **`ActivityTicker`** renderiza la imagen real cuando está disponible, con el identicon como
+      respaldo — mismo patrón ya usado en `RecentTokensFeed`.
+
+Build limpio. Verificado con `pnpm run build` en los 4 paquetes.
+
+## Indicadores técnicos, Academia y Paper Trading — auditoría y expansión completa
+
+Pedido del usuario: revisar todo el repositorio y completar/mejorar un conjunto grande de
+herramientas de análisis técnico, educación de conceptos de futuros, y el simulador de Paper
+Trading. Antes de programar nada se auditó el estado real del código (no se asumió nada): ATR,
+Awesome Oscillator y Volume Profile ya existían en `packages/indicators`; Pivot Points diarios ya
+existían fuera del paquete; el Paper Trading con apalancamiento, margen aislado/cruzado, gestor de
+posiciones con PnL en vivo y liquidación YA estaba completamente construido e integrado en la
+Terminal — así que el trabajo real fue: agregar los indicadores realmente faltantes, cablearlos en
+la Terminal, documentarlos todos en la Academia, cerrar el hueco de SL/TP profesional vía ATR
+(Backtester + Terminal + ficha educativa en Contratos), y pulir el Paper Trading existente en vez
+de reconstruirlo desde cero.
+
+- [x] **7 indicadores nuevos en `packages/indicators`** (matemática pura, sin dependencias, mismo
+      patrón que el resto del paquete): Fibonacci (retroceso + extensión), Heikin Ashi, SuperTrend
+      (basado en ATR), Canal de Donchian, Canal de Keltner (basado en ATR), CMF (Chaikin Money
+      Flow), Ichimoku Kinko Hyo (9/26/52, desplazamiento de 26).
+- [x] **Cableado completo en la Terminal**: nuevos toggles en `useTerminalIndicators`/
+      `IndicatorTogglesPanel`, overlays en `TerminalChart` (Heikin Ashi reemplaza las velas
+      normales incluyendo la vela en vivo, SuperTrend con color según tendencia, Donchian/Keltner/
+      Ichimoku como líneas, Fibonacci como niveles de precio sobre el swing más reciente de hasta
+      100 velas), y ATR/CMF como nuevos paneles osciladores en `TerminalOscillators`.
+- [x] **Pivot Points semanales**, junto a los diarios ya existentes — nueva consulta de velas 1w,
+      mismo cálculo `classicPivots` reutilizado, toggle independiente en el gráfico.
+- [x] **Stop Loss dinámico con ATR en el Backtester**: nuevo modo "% Fijo" vs "ATR" en el schema
+      (`stopLossMode`, `atrMultiplier`), el motor (`runBacktestLoop`) calcula el SL a un múltiplo
+      del ATR(14) de cada entrada en vez de un % fijo, y el tamaño de posición se deriva de la
+      distancia real en precio (funciona igual para ambos modos). Un candle sin suficiente
+      historial para el ATR simplemente no opera esa vela, en vez de caer a un % por defecto sin
+      avisar.
+- [x] **11 fichas nuevas en la Academia de Indicadores** (`indicatorGuides.ts`): AO, ATR, Volume
+      Profile, Pivot Points, Fibonacci, Heikin Ashi, Ichimoku, SuperTrend, Donchian, Keltner, CMF
+      — cada una con qué es, cómo se lee, cuándo usarlo, errores comunes y señales, mismo formato
+      que las fichas ya existentes (RSI, MACD, Bollinger, etc.), sin tocar el componente que las
+      renderiza (100% data-driven).
+- [x] **Ficha "Stop Loss profesional: con ATR, no a ojo" en Contratos** — cierra explícitamente el
+      hueco de "SL/TP calculados con ATR en vez de % al azar", con un ícono nuevo (sismógrafo,
+      metáfora del cinturón de seguridad que se ajusta solo a la volatilidad) y enlaces directos al
+      Backtester y a la Terminal.
+- [x] **Panel de Futuros mejorado**: apalancamiento máximo subido de 50x a 100x (pedido explícito),
+      y nuevo botón "Sugerir con ATR" junto al campo de Stop Loss que calcula un SL a 1.5× el
+      ATR(14) actual del par/temporalidad activa, sin necesidad de calcularlo a mano.
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador con Playwright: los 9
+indicadores nuevos se activan sin errores de consola en la Terminal (velas Heikin Ashi, líneas de
+SuperTrend/Donchian/Keltner/Ichimoku, niveles de Fibonacci, pivots semanales, paneles ATR/CMF);
+en Futuros, el slider de apalancamiento llega a 100x y el botón "Sugerir con ATR" rellena
+correctamente el campo de Stop Loss con un precio real derivado del ATR; en el Backtester, el modo
+"ATR" del Stop Loss muestra el multiplicador y su explicación; las 11 fichas nuevas de la Academia
+de Indicadores se encontraron todas en el DOM; la ficha de Contratos se renderiza con el ícono
+nuevo. Barrido de regresión limpio en las 27 rutas verificadas.
+
+## Whale Watcher — nuevo módulo, balances públicos verificados de ballenas cripto
+
+Pedido del usuario: expandir un módulo "Whale Watcher" con 15+ entidades (exchanges, instituciones,
+políticos, fundadores) usando la API de Arkham. Investigación previa (obligatoria antes de escribir
+código, mismo estándar que el resto del proyecto): el módulo no existía todavía en el repo, y la API
+de Arkham resultó ser un "Pilot Program" gated — requiere aplicación y aprobación, sin tier gratuito
+confirmado, chocando directo con el mandato de costo cero. Se presentó esto al usuario junto con una
+alternativa 100% gratuita (direcciones públicas ya documentadas por investigación on-chain/prensa
+cripto, consultadas en vivo vía RPCs públicos sin key), y el usuario eligió esa alternativa.
+
+- [x] **Investigación y verificación en vivo de cada dirección** — cada una fue researcheada con
+      fuente citable (Etherscan/TronScan/Blockchain.com como etiqueta de primera parte, o cobertura
+      de CoinDesk/The Block/Decrypt/TRM Labs) y luego re-verificada con una llamada real a la
+      blockchain antes de aceptarla. Esto atrapó un error real: la dirección de memoria para "Tether
+      Treasury" tenía un carácter equivocado (checksum inválido, TronGrid la rechazó) — se corrigió
+      con la dirección real confirmada en vivo (~$393M en USDT).
+      Se descartaron explícitamente por falta de fuente creíble: una wallet personal de CZ, una
+      única wallet de Coinbase (su custodia está fragmentada en miles de direcciones, no hay una
+      "wallet ballena" dominante), y cualquier entidad adicional sin cita verificable — de ahí que
+      la lista final sea 10 entidades bien verificadas en vez de 15+ especulativas.
+- [x] **10 entidades configuradas** (`apps/api/src/data/whaleEntities.ts`, con fuente y nota de
+      confianza por cada una): Vitalik Buterin, Justin Sun, Satoshi Nakamoto (dirección del bloque
+      génesis, con aclaración explícita de que NO representa su fortuna real — solo una curiosidad
+      histórica; la estimación seria de ~1.1M BTC del patrón Patoshi se explica como texto, sin
+      wallet única rastreable), Binance, Tether Treasury, Strategy/MicroStrategy (tenencia
+      declarada, no on-chain — sin dirección pública), BlackRock IBIT (mismo caso, sin cifra en vivo
+      disponible en esta sesión), World Liberty Financial, y el token oficial $TRUMP en Solana.
+- [x] **Backend nuevo, 100% sin API keys de pago**: `lib/ethRpc.ts` y `lib/solanaRpc.ts` (RPC JSON
+      públicos y gratuitos — verificado en vivo que `eth.llamarpc.com` fallaba con Cloudflare 521 en
+      esta sesión, se usó `ethereum.publicnode.com` en su lugar tras confirmar que sí respondía),
+      `providers/tron.ts` extendido con `fetchTronAccountBalance` (TRX + TRC20 en una sola llamada),
+      `providers/whales.ts` (orquesta balance nativo + tokens rastreados por dirección, precios de
+      CoinGecko, agrega por entidad), rutas `GET /api/whales` y `GET /api/whales/:id`. El balance de
+      WLFI (token de World Liberty Financial) se rastrea para Justin Sun y para WLF mismo — permite
+      que el chat responda sobre su activo no-BTC más relevante.
+- [x] **`WhaleWatcherPage.tsx` nueva**, con la estética pedida por el usuario (calcada de una
+      captura de Arkham): avatar circular, cifra de patrimonio grande, badges de categoría/confianza,
+      pestañas Portfolio / Direcciones por red, tabla Activo/Red/Holdings/Valor, y una barra de
+      "distribución por red" (nuevo, pedido explícito) que muestra el % real de cada cadena sobre el
+      total. Filtro rápido por categoría (Exchanges/Instituciones/Políticos/Fundadores) con conteo
+      por categoría. Cada entidad muestra explícitamente si su dato es "EN VIVO ON-CHAIN" o
+      "TENENCIA DECLARADA", y un aviso de que el balance rastreado es de direcciones específicas
+      verificadas, no necesariamente el patrimonio total de la persona/empresa.
+- [x] **Inteligencia de chat**: la página publica (`usePublishContext`) un resumen real de todas las
+      entidades cargadas y el detalle de la seleccionada — mismas cifras que ve el usuario, sin
+      inventar actividad reciente ("qué compró hoy" no es soportado, ya que no hay tracking de
+      transacciones, solo balances actuales; esto se declara explícitamente en el contexto para que
+      el asistente no invente una respuesta).
+
+Build y typecheck limpios en los 4 paquetes. Cada dirección on-chain fue verificada con una llamada
+real (mempool.space para BTC, RPC de Ethereum para ETH, TronGrid para TRON, RPC de Solana para SOL)
+antes de aceptarse — no se usó ningún dato de memoria sin re-verificar. Verificado en navegador:
+las 10 entidades cargan con cifras reales (Binance ~$20B coincide con 248,597 BTC + 1.99M ETH al
+precio actual; Satoshi Genesis ~$3.7M en 57.3 BTC frozen+donaciones; Strategy ~$54.8B en 843,775 BTC
+declarados), el filtro por categoría funciona, la barra de distribución por red refleja proporciones
+reales, y el diseño responsive se probó en viewport móvil. Barrido de regresión limpio en las 28
+rutas (un 502 transitorio de CoinGecko durante el barrido se confirmó como rate-limit temporal de mi
+propio tráfico de pruebas, no una regresión — se re-verificó limpio después).

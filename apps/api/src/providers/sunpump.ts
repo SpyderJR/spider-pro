@@ -379,6 +379,19 @@ async function resolveSymbolCached(address: string): Promise<string | null> {
   return symbol;
 }
 
+// Same reasoning as symbolCache — a token's SunPump logo never changes once set, so a
+// process-lifetime cache avoids re-fetching it on every 15s ticker poll for tokens that keep
+// trading. This is what makes the activity ticker's pills show real token art instead of always
+// falling back to the generated identicon.
+const logoCache = new Map<string, string | null>();
+
+async function resolveLogoCached(address: string): Promise<string | null> {
+  if (logoCache.has(address)) return logoCache.get(address)!;
+  const logoUrl = await fetchSunPumpLogo(address).catch(() => null);
+  logoCache.set(address, logoUrl);
+  return logoUrl;
+}
+
 interface TronGridSmartContractTx {
   txID: string;
   block_timestamp: number;
@@ -398,6 +411,7 @@ export interface MemeActivityEventData {
   type: "buy" | "sell";
   tokenAddress: string;
   symbol: string | null;
+  imageUrl: string | null;
   trxAmount: number | null;
   walletAddress: string;
   txId: string;
@@ -413,7 +427,7 @@ export async function fetchRecentActivity(limit: number): Promise<MemeActivityEv
   const url = `${env.TRONGRID_BASE_URL}/v1/accounts/${SUNPUMP_CONTRACT}/transactions?only_confirmed=true&limit=${limit}`;
   const raw = await fetchJsonRetry<TronGridSmartContractTxsResponse>("trongrid", url, { headers: tronGridHeaders() });
 
-  const decoded: Array<Omit<MemeActivityEventData, "symbol">> = [];
+  const decoded: Array<Omit<MemeActivityEventData, "symbol" | "imageUrl">> = [];
   for (const tx of raw.data ?? []) {
     const contract = tx.raw_data?.contract?.[0];
     if (contract?.type !== "TriggerSmartContract") continue;
@@ -442,12 +456,16 @@ export async function fetchRecentActivity(limit: number): Promise<MemeActivityEv
     });
   }
 
-  // Sequential, not Promise.all — one TronScan call per unique token, same rate-limit
-  // discipline used everywhere else in this file.
+  // Sequential, not Promise.all — one TronScan/SunPump call per unique token, same rate-limit
+  // discipline used everywhere else in this file. Both lookups are cached, so this only costs a
+  // real network call the first time a given token shows up in the ticker.
   const results: MemeActivityEventData[] = [];
   for (const event of decoded) {
-    const symbol = await resolveSymbolCached(event.tokenAddress);
-    results.push({ ...event, symbol });
+    const [symbol, imageUrl] = await Promise.all([
+      resolveSymbolCached(event.tokenAddress),
+      resolveLogoCached(event.tokenAddress),
+    ]);
+    results.push({ ...event, symbol, imageUrl });
   }
   return results;
 }

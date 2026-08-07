@@ -91,6 +91,28 @@ export function ClockRentIcon() {
   );
 }
 
+export function SeismographIcon() {
+  return (
+    <svg viewBox="0 0 120 100" className="w-full h-24" role="img" aria-label="Sismógrafo — el stop se ensancha o se ajusta según qué tan movido está el mercado">
+      <line x1={5} y1={50} x2={115} y2={50} stroke="#334155" strokeWidth={1} strokeDasharray="3 3" />
+      <path
+        d="M 5 50 L 20 50 L 26 30 L 32 70 L 38 50 L 55 50 L 60 44 L 65 56 L 70 50 L 88 50 L 94 15 L 100 85 L 106 50 L 115 50"
+        fill="none"
+        stroke="#39ff9c"
+        strokeWidth={2.5}
+        strokeLinejoin="round"
+      />
+      <rect x={82} y={10} width={30} height={78} fill="#ff3b5c" opacity={0.08} />
+      <text x={97} y={95} textAnchor="middle" fontSize={7} fontFamily="monospace" fill="#ff3b5c">
+        ATR alto
+      </text>
+      <text x={27} y={95} textAnchor="middle" fontSize={7} fontFamily="monospace" fill="#39ff9c">
+        ATR bajo
+      </text>
+    </svg>
+  );
+}
+
 export function ScaleIcon() {
   return (
     <svg viewBox="0 0 120 100" className="w-full h-24" role="img" aria-label="Balanza de riesgo">

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { alligator } from "@spider/indicators";
+import { alligator, atr } from "@spider/indicators";
 import { SectionHeader } from "../components/SectionHeader";
 import { Disclaimer } from "../components/Disclaimer";
 import { PairBar } from "../components/terminal/PairBar";
@@ -46,6 +46,7 @@ export function TerminalPage() {
 
   const historyQuery = useBinanceKlinesQuery(pair, interval, 300);
   const dailyQuery = useBinanceKlinesQuery(pair, "1d", 15);
+  const weeklyQuery = useBinanceKlinesQuery(pair, "1w", 15);
   const streams = useBinanceStreams(pair, interval);
   const depthSnapshot = useOrderBookDepth(pair, streams.orderBook);
   const fearGreed = useFearGreed();
@@ -84,7 +85,16 @@ export function TerminalPage() {
     return newOnes.length > 0 ? [...baseCandles, ...newOnes] : baseCandles;
   }, [baseCandles, finalizedExtra]);
 
-  const indicators = useTerminalIndicators(candles, toggles, dailyQuery.data ?? null);
+  const indicators = useTerminalIndicators(candles, toggles, dailyQuery.data ?? null, weeklyQuery.data ?? null);
+
+  // Independent of the `atr` toggle above (which only computes it when the user wants it drawn
+  // on the chart) — the Futuros order panel's "Sugerir con ATR" button needs a current reading
+  // regardless of whether that overlay is visible.
+  const atrForRisk = useMemo(() => {
+    if (candles.length < 15) return null;
+    const values = atr(candles, 14);
+    return values.at(-1) ?? null;
+  }, [candles]);
 
   const currentPrice = streams.ticker?.lastPrice ?? candles.at(-1)?.close ?? null;
   const currentPrices = useMemo(() => ({ [pair]: currentPrice ?? undefined }), [pair, currentPrice]);
@@ -444,7 +454,14 @@ export function TerminalPage() {
                 market === "spot" ? (
                   <OrderPanel pair={pair} currentPrice={currentPrice} balance={store.balance} hasOpenPosition={positionForPair !== null} onSubmit={handleSubmitOrder} />
                 ) : (
-                  <FuturesOrderPanel pair={pair} currentPrice={currentPrice} balance={futuresStore.balance} hasOpenPosition={futuresPositionForPair !== null} onSubmit={handleSubmitFuturesOrder} />
+                  <FuturesOrderPanel
+                    pair={pair}
+                    currentPrice={currentPrice}
+                    balance={futuresStore.balance}
+                    hasOpenPosition={futuresPositionForPair !== null}
+                    atrValue={atrForRisk}
+                    onSubmit={handleSubmitFuturesOrder}
+                  />
                 )
               ) : id === "orderbook" ? (
                 <OrderBookPanel orderBook={streams.orderBook} depthSnapshot={depthSnapshot} />

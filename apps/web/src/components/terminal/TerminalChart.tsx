@@ -9,6 +9,10 @@ import { VolumeProfileOverlay } from "./VolumeProfileOverlay";
 
 const EMA_COLORS = { ema20: "#3ba8ff", ema50: "#ffcf4d", ema200: "#a78bfa" };
 const VWAP_COLOR = "#ff8ad8";
+const DONCHIAN_COLOR = "#22d3ee";
+const KELTNER_COLOR = "#c084fc";
+const ICHIMOKU_COLORS = { tenkan: "#ef4444", kijun: "#3ba8ff", spanA: "#22c55e", spanB: "#f97316", chikou: "#a3a3a3" };
+const FIB_COLOR = "#ffcf4d";
 
 export interface ExtraPriceLine {
   price: number;
@@ -113,8 +117,14 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
     const priceFormat = { type: "price" as const, precision, minMove: 1 / 10 ** precision };
     candleSeries.applyOptions({ priceFormat });
 
+    const haCandles = toggles.heikinAshi ? indicators.heikinAshiCandles : null;
     candleSeries.setData(
-      candles.map((c) => ({ time: c.time as Time, open: c.open, high: c.high, low: c.low, close: c.close })),
+      candles.map((c, i) => {
+        const ha = haCandles?.[i];
+        return ha
+          ? { time: c.time as Time, open: ha.open, high: ha.high, low: ha.low, close: ha.close }
+          : { time: c.time as Time, open: c.open, high: c.high, low: c.low, close: c.close };
+      }),
     );
 
     volumeSeries.setData(
@@ -166,6 +176,33 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
       addLine(indicators.alligatorData.map((p) => p.lips), "#22c55e", "Labios");
     }
 
+    if (toggles.donchian && indicators.donchianBands) {
+      addLine(indicators.donchianBands.map((b) => b.upper), DONCHIAN_COLOR, "Donchian Sup.");
+      addLine(indicators.donchianBands.map((b) => b.lower), DONCHIAN_COLOR, "Donchian Inf.");
+      addLine(indicators.donchianBands.map((b) => b.middle), DONCHIAN_COLOR, "Donchian Media", 2);
+    }
+
+    if (toggles.keltner && indicators.keltnerBands) {
+      addLine(indicators.keltnerBands.map((b) => b.upper), KELTNER_COLOR, "Keltner Sup.");
+      addLine(indicators.keltnerBands.map((b) => b.lower), KELTNER_COLOR, "Keltner Inf.");
+      addLine(indicators.keltnerBands.map((b) => b.middle), KELTNER_COLOR, "Keltner Media", 2);
+    }
+
+    if (toggles.superTrend && indicators.superTrendPoints) {
+      const points = indicators.superTrendPoints;
+      addLine(points.map((p) => (p.trend === "up" ? p.value : null)), "#22c55e", "SuperTrend ▲");
+      addLine(points.map((p) => (p.trend === "down" ? p.value : null)), "#ef4444", "SuperTrend ▼");
+    }
+
+    if (toggles.ichimoku && indicators.ichimokuPoints) {
+      const points = indicators.ichimokuPoints;
+      addLine(points.map((p) => p.tenkanSen), ICHIMOKU_COLORS.tenkan, "Tenkan-sen");
+      addLine(points.map((p) => p.kijunSen), ICHIMOKU_COLORS.kijun, "Kijun-sen");
+      addLine(points.map((p) => p.senkouSpanA), ICHIMOKU_COLORS.spanA, "Senkou A", 2);
+      addLine(points.map((p) => p.senkouSpanB), ICHIMOKU_COLORS.spanB, "Senkou B", 2);
+      addLine(points.map((p) => p.chikouSpan), ICHIMOKU_COLORS.chikou, "Chikou", 1);
+    }
+
     const pivotLines: IPriceLine[] = [];
     if (toggles.pivots && indicators.pivots) {
       const p = indicators.pivots;
@@ -190,6 +227,44 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
       }
     }
 
+    if (toggles.pivotsWeekly && indicators.pivotsWeekly) {
+      const p = indicators.pivotsWeekly;
+      const levels: [string, number][] = [
+        ["R2(S)", p.r2],
+        ["R1(S)", p.r1],
+        ["PP(S)", p.pp],
+        ["S1(S)", p.s1],
+        ["S2(S)", p.s2],
+      ];
+      for (const [label, value] of levels) {
+        pivotLines.push(
+          candleSeries.createPriceLine({
+            price: value,
+            color: label.startsWith("PP") ? "#f97316" : label.startsWith("R") ? "#ef4444" : "#22c55e",
+            lineWidth: 1,
+            lineStyle: 3,
+            axisLabelVisible: true,
+            title: label,
+          }),
+        );
+      }
+    }
+
+    if (toggles.fibonacci && indicators.fibonacciLevels) {
+      for (const level of indicators.fibonacciLevels) {
+        pivotLines.push(
+          candleSeries.createPriceLine({
+            price: level.price,
+            color: FIB_COLOR,
+            lineWidth: 1,
+            lineStyle: level.ratio === 0 || level.ratio === 1 ? 0 : 2,
+            axisLabelVisible: true,
+            title: `Fib ${level.label}`,
+          }),
+        );
+      }
+    }
+
     return () => {
       // The chart itself may already be disposed by the time this cleanup runs
       // (e.g. React StrictMode's dev-only double-invoke) — removeSeries on a
@@ -208,13 +283,29 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
   // 3. Live candle update — cheap, doesn't touch overlays.
   useEffect(() => {
     if (!liveKline || !candleSeriesRef.current || !volumeSeriesRef.current) return;
-    candleSeriesRef.current.update({
-      time: liveKline.time as Time,
-      open: liveKline.open,
-      high: liveKline.high,
-      low: liveKline.low,
-      close: liveKline.close,
-    });
+    if (toggles.heikinAshi) {
+      // Recomputes just the in-progress HA candle from the last *finalized* HA close,
+      // matching the same open=(prevOpen+prevClose)/2 rule `heikinAshi()` uses — avoids
+      // re-running the transform over the whole history on every tick.
+      const prevHA = indicators.heikinAshiCandles?.at(-1) ?? null;
+      const rawClose = (liveKline.open + liveKline.high + liveKline.low + liveKline.close) / 4;
+      const rawOpen = prevHA ? (prevHA.open + prevHA.close) / 2 : (liveKline.open + liveKline.close) / 2;
+      candleSeriesRef.current.update({
+        time: liveKline.time as Time,
+        open: rawOpen,
+        high: Math.max(liveKline.high, rawOpen, rawClose),
+        low: Math.min(liveKline.low, rawOpen, rawClose),
+        close: rawClose,
+      });
+    } else {
+      candleSeriesRef.current.update({
+        time: liveKline.time as Time,
+        open: liveKline.open,
+        high: liveKline.high,
+        low: liveKline.low,
+        close: liveKline.close,
+      });
+    }
     if (toggles.volume) {
       volumeSeriesRef.current.update({
         time: liveKline.time as Time,
@@ -222,7 +313,7 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
         color: liveKline.close >= liveKline.open ? "#22c55e40" : "#ef444440",
       });
     }
-  }, [liveKline, toggles.volume]);
+  }, [liveKline, toggles.volume, toggles.heikinAshi, indicators.heikinAshiCandles]);
 
   // 4. Position + pending order price lines.
   useEffect(() => {

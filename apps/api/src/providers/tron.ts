@@ -2,6 +2,47 @@ import type { StablecoinSymbol } from "@spider/types";
 import { env } from "../lib/env.js";
 import { fetchJson } from "../lib/http.js";
 
+function tronGridHeaders(): Record<string, string> {
+  return env.TRONGRID_API_KEY ? { "TRON-PRO-API-KEY": env.TRONGRID_API_KEY } : {};
+}
+
+interface TronGridAccountResponse {
+  data?: Array<{ balance?: number; trc20?: Array<Record<string, string>> }>;
+}
+
+export interface TronAccountBalance {
+  trxBalance: number;
+  /** contract address (base58, "T..." form) → token amount, already decimal-adjusted using the
+   * decimals passed alongside each requested contract. */
+  trc20: Map<string, number>;
+}
+
+/**
+ * Native TRX + TRC20 balances for a wallet, in one call — TronGrid's account endpoint returns
+ * both together, so there's no need for a separate per-token lookup like on Ethereum. Used by
+ * the Whale Watcher for TRON-based entities (e.g. Tether Treasury).
+ */
+export async function fetchTronAccountBalance(
+  address: string,
+  trc20Contracts: Array<{ contract: string; decimals: number }>,
+): Promise<TronAccountBalance> {
+  const url = `${env.TRONGRID_BASE_URL}/v1/accounts/${address}`;
+  const raw = await fetchJson<TronGridAccountResponse>("trongrid", url, { headers: tronGridHeaders() });
+  const account = raw.data?.[0];
+
+  const decimalsByContract = new Map(trc20Contracts.map((t) => [t.contract, t.decimals]));
+  const trc20 = new Map<string, number>();
+  for (const entry of account?.trc20 ?? []) {
+    for (const [contract, rawAmount] of Object.entries(entry)) {
+      const decimals = decimalsByContract.get(contract);
+      if (decimals === undefined) continue;
+      trc20.set(contract, Number(rawAmount) / 10 ** decimals);
+    }
+  }
+
+  return { trxBalance: (account?.balance ?? 0) / 1e6, trc20 };
+}
+
 export interface TronScanStats {
   totalAccounts: number | null;
   totalTransactions: number | null;

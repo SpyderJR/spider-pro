@@ -15,7 +15,11 @@ function Pill({ event, onSelect }: { event: MemeActivityEvent; onSelect: (addres
         isBuy ? "border-neon-green/30 hover:bg-neon-green/10" : "border-neon-red/30 hover:bg-neon-red/10"
       }`}
     >
-      <IdenticonAvatar seed={event.tokenAddress} size={16} />
+      {event.imageUrl ? (
+        <img src={event.imageUrl} alt="" className="w-4 h-4 rounded-full object-cover shrink-0" />
+      ) : (
+        <IdenticonAvatar seed={event.tokenAddress} size={16} />
+      )}
       <span className={`text-[10px] font-mono font-bold ${isBuy ? "text-neon-green" : "text-neon-red"}`}>
         {isBuy ? "▲ COMPRA" : "▼ VENTA"}
       </span>

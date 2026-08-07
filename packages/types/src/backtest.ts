@@ -30,6 +30,13 @@ export const BacktestConfigSchema = z.object({
   riskPercent: z.number().positive(),
   stopLossPercent: z.number().positive(),
   takeProfitPercent: z.number().positive().nullable(),
+  /** "percent" (default) sizes the stop a fixed % from entry, same on every trade regardless
+   * of how calm or volatile the market is at that moment. "atr" instead places it a multiple
+   * of the 14-period ATR away — the stop adapts to real volatility instead of a static number
+   * picked "a ojo" (arbitrarily), the same distinction taught in the ATR risk-management lesson. */
+  stopLossMode: z.enum(["percent", "atr"]).default("percent"),
+  /** Only used when stopLossMode is "atr" — the ATR multiplier (e.g. 1.5x ATR). */
+  atrMultiplier: z.number().positive().nullable().default(null),
   direction: z.enum(["long", "short"]),
   /** All conditions AND-combined — v1 has no OR logic. */
   entryConditions: z.array(ConditionSchema).min(1),

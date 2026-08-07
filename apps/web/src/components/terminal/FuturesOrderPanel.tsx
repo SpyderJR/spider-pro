@@ -6,11 +6,16 @@ import { computeLiquidationPrice, computeRequiredMargin, liquidationDistancePerc
 import { computeQuantity, computeRiskRewardRatio } from "../../lib/paperTrading/engine";
 import { formatUsd, pricePrecision } from "../../lib/format";
 
+const ATR_SL_MULTIPLIER = 1.5;
+
 interface Props {
   pair: string;
   currentPrice: number | null;
   balance: number;
   hasOpenPosition: boolean;
+  /** Latest 14-period ATR reading for the current pair/temporalidad — powers "Sugerir con ATR",
+   * null while there isn't enough candle history yet. */
+  atrValue: number | null;
   onSubmit: (params: {
     side: FuturesSide;
     orderType: "market" | "limit";
@@ -26,7 +31,7 @@ interface Props {
 
 const PERCENT_PRESETS = [10, 25, 50, 100];
 
-export function FuturesOrderPanel({ pair, currentPrice, balance, hasOpenPosition, onSubmit }: Props) {
+export function FuturesOrderPanel({ pair, currentPrice, balance, hasOpenPosition, atrValue, onSubmit }: Props) {
   const [side, setSide] = useState<FuturesSide>("long");
   const [orderType, setOrderType] = useState<"market" | "limit">("market");
   const [limitPrice, setLimitPrice] = useState("");
@@ -143,7 +148,7 @@ export function FuturesOrderPanel({ pair, currentPrice, balance, hasOpenPosition
         <input
           type="range"
           min={1}
-          max={50}
+          max={100}
           step={1}
           value={leverage}
           onChange={(e) => setLeverage(Number(e.target.value))}
@@ -217,10 +222,26 @@ export function FuturesOrderPanel({ pair, currentPrice, balance, hasOpenPosition
 
       <div className="mb-3 grid grid-cols-2 gap-2">
         <div>
-          <label className="flex items-center gap-1.5 text-[10px] font-mono text-neon-red mb-1">
-            <input type="checkbox" checked={stopLossEnabled} onChange={(e) => setStopLossEnabled(e.target.checked)} />
-            STOP LOSS
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="flex items-center gap-1.5 text-[10px] font-mono text-neon-red">
+              <input type="checkbox" checked={stopLossEnabled} onChange={(e) => setStopLossEnabled(e.target.checked)} />
+              STOP LOSS
+            </label>
+            {stopLossEnabled && effectivePrice !== null && atrValue !== null && (
+              <button
+                type="button"
+                onClick={() => {
+                  const distance = atrValue * ATR_SL_MULTIPLIER;
+                  const suggested = side === "long" ? effectivePrice - distance : effectivePrice + distance;
+                  setStopLossPrice(suggested.toFixed(precision));
+                }}
+                title={`Sugiere un SL a ${ATR_SL_MULTIPLIER}× el ATR (14) actual — se ensancha o se ajusta solo según la volatilidad real, en vez de un número fijo a ojo.`}
+                className="text-[9px] font-mono text-neon-gold border border-neon-gold/30 rounded px-1.5 py-0.5 hover:bg-neon-gold/10"
+              >
+                ⇕ SUGERIR CON ATR
+              </button>
+            )}
+          </div>
           <input
             type="number"
             disabled={!stopLossEnabled}
