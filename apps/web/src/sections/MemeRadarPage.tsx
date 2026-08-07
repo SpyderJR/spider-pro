@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import type { ClusterGroup, MemeHolder, MemeTransfer } from "@spider/types";
+import type { ClusterGroup, MemeConcentrationRisk, MemeHolder, MemeTransfer, MemeWhaleMove } from "@spider/types";
 import { SectionHeader } from "../components/SectionHeader";
 import { Disclaimer } from "../components/Disclaimer";
 import { ExplainButton } from "../components/spider/ExplainButton";
@@ -10,6 +10,7 @@ import { RecentTokensFeed } from "../components/meme/RecentTokensFeed";
 import { WatchlistPanel } from "../components/meme/WatchlistPanel";
 import { HolderBubbleMap } from "../components/meme/HolderBubbleMap";
 import { ActivityTicker } from "../components/meme/ActivityTicker";
+import { RiskSignalsPanel } from "../components/meme/RiskSignalsPanel";
 import { useMemeToken } from "../hooks/useMemeToken";
 import { useRecentMemeTokens } from "../hooks/useRecentMemeTokens";
 import { useMemeActivity } from "../hooks/useMemeActivity";
@@ -26,7 +27,12 @@ export function MemeRadarPage() {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [holders, setHolders] = useState<MemeHolder[] | null>(null);
   const [holdersError, setHoldersError] = useState(false);
+  const [concentration, setConcentration] = useState<{ percent: number | null; risk: MemeConcentrationRisk | null }>({
+    percent: null,
+    risk: null,
+  });
   const [transfers, setTransfers] = useState<MemeTransfer[] | null>(null);
+  const [recentWhaleMove, setRecentWhaleMove] = useState<MemeWhaleMove | null>(null);
   const [clustering, setClustering] = useState<ClusterGroup[] | null>(null);
   const [clusteringLoading, setClusteringLoading] = useState(false);
 
@@ -40,21 +46,29 @@ export function MemeRadarPage() {
   useEffect(() => {
     setHolders(null);
     setHoldersError(false);
+    setConcentration({ percent: null, risk: null });
     setTransfers(null);
+    setRecentWhaleMove(null);
     setClustering(null);
     if (!selectedAddress) return;
 
     let cancelled = false;
     fetchMemeHolders(selectedAddress)
       .then((res) => {
-        if (!cancelled) setHolders(res.holders);
+        if (!cancelled) {
+          setHolders(res.holders);
+          setConcentration({ percent: res.top10ConcentrationPercent, risk: res.concentrationRisk });
+        }
       })
       .catch(() => {
         if (!cancelled) setHoldersError(true);
       });
     fetchMemeTransfers(selectedAddress)
       .then((res) => {
-        if (!cancelled) setTransfers(res.transfers);
+        if (!cancelled) {
+          setTransfers(res.transfers);
+          setRecentWhaleMove(res.recentWhaleMove);
+        }
       })
       .catch(() => {
         // Non-critical — the bubble map just renders without connection lines.
@@ -119,6 +133,15 @@ export function MemeRadarPage() {
           {selectedAddress && (
             <>
               <TokenSummaryPanel token={token} error={tokenError} isWatched={isWatched} onToggleWatch={toggleWatch} />
+
+              {token && !tokenError && (
+                <RiskSignalsPanel
+                  token={token}
+                  top10ConcentrationPercent={concentration.percent}
+                  concentrationRisk={concentration.risk}
+                  recentWhaleMove={recentWhaleMove}
+                />
+              )}
 
               <div className="panel p-5">
                 <div className="flex items-center justify-between mb-3">

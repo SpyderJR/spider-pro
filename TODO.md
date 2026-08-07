@@ -908,3 +908,43 @@ exactamente en el encabezado de la Academia; en la Terminal, buscar "SOL" y sele
 gráfico, el order book, los indicadores y el cálculo de cantidad del panel de órdenes a SOL/USDT en
 vivo; en el Backtester, buscar "DOGE" muestra resultados reales con volumen. Barrido de regresión
 limpio en las 28 rutas.
+
+## Meme Radar — panel de Señales de Riesgo (5 heurísticas anti-rug-pull)
+
+Pedido del usuario: agregar herramientas para detectar "cosas raras" en los tokens de Meme Radar.
+Se propuso una lista de 5 señales al usuario (explicando también qué NO se podía construir gratis
+de forma honesta — honeypot check y verificación de liquidez bloqueada) y se recibió luz verde
+para las 5.
+
+- [x] **Investigación en vivo antes de programar nada**: se verificó el selector real de la función
+      `createAndInitPurchase(string,string)` (`2f70d762`) contra una transacción real, y se
+      descubrió que la propia API de SunPump ya expone `ownerAddress` (creador) y `pumpPercentage`
+      directamente — evitando tener que decodificar la transacción de creación a mano. Durante esta
+      misma verificación apareció un caso real de estafa (un token "Tether USD"/"USDT" recién
+      creado), usado luego como caso de prueba real para las 5 señales.
+- [x] **Concentración de holders (top 10)**: `top10ConcentrationPercent` + semáforo `bajo/medio/alto`
+      (umbral: <30% / 30-50% / >50%, el más citado en la industria), calculado sobre el supply en
+      circulación (excluyendo la reserva de la curva de bonding).
+- [x] **Detector de creador en serie**: nuevo endpoint `/api/meme/token/:address/creator-history` —
+      usa el `ownerAddress` de SunPump, escanea las transacciones recientes de esa cartera en
+      TronGrid buscando otras llamadas a `createAndInitPurchase`, y reporta el estado de cada token
+      encontrado (graduado / en curva / abandonado). Verificado en vivo: encontró correctamente que
+      el creador del token de prueba había lanzado otro token idéntico ("USDT" duplicado) que
+      quedó abandonado con 0 compradores reales.
+- [x] **Alerta de movimiento de ballenas**: la transferencia más grande de la ventana reciente,
+      como % del supply — con un techo del 90% para excluir el mint inicial hacia la reserva de la
+      curva (que siempre mueve ~100% del supply y generaba un falso positivo en absolutamente todos
+      los tokens; se detectó y corrigió durante la verificación en vivo).
+- [x] **Nombre/símbolo sospechoso**: comparación exacta (insensible a mayúsculas/espacios) contra
+      una lista curada de activos conocidos (BTC, ETH, USDT, USDC, BNB, SOL, TRX, DOGE, XRP, ADA,
+      SHIB, TON, SUN, JST, USDD) — detectó correctamente el token de prueba real.
+- [x] **Progreso de la curva de bonding visible**: se usa el `pumpPercentage` que la propia API de
+      SunPump ya calcula, mostrado como barra de progreso en un panel nuevo ("Señales de riesgo").
+- [x] **`RiskSignalsPanel.tsx` nuevo** en Meme Radar, con las 5 señales integradas, cada una
+      etiquetada como heurística/estimación, nunca como certeza — mismo principio que el clustering
+      ya existente.
+
+Build y typecheck limpios en los 4 paquetes. Cada señal fue verificada contra datos reales en vivo
+(no simulados) — incluyendo el caso real del token "Tether USD" falso y su duplicado abandonado,
+que sirvió como validación end-to-end de las 5 señales a la vez. Barrido de regresión limpio en las
+28 rutas.

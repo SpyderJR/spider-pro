@@ -34,6 +34,12 @@ export const MemeTokenSummarySchema = z.object({
   dexUrl: z.string().nullable(),
   /** Real image submitted to DexScreener, when the token has a profile there — null for most brand-new tokens (never fabricated as a placeholder here; the frontend generates its own identicon in that case). */
   imageUrl: z.string().nullable(),
+  /** SunPump's own bonding-curve progress (0-100), straight from their API — null once graduated (the field stops being meaningful post-graduation). */
+  pumpPercentage: z.number().nullable(),
+  /** The wallet that called createAndInitPurchase for this token, per SunPump's own API. */
+  creatorAddress: z.string().nullable(),
+  /** Set when the token's name/symbol closely matches a well-known asset (USDT, BTC, ETH, ...) — a common impersonation-scam pattern on launchpads. Null when no match. */
+  nameSimilarityWarning: z.string().nullable(),
   source: z.string(),
   live: z.boolean(),
   updatedAt: z.number(),
@@ -55,14 +61,30 @@ export const MemeTransferSchema = z.object({
 });
 export type MemeTransfer = z.infer<typeof MemeTransferSchema>;
 
+export const MemeWhaleMoveSchema = z.object({
+  fromAddress: z.string(),
+  toAddress: z.string(),
+  percentOfSupply: z.number(),
+  amount: z.number(),
+  timestamp: z.number(),
+});
+export type MemeWhaleMove = z.infer<typeof MemeWhaleMoveSchema>;
+
 export const MemeTransfersResponseSchema = z.object({
   address: z.string(),
   transfers: z.array(MemeTransferSchema),
+  /** The largest single transfer in the fetched window, when it moved a notable share of supply
+   * (>=3%) — a possible whale dump/repositioning, not necessarily malicious. Null when nothing
+   * in the window crossed that bar. */
+  recentWhaleMove: MemeWhaleMoveSchema.nullable(),
   source: z.string(),
   live: z.boolean(),
   updatedAt: z.number(),
 });
 export type MemeTransfersResponse = z.infer<typeof MemeTransfersResponseSchema>;
+
+export const MemeConcentrationRiskSchema = z.enum(["bajo", "medio", "alto"]);
+export type MemeConcentrationRisk = z.infer<typeof MemeConcentrationRiskSchema>;
 
 export const MemeHoldersResponseSchema = z.object({
   address: z.string(),
@@ -70,6 +92,12 @@ export const MemeHoldersResponseSchema = z.object({
   holders: z.array(MemeHolderSchema),
   /** % of supply still sitting in SunPump's own bonding-curve reserve (unsold), when detected — excluded from `holders` since it isn't a buyer. */
   unsoldReservePercent: z.number().nullable(),
+  /** % of circulating (non-reserve) supply held by the top 10 wallets — the most-cited rug-pull
+   * heuristic. Null when totalSupply is unknown. */
+  top10ConcentrationPercent: z.number().nullable(),
+  /** bajo <30%, medio 30-50%, alto >50% — thresholds documented in the provider, always shown
+   * alongside the raw percentage, never as a bare label. */
+  concentrationRisk: MemeConcentrationRiskSchema.nullable(),
   source: z.string(),
   live: z.boolean(),
   updatedAt: z.number(),
@@ -105,6 +133,30 @@ export const MemeActivityResponseSchema = z.object({
   updatedAt: z.number(),
 });
 export type MemeActivityResponse = z.infer<typeof MemeActivityResponseSchema>;
+
+export const MemeCreatorTokenSchema = z.object({
+  address: z.string(),
+  symbol: z.string().nullable(),
+  name: z.string().nullable(),
+  /** "CREATED" = still on the bonding curve, "LAUNCHED" = graduated to SunSwap. */
+  status: z.string().nullable(),
+  holders: z.number().nullable(),
+  pumpPercentage: z.number().nullable(),
+});
+export type MemeCreatorToken = z.infer<typeof MemeCreatorTokenSchema>;
+
+export const MemeCreatorHistoryResponseSchema = z.object({
+  tokenAddress: z.string(),
+  creatorAddress: z.string().nullable(),
+  otherTokens: z.array(MemeCreatorTokenSchema),
+  /** How many of the creator's recent transactions were scanned to find `otherTokens` — a
+   * bounded window (not their full history), so this is a lower bound on their real activity,
+   * never presented as a complete list. */
+  scannedTransactions: z.number(),
+  isEstimate: z.literal(true),
+  updatedAt: z.number(),
+});
+export type MemeCreatorHistoryResponse = z.infer<typeof MemeCreatorHistoryResponseSchema>;
 
 export const MemeClusteringResponseSchema = z.object({
   address: z.string(),

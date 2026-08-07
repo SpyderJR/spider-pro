@@ -190,7 +190,28 @@ export async function fetchTokenMarketData(address: string): Promise<TokenMarket
 
 interface SunPumpTokenDetailResponse {
   code: number;
-  data?: { logoUrl?: string | null };
+  data?: {
+    logoUrl?: string | null;
+    ownerAddress?: string | null;
+    pumpPercentage?: number | null;
+    status?: string | null;
+    holders?: number | null;
+    symbol?: string | null;
+    name?: string | null;
+  };
+}
+
+export interface SunPumpTokenDetail {
+  logoUrl: string | null;
+  /** The wallet that called createAndInitPurchase for this token — SunPump's API gives this to
+   * us directly, no need to decode the creation transaction ourselves. */
+  ownerAddress: string | null;
+  /** Bonding-curve progress, 0-100, straight from SunPump's own calculation. */
+  pumpPercentage: number | null;
+  status: string | null;
+  holders: number | null;
+  symbol: string | null;
+  name: string | null;
 }
 
 /**
@@ -202,13 +223,29 @@ interface SunPumpTokenDetailResponse {
  * ones), which is why images were missing for most freshly-created tokens before this. Same
  * category of "public data the site's own frontend already exposes" as the TronScan homepage-
  * bundle endpoint already used elsewhere in this file.
+ *
+ * Also the cleanest source for a token's creator (`ownerAddress`) and bonding-curve progress
+ * (`pumpPercentage`) — both verified live against a real, brand-new token before shipping this.
  */
-export async function fetchSunPumpLogo(address: string): Promise<string | null> {
+export async function fetchSunPumpTokenDetail(address: string): Promise<SunPumpTokenDetail> {
   const url = `https://api-v2.sunpump.meme/pump-api/token/${address}`;
   const raw = await fetchJsonRetry<SunPumpTokenDetailResponse>("sunpump", url, {
     headers: { "User-Agent": "Mozilla/5.0" },
   });
-  return raw.data?.logoUrl ?? null;
+  const d = raw.data;
+  return {
+    logoUrl: d?.logoUrl ?? null,
+    ownerAddress: d?.ownerAddress ?? null,
+    pumpPercentage: d?.pumpPercentage ?? null,
+    status: d?.status ?? null,
+    holders: d?.holders ?? null,
+    symbol: d?.symbol ?? null,
+    name: d?.name ?? null,
+  };
+}
+
+export async function fetchSunPumpLogo(address: string): Promise<string | null> {
+  return fetchSunPumpTokenDetail(address).then((d) => d.logoUrl);
 }
 
 interface TronScanTrc20InfoResponse {
@@ -468,4 +505,111 @@ export async function fetchRecentActivity(limit: number): Promise<MemeActivityEv
     results.push({ ...event, symbol, imageUrl });
   }
   return results;
+}
+
+// createAndInitPurchase(string,string) — verified live against a real transaction (a token
+// creation observed while building this feature) rather than computed from memory, since a
+// wrong selector here would silently make the "serial creator" detector find nothing and no one
+// would notice. Same TriggerSmartContract shape as BUY_SELECTOR/SELL_SELECTOR above.
+const CREATE_TOKEN_SELECTOR = "2f70d762";
+
+export interface CreatorTokenEntry {
+  address: string;
+  symbol: string | null;
+  name: string | null;
+  status: string | null;
+  holders: number | null;
+  pumpPercentage: number | null;
+}
+
+interface TronGridAccountTx {
+  txID: string;
+  raw_data: {
+    contract: Array<{
+      type: string;
+      parameter: { value: { owner_address?: string; contract_address?: string; data?: string } };
+    }>;
+  };
+}
+
+interface TronGridAccountTxsResponse {
+  data?: TronGridAccountTx[];
+}
+
+// Bounds how many of the creator's own recent transactions we scan (one TronGrid call) and how
+// many candidate token-creation calls we fully resolve (each needs its own tx-log fetch + a
+// SunPump detail fetch) — a serial rugger with 50+ launches still gets flagged from their most
+// recent activity, without turning one token-detail view into dozens of outbound calls.
+const CREATOR_SCAN_LIMIT = 30;
+const CREATOR_MAX_OTHER_TOKENS = 8;
+
+/**
+ * Other tokens the same wallet has launched on SunPump before, and their current status — the
+ * clearest signal this platform can offer for free that a token's creator has a track record
+ * (or a pattern of abandoning what they launch). Always an estimate: it only sees the creator's
+ * most recent `CREATOR_SCAN_LIMIT` transactions, not their full history.
+ */
+export async function fetchCreatorTokenHistory(creatorAddress: string, excludeTokenAddress: string): Promise<CreatorTokenEntry[]> {
+  const url = `${env.TRONGRID_BASE_URL}/v1/accounts/${creatorAddress}/transactions?only_confirmed=true&limit=${CREATOR_SCAN_LIMIT}&order_by=block_timestamp,desc`;
+  const raw = await fetchJsonRetry<TronGridAccountTxsResponse>("trongrid", url, { headers: tronGridHeaders() });
+
+  // contract_address/owner_address on a transaction carry the 21-byte "41"-prefixed hex form —
+  // different from the bare 20-byte hex used in log topics/addresses elsewhere in this file
+  // (see hexToTronAddress's own doc comment for the same distinction).
+  const sunpumpContractPrefixed = `41${SUNPUMP_CONTRACT_HEX}`;
+  const candidates = (raw.data ?? []).filter((tx) => {
+    const c = tx.raw_data?.contract?.[0];
+    if (c?.type !== "TriggerSmartContract") return false;
+    const { contract_address, data } = c.parameter.value;
+    return contract_address === sunpumpContractPrefixed && data?.startsWith(CREATE_TOKEN_SELECTOR);
+  });
+
+  const results: CreatorTokenEntry[] = [];
+  for (const tx of candidates.slice(0, CREATOR_MAX_OTHER_TOKENS)) {
+    try {
+      const info = await fetchTransactionLog(tx.txID);
+      const tokenLog = info.log?.find((l) => l.topics?.[0]?.startsWith(TRANSFER_TOPIC) && l.address !== SUNPUMP_CONTRACT_HEX);
+      if (!tokenLog) continue;
+      const tokenAddress = hexToTronAddress(tokenLog.address);
+      if (tokenAddress === excludeTokenAddress) continue;
+
+      const detail = await fetchSunPumpTokenDetail(tokenAddress).catch(() => null);
+      results.push({
+        address: tokenAddress,
+        symbol: detail?.symbol ?? null,
+        name: detail?.name ?? null,
+        status: detail?.status ?? null,
+        holders: detail?.holders ?? null,
+        pumpPercentage: detail?.pumpPercentage ?? null,
+      });
+    } catch {
+      continue;
+    }
+  }
+  return results;
+}
+
+// Well-known tickers/names that scam tokens on launchpads commonly impersonate — verified
+// firsthand while building this feature: a real, brand-new token calling itself "Tether USD"
+// with symbol "USDT" was created on SunPump during testing. Deliberately small and specific
+// (assets people would actually recognize and trust) rather than an open-ended fuzzy matcher
+// that would flag legitimate tokens with common words in their name.
+const KNOWN_ASSET_NAMES = new Set([
+  "BITCOIN", "BTC", "ETHEREUM", "ETH", "TETHER", "USDT", "USD COIN", "USDC", "BNB", "BINANCE COIN",
+  "SOLANA", "SOL", "TRON", "TRX", "DOGECOIN", "DOGE", "XRP", "RIPPLE", "CARDANO", "ADA",
+  "SHIBA INU", "SHIB", "TONCOIN", "TON", "SUN", "JUST", "JST", "USDD",
+]);
+
+/** Flags a token whose name or symbol exactly matches a well-known asset it obviously isn't
+ * (different contract) — the single cheapest, highest-signal impersonation check available
+ * without a paid API. Case/whitespace-insensitive exact match only, not fuzzy, to avoid false
+ * positives on tokens that merely reference a real asset in their description. */
+export function detectNameSimilarityWarning(name: string | null, symbol: string | null): string | null {
+  const candidates = [name, symbol].filter((v): v is string => !!v).map((v) => v.trim().toUpperCase());
+  for (const c of candidates) {
+    if (KNOWN_ASSET_NAMES.has(c)) {
+      return `El nombre o símbolo de este token ("${c}") coincide con el de un activo conocido — verifica que no sea una imitación antes de confiar en él.`;
+    }
+  }
+  return null;
 }

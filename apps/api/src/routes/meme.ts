@@ -2,23 +2,48 @@ import type { FastifyInstance } from "fastify";
 import type {
   ClusterGroup,
   MemeActivityResponse,
+  MemeConcentrationRisk,
+  MemeCreatorHistoryResponse,
   MemeHoldersResponse,
   MemeTokenSummary,
   MemeTransfersResponse,
+  MemeWhaleMove,
   RecentTokenCreationsResponse,
 } from "@spider/types";
 import { cache, TTL } from "../lib/cache.js";
 import {
+  detectNameSimilarityWarning,
+  fetchCreatorTokenHistory,
   fetchHolderFundingSource,
   fetchRecentActivity,
   fetchRecentTokenCreations,
-  fetchSunPumpLogo,
+  fetchSunPumpTokenDetail,
   fetchTokenBasicInfo,
   fetchTokenHolders,
   fetchTokenMarketData,
   fetchTokenTransfers,
   SUNPUMP_CONTRACT,
 } from "../providers/sunpump.js";
+
+// top10 <30% = "bajo", 30-50% = "medio", >50% = "alto" — the ~50% figure is the most commonly
+// cited rug-pull concentration threshold; shown next to the raw % in the UI, never as a bare
+// label, so users can judge for themselves rather than trust a single cutoff blindly.
+function concentrationRiskFor(top10Percent: number): MemeConcentrationRisk {
+  if (top10Percent >= 50) return "alto";
+  if (top10Percent >= 30) return "medio";
+  return "bajo";
+}
+
+// A single transfer moving >=3% of total supply is the threshold used to surface a "whale
+// move" banner — small enough to catch real repositioning, large enough that routine trading
+// noise on a low-cap token doesn't trigger it on every other transaction.
+const WHALE_MOVE_SUPPLY_THRESHOLD_PERCENT = 3;
+
+// Every token's very first transfer mints/seeds ~100% of supply into the bonding curve reserve —
+// verified live against a real brand-new token, where this showed up as a false-positive "100%
+// whale move" on every single token, not an actual signal. Anything this close to the full
+// supply in one transfer is that initialization artifact, not a real holder repositioning.
+const WHALE_MOVE_SUPPLY_CEILING_PERCENT = 90;
 
 // Holders analyzed per clustering run — capped to stay well within TronGrid's free rate limit
 // (each holder needs its own funding-source lookup) and to keep response times reasonable.
@@ -65,10 +90,10 @@ export function registerMemeRoutes(app: FastifyInstance) {
           // Independent try/catch per source — a DexScreener/SunPump hiccup shouldn't blank out
           // the name/symbol TronScan already has, and vice versa. Retries live one layer down
           // in the provider; this is the last-resort fallback if both attempts there still fail.
-          const [infoResult, marketResult, logoResult] = await Promise.allSettled([
+          const [infoResult, marketResult, sunpumpResult] = await Promise.allSettled([
             fetchTokenBasicInfo(address),
             fetchTokenMarketData(address),
-            fetchSunPumpLogo(address),
+            fetchSunPumpTokenDetail(address),
           ]);
           if (infoResult.status === "rejected" && marketResult.status === "rejected") {
             throw infoResult.reason;
@@ -91,12 +116,19 @@ export function registerMemeRoutes(app: FastifyInstance) {
                 };
           // SunPump's own logo covers virtually every token (even ones created seconds ago);
           // DexScreener's is a fallback for the rare case SunPump's API itself is unreachable.
-          const logoUrl = logoResult.status === "fulfilled" ? logoResult.value : null;
+          const sunpump = sunpumpResult.status === "fulfilled" ? sunpumpResult.value : null;
+          const name = info.name ?? sunpump?.name ?? null;
+          const symbol = info.symbol ?? sunpump?.symbol ?? null;
           return {
             address,
             ...info,
+            name,
+            symbol,
             ...market,
-            imageUrl: logoUrl ?? market.imageUrl,
+            imageUrl: sunpump?.logoUrl ?? market.imageUrl,
+            pumpPercentage: sunpump?.pumpPercentage ?? null,
+            creatorAddress: sunpump?.ownerAddress ?? null,
+            nameSimilarityWarning: detectNameSimilarityWarning(name, symbol),
             source: "tronscan+dexscreener+sunpump",
             live: infoResult.status === "fulfilled" && marketResult.status === "fulfilled",
             updatedAt: Date.now(),
@@ -126,7 +158,14 @@ export function registerMemeRoutes(app: FastifyInstance) {
             // pre-graduation — it isn't a buyer, so it's reported separately, not mixed into the
             // holders list (would otherwise dwarf every real wallet in the bubble map).
             const reserve = raw.find((h) => h.address === SUNPUMP_CONTRACT);
-            const realHolders = raw.filter((h) => h.address !== SUNPUMP_CONTRACT);
+            const realHolders = raw.filter((h) => h.address !== SUNPUMP_CONTRACT).sort((a, b) => b.balance - a.balance);
+
+            // Concentration is computed against the reserve-excluded supply (what's actually in
+            // circulation among real buyers) — including the unsold reserve here would understate
+            // concentration risk for tokens still mostly on the bonding curve.
+            const circulatingSupply = totalSupply && reserve ? totalSupply - reserve.balance : totalSupply;
+            const top10Balance = realHolders.slice(0, 10).reduce((sum, h) => sum + h.balance, 0);
+            const top10ConcentrationPercent = circulatingSupply ? (top10Balance / circulatingSupply) * 100 : null;
 
             return {
               address,
@@ -137,6 +176,8 @@ export function registerMemeRoutes(app: FastifyInstance) {
                 percentage: totalSupply ? (h.balance / totalSupply) * 100 : null,
               })),
               unsoldReservePercent: reserve && totalSupply ? (reserve.balance / totalSupply) * 100 : null,
+              top10ConcentrationPercent,
+              concentrationRisk: top10ConcentrationPercent !== null ? concentrationRiskFor(top10ConcentrationPercent) : null,
               source: "tronscan",
               live: true,
               updatedAt: Date.now(),
@@ -160,8 +201,31 @@ export function registerMemeRoutes(app: FastifyInstance) {
           `meme:transfers:${address}`,
           TTL.memeTransfers,
           async () => {
-            const transfers = await fetchTokenTransfers(address, 50);
-            return { address, transfers, source: "tronscan", live: true, updatedAt: Date.now() };
+            const [transfers, info] = await Promise.all([
+              fetchTokenTransfers(address, 50),
+              fetchTokenBasicInfo(address).catch(() => null),
+            ]);
+
+            let recentWhaleMove: MemeWhaleMove | null = null;
+            if (info?.totalSupply) {
+              const eligible = transfers.filter((t) => (t.amount / info.totalSupply!) * 100 < WHALE_MOVE_SUPPLY_CEILING_PERCENT);
+              const biggest = eligible.reduce<(typeof transfers)[number] | null>(
+                (max, t) => (!max || t.amount > max.amount ? t : max),
+                null,
+              );
+              const percentOfSupply = biggest ? (biggest.amount / info.totalSupply) * 100 : 0;
+              if (biggest && percentOfSupply >= WHALE_MOVE_SUPPLY_THRESHOLD_PERCENT) {
+                recentWhaleMove = {
+                  fromAddress: biggest.from,
+                  toAddress: biggest.to,
+                  percentOfSupply,
+                  amount: biggest.amount,
+                  timestamp: biggest.timestamp,
+                };
+              }
+            }
+
+            return { address, transfers, recentWhaleMove, source: "tronscan", live: true, updatedAt: Date.now() };
           },
         );
         return reply.send(result);
@@ -220,6 +284,36 @@ export function registerMemeRoutes(app: FastifyInstance) {
       } catch (err) {
         request.log.error({ err, address }, "meme/token/clustering failed");
         return reply.status(502).send({ error: "meme clustering unavailable" });
+      }
+    },
+  );
+
+  app.get<{ Params: { address: string } }>(
+    "/api/meme/token/:address/creator-history",
+    async (request, reply) => {
+      const { address } = request.params;
+      try {
+        const result = await cache.wrap<MemeCreatorHistoryResponse>(
+          `meme:creator-history:${address}`,
+          TTL.memeCreatorHistory,
+          async () => {
+            const detail = await fetchSunPumpTokenDetail(address).catch(() => null);
+            const creatorAddress = detail?.ownerAddress ?? null;
+            const otherTokens = creatorAddress ? await fetchCreatorTokenHistory(creatorAddress, address) : [];
+            return {
+              tokenAddress: address,
+              creatorAddress,
+              otherTokens,
+              scannedTransactions: creatorAddress ? 30 : 0,
+              isEstimate: true as const,
+              updatedAt: Date.now(),
+            };
+          },
+        );
+        return reply.send(result);
+      } catch (err) {
+        request.log.error({ err, address }, "meme/token/creator-history failed");
+        return reply.status(502).send({ error: "meme creator history unavailable" });
       }
     },
   );

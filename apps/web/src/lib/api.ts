@@ -15,6 +15,7 @@ import {
   MemeTokenSummarySchema,
   MemeHoldersResponseSchema,
   MemeClusteringResponseSchema,
+  MemeCreatorHistoryResponseSchema,
   MemeActivityResponseSchema,
   MemeTransfersResponseSchema,
   WhaleListResponseSchema,
@@ -126,6 +127,10 @@ export function fetchMemeHolders(address: string) {
 
 export function fetchMemeTransfers(address: string) {
   return getJson(`/api/meme/token/${address}/transfers`, MemeTransfersResponseSchema);
+}
+
+export function fetchMemeCreatorHistory(address: string) {
+  return getJson(`/api/meme/token/${address}/creator-history`, MemeCreatorHistoryResponseSchema);
 }
 
 export function fetchMemeClustering(address: string) {
