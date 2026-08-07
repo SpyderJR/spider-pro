@@ -10,6 +10,7 @@ import { IndicatorTogglesPanel } from "../components/terminal/IndicatorTogglesPa
 import { OrderPanel } from "../components/terminal/OrderPanel";
 import { FuturesOrderPanel } from "../components/terminal/FuturesOrderPanel";
 import { FuturesMarketInfo } from "../components/terminal/FuturesMarketInfo";
+import { LiquidationFeedPanel } from "../components/terminal/LiquidationFeedPanel";
 import { PriceAlertsPanel } from "../components/terminal/PriceAlertsPanel";
 import { OrderBookPanel } from "../components/terminal/OrderBookPanel";
 import { TradesFeed } from "../components/terminal/TradesFeed";
@@ -369,7 +370,10 @@ export function TerminalPage() {
       </div>
 
       {market === "futures" && (
-        <FuturesMarketInfo pair={pair} currentPrice={currentPrice} fundingRate={fundingQuery.data} openInterest={openInterestQuery.data} />
+        <>
+          <FuturesMarketInfo pair={pair} currentPrice={currentPrice} fundingRate={fundingQuery.data} openInterest={openInterestQuery.data} />
+          <LiquidationFeedPanel currentSymbol={pair} />
+        </>
       )}
 
       {market === "spot" && lastFeedback && (

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useMarketCoins } from "../../hooks/useMarketData";
 import { estimateLeverageZones, DEFAULT_LEVERAGE_TIERS } from "../../lib/futures/leverageZones";
 import { formatUsd, pricePrecision } from "../../lib/format";
@@ -27,7 +28,11 @@ export function LeverageZonesPanel() {
         <strong className="text-slate-300"> no es un mapa de liquidaciones reales de otros traders</strong>, porque
         esa información no existe públicamente gratis en ninguna API. Es una guía educativa de dónde{" "}
         <em>tendrían</em> que liquidarse posiciones abiertas a esos apalancamientos si el precio se moviera desde
-        aquí.
+        aquí. Si quieres liquidaciones reales que ya ocurrieron (no estimadas), la{" "}
+        <Link to="/app/terminal" className="text-neon-blue underline">
+          Terminal en modo Futuros
+        </Link>{" "}
+        tiene un feed en vivo conectado directo a Binance.
       </p>
 
       <div className="grid sm:grid-cols-2 gap-4">
