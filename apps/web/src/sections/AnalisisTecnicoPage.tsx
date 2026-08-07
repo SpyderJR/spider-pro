@@ -56,20 +56,28 @@ export function AnalisisTecnicoPage() {
         title="Análisis Técnico"
         subtitle={`Velas japonesas interactivas sobre cualquier token, con ${INDICATOR_GUIDES.length} indicadores técnicos configurables.`}
         right={
-          <button
-            onClick={() => setShowAcademy((v) => !v)}
-            className={`group flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
-              showAcademy
-                ? "border-neon-green/50 text-neon-green bg-neon-green/10 shadow-neon-green"
-                : "border-neon-green/30 text-slate-200 bg-gradient-to-r from-neon-green/10 to-transparent hover:border-neon-green/50 hover:shadow-neon-green"
-            }`}
-          >
-            <span className="text-base">🎓</span>
-            {showAcademy ? "Ocultar academia" : "Academia de Indicadores"}
-            <span className="text-[10px] font-mono text-slate-500 group-hover:text-slate-400">
-              {showAcademy ? "▲" : "▼"}
-            </span>
-          </button>
+          <div className="relative rounded-xl p-[2px] overflow-hidden shrink-0">
+            {!showAcademy && (
+              <div
+                className="absolute inset-[-60%] animate-border-spin"
+                style={{ background: "conic-gradient(from 0deg, transparent 0%, #ff3b5c 12%, transparent 26%)" }}
+              />
+            )}
+            <button
+              onClick={() => setShowAcademy((v) => !v)}
+              className={`group relative z-10 flex items-center gap-2 px-4 py-2 rounded-[10px] text-sm font-semibold border transition-all ${
+                showAcademy
+                  ? "border-neon-green/50 text-neon-green bg-void shadow-neon-green"
+                  : "border-void-border text-white bg-void hover:shadow-neon-red"
+              }`}
+            >
+              <span className="text-base">🎓</span>
+              {showAcademy ? "Ocultar academia" : "Academia de Indicadores"}
+              <span className="text-[10px] font-mono text-slate-500 group-hover:text-slate-400">
+                {showAcademy ? "▲" : "▼"}
+              </span>
+            </button>
+          </div>
         }
       />
 

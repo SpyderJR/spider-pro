@@ -45,6 +45,7 @@ export default {
         marquee: "marquee 40s linear infinite",
         "radar-sweep": "radar-sweep 6s linear infinite",
         "dash-flow": "dash-flow 1s linear infinite",
+        "border-spin": "radar-sweep 2.5s linear infinite",
       },
     },
   },

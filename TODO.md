@@ -820,3 +820,55 @@ declarados), el filtro por categoría funciona, la barra de distribución por re
 reales, y el diseño responsive se probó en viewport móvil. Barrido de regresión limpio en las 28
 rutas (un 502 transitorio de CoinGecko durante el barrido se confirmó como rate-limit temporal de mi
 propio tráfico de pruebas, no una regresión — se re-verificó limpio después).
+
+## Whale Watcher — corrección de presentación engañosa
+
+Feedback del usuario tras ver el módulo en vivo: los números "no son correctos", ellos tienen
+"billones en sus cuentas" (comparando contra la cifra de ~$2,200M que Arkham muestra para Justin
+Sun). El cálculo en sí era correcto — el problema real era de presentación: la cifra grande se leía
+como si fuera "patrimonio total" cuando en realidad es solo el valor de las direcciones que
+pudimos verificar con fuente citable (para Justin Sun, una sola dirección ETH).
+
+- [x] **Investigación adicional confirmó el límite estructural**: incluso el propio equipo de
+      Arkham reconoce que solo ~1 dirección de Justin Sun está confirmada con fuente sólida — las
+      otras ~142 que le atribuyen son "wallets que PODRÍAN pertenecerle" basado en patrones de
+      transacciones (IA/heurística, no confirmación directa). Su patrimonio real reportado
+      ($5,000-8,000M según Arkham, $12,400M según Bloomberg) proviene mayormente de su
+      participación accionaria en HTX y Poloniex — no es un dato on-chain verificable.
+- [x] **Nuevo campo `externalEstimateNote`** (schema + backend + UI): una nota citada aparte,
+      nunca mezclada con nuestro número verificado, mostrando la estimación externa real con su
+      fuente — implementada para Justin Sun.
+- [x] **Relabeling de la cifra principal**: pasó de mostrarse sin contexto a decir explícitamente
+      "VALOR EN DIRECCIONES RASTREADAS (NO ES SU PATRIMONIO TOTAL)" arriba del número, tanto en la
+      tarjeta de la grilla como en el panel de detalle.
+- [x] **Callout ampliado** explicando en lenguaje simple por qué el número puede ser bajo (una
+      persona pública puede tener su fortuna repartida en muchas más wallets nunca confirmadas
+      públicamente) y por qué este módulo no las inventa.
+
+Build y typecheck limpios. Verificado en navegador: la ficha de Justin Sun ahora muestra
+"$1,572 · VALOR EN DIRECCIONES RASTREADAS" junto con una caja roja separada citando la estimación
+real de $5,000-12,400M con fuente. Barrido de regresión limpio en las 28 rutas.
+
+## Academia de Indicadores — contenido más profundo y botón más visible
+
+Feedback del usuario: la Academia de Indicadores en Análisis Técnico "es muy pobre" en su forma de
+enseñar, necesita ser más detallada y explícita (recordando que la plataforma es educativa), y el
+botón para abrirla "pasa desapercibido".
+
+- [x] **Nuevo campo `analogy`** en las 24 fichas de indicadores — una analogía simple, sin jerga,
+      que aparece primero (antes de la explicación técnica), mismo principio pedagógico de "la idea
+      en simple antes de los números" que ya usan ConceptCard y la Academia principal.
+- [x] **Nuevo campo `practicalSteps`** en las 24 fichas — 3 pasos concretos para probar el
+      indicador YA en las herramientas reales de Spider (activar el toggle correcto en la Terminal,
+      armar una condición específica en el Backtester, etc.) en vez de quedarse en teoría abstracta.
+- [x] **`IndicatorAcademy.tsx` rediseñado**: caja dorada "💡 LA IDEA EN SIMPLE" al inicio de cada
+      ficha expandida, caja azul "▶ PRUÉBALO AHORA EN SPIDER" con pasos numerados al final; la
+      vista previa colapsada ahora muestra la analogía en vez del texto técnico.
+- [x] **Botón "Academia de Indicadores" con anillo rojo giratorio permanente** (`animate-border-spin`,
+      conic-gradient rotando cada 2.5s) mientras está cerrado, para que no pase desapercibido — se
+      apaga automáticamente al abrirla.
+
+Build y typecheck limpios. Verificado que las 24 fichas tienen ambos campos nuevos (conteo exacto:
+24 ids, 24 analogy, 24 practicalSteps). Confirmado en navegador: el botón muestra el anillo rojo
+girando, y la primera ficha abierta por defecto muestra la analogía, la explicación técnica, y los
+3 pasos prácticos en el orden esperado. Barrido de regresión limpio en las 28 rutas.

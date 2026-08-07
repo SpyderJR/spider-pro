@@ -96,14 +96,19 @@ function AcademyCard({
             <span className="font-semibold text-white">{guide.title}</span>
             <span className={`badge text-[10px] ${CATEGORY_STYLE[guide.category]}`}>{guide.category}</span>
           </div>
-          {!isOpen && <p className="text-xs text-slate-500 mt-1 line-clamp-1">{guide.what}</p>}
+          {!isOpen && <p className="text-xs text-slate-500 mt-1 line-clamp-1">{guide.analogy}</p>}
         </div>
         <span className={`text-slate-500 transition-transform shrink-0 ${isOpen ? "rotate-180" : ""}`}>▾</span>
       </button>
 
       {isOpen && (
         <div className="px-5 pb-6 space-y-4 border-t border-void-border pt-4">
-          <Section label="Qué mide">
+          <div className="bg-gradient-to-r from-neon-gold/10 to-transparent border border-neon-gold/25 rounded-lg p-3.5">
+            <div className="text-[11px] font-mono text-neon-gold mb-1.5 tracking-wide">💡 LA IDEA EN SIMPLE</div>
+            <p className="text-sm text-slate-200 leading-relaxed">{guide.analogy}</p>
+          </div>
+
+          <Section label="Qué mide, en términos técnicos">
             <p className="text-sm text-slate-300 leading-relaxed">{guide.what}</p>
           </Section>
 
@@ -149,6 +154,20 @@ function AcademyCard({
               ))}
             </ul>
           </Section>
+
+          <div className="bg-neon-blue/5 border border-neon-blue/25 rounded-lg p-3.5">
+            <div className="text-[11px] font-mono text-neon-blue mb-2 tracking-wide">▶ PRUÉBALO AHORA EN SPIDER</div>
+            <ol className="text-sm text-slate-200 space-y-2">
+              {guide.practicalSteps.map((s, i) => (
+                <li key={s} className="flex gap-2.5">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-neon-blue/15 border border-neon-blue/40 text-neon-blue text-[10px] font-bold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="leading-relaxed">{s}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       )}
     </div>
