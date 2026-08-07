@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { SECTIONS } from "../lib/sections";
 import { useAcademyProgressStore } from "../store/academyProgressStore";
 import { useUiStore } from "../store/uiStore";
+import { DonationAddress } from "./DonationAddress";
 
 export function Nav() {
   const { streakDays, overallPercent } = useAcademyProgressStore();
@@ -61,6 +62,9 @@ export function Nav() {
         >
           ⚙ Respaldo de datos
         </button>
+        <div className="mb-2">
+          <DonationAddress compact />
+        </div>
         <div className="text-[11px] text-slate-600">Datos de mercado, no asesoría financiera (NFA).</div>
         <div className="text-[10px] text-slate-700 mt-1">Gráficos por TradingView Lightweight Charts (open source).</div>
       </div>

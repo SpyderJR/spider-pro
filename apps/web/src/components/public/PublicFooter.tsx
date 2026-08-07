@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SOCIALS } from "../../data/socials";
+import { DonationAddress } from "../DonationAddress";
 
 export function PublicFooter() {
   return (
@@ -76,6 +77,10 @@ export function PublicFooter() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="max-w-sm mb-8">
+          <DonationAddress />
         </div>
 
         <div className="border-t border-void-border pt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
