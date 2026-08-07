@@ -42,7 +42,11 @@ export function RecentTokensFeed({ tokens, error, onSelect }: Props) {
           onClick={() => onSelect(t.address)}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl border border-void-border hover:border-neon-blue/40 hover:shadow-neon-blue transition-all text-left group"
         >
-          <IdenticonAvatar seed={t.address} size={32} />
+          {t.imageUrl ? (
+            <img src={t.imageUrl} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0 border border-void-border" />
+          ) : (
+            <IdenticonAvatar seed={t.address} size={32} />
+          )}
           <div className="min-w-0 flex-1">
             <div className="text-[11px] font-mono text-slate-300 group-hover:text-white transition-colors truncate">
               {shortAddress(t.address)}

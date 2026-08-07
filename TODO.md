@@ -641,3 +641,57 @@ Build y typecheck limpios en los 4 paquetes. Verificado en navegador: identicons
 letras visibles, 49 burbujas renderizadas para un token con 67 holders, clic en burbuja confirma
 apertura de `tronscan.org` en pestaña nueva, líneas de conexión renderizan cuando hay datos.
 Barrido de regresión limpio en las 29 rutas.
+
+### Meme Radar v4 — imágenes reales de SunPump y mapa de burbujas estilo radar
+
+Feedback del usuario: seguía sin ver fotos reales, y pidió que el mapa de burbujas se sintiera
+más moderno/tecnológico, no "tan simple".
+
+- [x] **Fuente real de imágenes encontrada**: inspeccionando el bundle JS del propio sitio
+      sunpump.meme se encontró su API pública no documentada (`api-v2.sunpump.meme/pump-api/
+      token/{address}`, sin key, la misma que usa su frontend) — devuelve `logoUrl` real para
+      prácticamente cualquier token, incluso creado hace segundos, a diferencia de DexScreener
+      (que solo tiene imagen para tokens con perfil enviado, casi ninguno recién creado).
+      Verificado en vivo devolviendo la imagen real de "Football Aliens". Mismo criterio ya
+      usado en el proyecto para el bundle de TronScan (`fetchTronScanStats`): un endpoint público
+      sin autenticación que el propio sitio usa para renderizarse. `fetchSunPumpLogo` (nuevo) se
+      usa tanto en el resumen de token como en el feed de "recién creados" (`imageUrl` nuevo en
+      `RecentTokenCreation`), con identicon como respaldo solo si de verdad no hay imagen.
+- [x] **Mapa de holders rediseñado con estética "radar"**: fondo con gradiente radial oscuro,
+      anillos concéntricos y cruz central (refuerza el nombre "Meme Radar"), barrido animado
+      tipo radar (`animate-radar-sweep`, nuevo keyframe), burbujas con relleno degradado + glow
+      (filtro SVG `feGaussianBlur`), líneas de conexión con trazo animado (`animate-dash-flow`)
+      en vez de una línea estática.
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador: imagen real de "Football
+Aliens" cargando en el panel de resumen, burbujas con el nuevo estilo radar renderizando sin
+errores de consola. Barrido de regresión limpio en las 29 rutas.
+
+## Backtester — introducción educativa profesional
+
+Feedback del usuario: el Backtester era "muy simple" y no explicaba cómo funciona — en una
+plataforma donde la gente aprende, necesitaba una introducción con instrucciones exactas y
+explicar para qué sirve cada cosa, con un acabado profesional, no solo vistoso.
+
+- [x] **Bloque "¿Qué es un backtest y para qué sirve?"** — explica en lenguaje simple qué
+      pregunta responde un backtest y por qué es mejor que operar por intuición, coherente con
+      la disciplina de "regla, no corazonada" del resto de la plataforma.
+- [x] **Guía de 4 pasos** ("Elige el mercado y el rango" → "Define tu regla de entrada" →
+      "Configura el riesgo" → "Ejecuta y lee los resultados con ojo crítico"), con un ejemplo
+      concreto listo para correr con un clic ("deja la configuración por defecto y presiona
+      Ejecutar").
+- [x] **Texto de ayuda bajo cada campo no obvio** (Balance inicial, Riesgo por trade, Stop Loss,
+      Take Profit, Condiciones de entrada) explicando qué controla cada uno en una línea, en vez
+      de dejar los campos sin contexto.
+- [x] **Explicación de cómo leer los resultados**, agregada bajo las tarjetas de métricas —
+      aclara que Win Rate solo no dice nada sin Profit Factor, qué mide Max Drawdown en la
+      práctica, y por qué Expectancy es el número que más importa. Términos automáticamente
+      enlazados al Glosario vía `TermifiedText` (Win Rate, Profit Factor, Drawdown, Expectancy —
+      ya existían como términos, solo faltaba usarlos aquí). Aviso amarillo automático cuando la
+      corrida tiene menos de 30 operaciones, advirtiendo que la muestra es demasiado chica para
+      sacar conclusiones.
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador: los 4 bloques educativos
+nuevos visibles, un backtest real ejecutado de punta a punta (51 operaciones, BTC/USDT 4h RSI
+14) muestra la explicación de resultados correctamente con los términos enlazados al glosario.
+Barrido de regresión limpio en las 29 rutas.

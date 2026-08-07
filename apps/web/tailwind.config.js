@@ -32,9 +32,19 @@ export default {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
         },
+        "radar-sweep": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "dash-flow": {
+          "0%": { strokeDashoffset: "24" },
+          "100%": { strokeDashoffset: "0" },
+        },
       },
       animation: {
         marquee: "marquee 40s linear infinite",
+        "radar-sweep": "radar-sweep 6s linear infinite",
+        "dash-flow": "dash-flow 1s linear infinite",
       },
     },
   },

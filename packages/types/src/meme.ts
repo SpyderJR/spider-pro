@@ -7,6 +7,7 @@ export const RecentTokenCreationSchema = z.object({
   address: z.string(),
   txId: z.string(),
   createdAt: z.number(), // unix ms
+  imageUrl: z.string().nullable(),
 });
 export type RecentTokenCreation = z.infer<typeof RecentTokenCreationSchema>;
 

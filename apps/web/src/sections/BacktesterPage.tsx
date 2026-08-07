@@ -4,6 +4,7 @@ import { Disclaimer } from "../components/Disclaimer";
 import { StatCard } from "../components/StatCard";
 import { PriceLineChart } from "../components/charts/PriceLineChart";
 import { ConditionRow } from "../components/backtest/ConditionRow";
+import { TermifiedText } from "../components/TermifiedText";
 import { fetchBacktestCandles } from "../lib/backtest/candleCache";
 import { useBacktestWorker } from "../hooks/useBacktestWorker";
 import { formatUsd } from "../lib/format";
@@ -103,6 +104,57 @@ export function BacktesterPage() {
       />
       <Disclaimer text="El desempeño pasado no garantiza resultados futuros. Este backtester es una herramienta educativa con simplificaciones conocidas (sin comisiones, sin slippage) — no es asesoría financiera (NFA)." />
 
+      <div className="panel border border-neon-blue/30 bg-neon-blue/5 p-5 mb-6">
+        <div className="text-xs font-mono font-bold tracking-widest text-neon-blue mb-2">¿QUÉ ES UN BACKTEST Y PARA QUÉ SIRVE?</div>
+        <p className="text-sm text-slate-200 leading-relaxed">
+          <TermifiedText text="Un backtest responde una pregunta muy concreta: 'si hubiera seguido esta regla exacta de entrada y salida durante los últimos años, ¿qué habría pasado?'. En vez de confiar en la intuición o en 'se ve que va a subir', escribes una regla objetiva basada en un indicador, y el sistema la corre automáticamente contra velas históricas reales de Binance — la misma disciplina de 'regla, no corazonada' que rige el resto de esta plataforma." />
+        </p>
+        <p className="text-sm text-slate-200 leading-relaxed mt-2">
+          No te dice el futuro. Te dice si tu idea ya falló en el pasado (útil para descartarla rápido) o si al menos sobrevivió — lo cual tampoco garantiza que vaya a funcionar mañana, pero es un filtro mucho mejor que operar sin haber probado nada.
+        </p>
+      </div>
+
+      <div className="panel p-5 mb-6">
+        <h2 className="text-sm font-bold text-white mb-4">Cómo funciona, en 4 pasos</h2>
+        <ol className="space-y-4">
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-neon-blue/10 border border-neon-blue/40 text-neon-blue text-xs font-bold flex items-center justify-center">1</span>
+            <div>
+              <div className="text-sm text-white font-medium">Elige el mercado y el rango histórico</div>
+              <p className="text-xs text-slate-400 mt-0.5">Par (BTC o TRX), temporalidad de vela y cuántos años atrás quieres probar. Más años = resultado más confiable, pero también más lento de descargar.</p>
+            </div>
+          </li>
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-neon-blue/10 border border-neon-blue/40 text-neon-blue text-xs font-bold flex items-center justify-center">2</span>
+            <div>
+              <div className="text-sm text-white font-medium">Define tu regla de entrada</div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Una <TermifiedText text="condición" /> compara un indicador contra otro indicador o un valor fijo (ej. "RSI (14) cruza por abajo de 30" = posible sobreventa). Si agregas varias condiciones, <strong className="text-white">todas</strong> deben cumplirse al mismo tiempo para entrar — son un AND, no un OR.
+              </p>
+            </div>
+          </li>
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-neon-blue/10 border border-neon-blue/40 text-neon-blue text-xs font-bold flex items-center justify-center">3</span>
+            <div>
+              <div className="text-sm text-white font-medium">Configura el riesgo — no solo la señal</div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                El tamaño de cada operación se calcula solo para que, si toca tu <TermifiedText text="Stop Loss (SL)" />, pierdas exactamente el % de riesgo por trade que definiste — la misma fórmula de tamaño de posición que enseña Gestión de Riesgo, aplicada mecánicamente en cada entrada.
+              </p>
+            </div>
+          </li>
+          <li className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-neon-blue/10 border border-neon-blue/40 text-neon-blue text-xs font-bold flex items-center justify-center">4</span>
+            <div>
+              <div className="text-sm text-white font-medium">Ejecuta y lee los resultados con ojo crítico</div>
+              <p className="text-xs text-slate-400 mt-0.5">Revisa el número de operaciones antes que nada — con menos de ~30 trades, cualquier resultado (bueno o malo) puede ser puro azar. Después mira Win Rate, Profit Factor y Max Drawdown juntos, nunca uno solo aislado (ver la guía abajo de los resultados).</p>
+            </div>
+          </li>
+        </ol>
+        <div className="mt-4 bg-void-soft rounded-lg p-3 text-xs text-slate-300">
+          <strong className="text-neon-gold">Para probar ya mismo:</strong> deja la configuración que carga por defecto (BTC/USDT, 4h, últimos 2 años, RSI 14 cruza por abajo de 30) y presiona "Ejecutar backtest" — es una regla clásica de sobreventa, un buen primer ejemplo para ver cómo se lee un resultado antes de armar tu propia regla.
+        </div>
+      </div>
+
       <div className="panel p-6 mb-6">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
           <div>
@@ -179,6 +231,7 @@ export function BacktesterPage() {
               onChange={(e) => setInitialBalance(Number(e.target.value))}
               className="w-full bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm value-mono text-slate-100 outline-none focus:border-neon-blue/50"
             />
+            <p className="text-[10px] text-slate-600 mt-1">Cuenta simulada de la que parte el backtest — no es dinero real.</p>
           </div>
           <div>
             <label className="text-[10px] font-mono text-slate-500 block mb-1">RIESGO POR TRADE (%)</label>
@@ -189,6 +242,7 @@ export function BacktesterPage() {
               onChange={(e) => setRiskPercent(Number(e.target.value))}
               className="w-full bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm value-mono text-slate-100 outline-none focus:border-neon-blue/50"
             />
+            <p className="text-[10px] text-slate-600 mt-1">% del balance que se pierde si el Stop Loss se activa — define el tamaño de cada posición, no lo eliges tú directamente.</p>
           </div>
           <div>
             <label className="text-[10px] font-mono text-slate-500 block mb-1">STOP LOSS (%)</label>
@@ -199,6 +253,7 @@ export function BacktesterPage() {
               onChange={(e) => setStopLossPercent(Number(e.target.value))}
               className="w-full bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm value-mono text-slate-100 outline-none focus:border-neon-blue/50"
             />
+            <p className="text-[10px] text-slate-600 mt-1">Qué tan lejos del precio de entrada, en %, se cierra la operación en pérdida.</p>
           </div>
           <div>
             <label className="text-[10px] font-mono text-slate-500 flex items-center gap-1.5 mb-1">
@@ -213,6 +268,7 @@ export function BacktesterPage() {
               onChange={(e) => setTakeProfitPercent(Number(e.target.value))}
               className="w-full bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm value-mono text-slate-100 outline-none focus:border-neon-blue/50 disabled:opacity-40"
             />
+            <p className="text-[10px] text-slate-600 mt-1">Opcional — si lo desmarcas, la única salida además de tu regla es el Stop Loss.</p>
           </div>
         </div>
 
@@ -226,6 +282,9 @@ export function BacktesterPage() {
               + AGREGAR CONDICIÓN
             </button>
           </div>
+          <p className="text-[10px] text-slate-600 mb-2">
+            Cada fila compara dos cosas (un indicador o un valor fijo) con "es mayor/menor que" o "cruza por arriba/abajo de". Ejemplo: la fila por defecto dice "RSI (14) cruza por abajo de 30" — se entra cuando el RSI acaba de caer por debajo de esa zona de sobreventa.
+          </p>
           <div className="space-y-2">
             {entryConditions.map((condition, i) => (
               <ConditionRow key={i} condition={condition} onChange={(c) => updateCondition(i, c)} onRemove={() => removeCondition(i)} />
@@ -260,6 +319,19 @@ export function BacktesterPage() {
               sub={formatUsd(result.metrics.finalBalance, 0)}
               accent={result.metrics.totalReturnPercent >= 0 ? "green" : "red"}
             />
+          </div>
+
+          {result.metrics.totalTrades < 30 && (
+            <p className="text-xs text-neon-gold bg-neon-gold/10 border border-neon-gold/30 rounded-lg px-3 py-2 mb-4">
+              ⚠ Solo {result.metrics.totalTrades} operaciones — con una muestra tan chica, este resultado puede ser
+              suerte (buena o mala), no una ventaja real. Prueba un rango más amplio o una temporalidad más rápida
+              antes de sacar conclusiones.
+            </p>
+          )}
+
+          <div className="text-xs text-slate-400 leading-relaxed mb-6 bg-void-soft rounded-lg p-3">
+            <strong className="text-white">Cómo leer estos números: </strong>
+            <TermifiedText text="el Win Rate por sí solo no dice si el sistema es rentable — un sistema con 30% de aciertos puede ganar dinero si esas ganancias son mucho más grandes que las pérdidas. El Profit Factor junta ambas cosas: arriba de 1 significa que, en conjunto, se ganó más de lo que se perdió. El Max Drawdown es la peor caída que tu cuenta habría sufrido en el camino — la pregunta real es si la hubieras aguantado sin cerrar todo en pánico. Y el Expectancy es el número que más importa: la ganancia promedio esperada por operación, combinando las tres cosas de arriba en una sola cifra." />
           </div>
 
           <div className="mb-6">

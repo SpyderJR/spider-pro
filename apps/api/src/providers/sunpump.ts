@@ -94,6 +94,7 @@ export interface RecentTokenCreation {
   address: string;
   txId: string;
   createdAt: number;
+  imageUrl: string | null;
 }
 
 /**
@@ -117,10 +118,13 @@ export async function fetchRecentTokenCreations(limit: number): Promise<RecentTo
         (l) => l.topics?.[0]?.startsWith(TRANSFER_TOPIC) && l.address !== SUNPUMP_CONTRACT_HEX,
       );
       if (!tokenLog) continue;
+      const tokenAddress = hexToTronAddress(tokenLog.address);
+      const imageUrl = await fetchSunPumpLogo(tokenAddress).catch(() => null);
       results.push({
-        address: hexToTronAddress(tokenLog.address),
+        address: tokenAddress,
         txId: event.transaction_id,
         createdAt: event.block_timestamp,
+        imageUrl,
       });
     } catch {
       // A single tx failing to resolve shouldn't drop the whole feed — skip it.
@@ -184,6 +188,29 @@ export async function fetchTokenMarketData(address: string): Promise<TokenMarket
   };
 }
 
+interface SunPumpTokenDetailResponse {
+  code: number;
+  data?: { logoUrl?: string | null };
+}
+
+/**
+ * SunPump's own public frontend API — the same unauthenticated endpoint sunpump.meme's own
+ * website calls to render a token card, found by inspecting their bundled JS
+ * (`token: { getToken: "token/" }`) and confirmed live against a real token (Football Aliens).
+ * This has a real logo for virtually every token, including ones created seconds ago — DexScreener
+ * only has images for tokens that separately submitted a profile there (mostly established
+ * ones), which is why images were missing for most freshly-created tokens before this. Same
+ * category of "public data the site's own frontend already exposes" as the TronScan homepage-
+ * bundle endpoint already used elsewhere in this file.
+ */
+export async function fetchSunPumpLogo(address: string): Promise<string | null> {
+  const url = `https://api-v2.sunpump.meme/pump-api/token/${address}`;
+  const raw = await fetchJsonRetry<SunPumpTokenDetailResponse>("sunpump", url, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
+  return raw.data?.logoUrl ?? null;
+}
+
 interface TronScanTrc20InfoResponse {
   trc20_tokens?: Array<{
     name?: string;
@@ -238,21 +265,33 @@ export interface TokenHolder {
   balance: number;
 }
 
+// SunPump's token-creation call (`createAndInitPurchase(string,string)`) only takes a name and
+// symbol — no decimals parameter — so its factory always deploys with the same fixed decimals.
+// Verified against every real token sampled during planning and testing (Football Aliens, TRX
+// ETF, a fake "Tether USDT" token, and others): all 18. Used as a fallback here to avoid a
+// second TronScan round-trip per holders/transfers request purely to look up a value that never
+// actually varies for this launchpad's tokens.
+const SUNPUMP_TOKEN_DECIMALS = 18;
+
 export async function fetchTokenHolders(address: string, limit = 50): Promise<TokenHolder[]> {
   const url = `${env.TRONSCAN_BASE_URL}/api/token_trc20/holders?contract_address=${address}&start=0&limit=${limit}`;
   const raw = await queuedTronScanCall(() =>
     fetchJsonRetry<TronScanHoldersResponse>("tronscan", url, { headers: tronScanHeaders() }),
   );
-  const info = await fetchTokenBasicInfo(address);
-  const decimals = info.decimals ?? 18;
   return (raw.trc20_tokens ?? []).map((h) => ({
     address: h.holder_address,
-    balance: Number(h.balance) / 10 ** decimals,
+    balance: Number(h.balance) / 10 ** SUNPUMP_TOKEN_DECIMALS,
   }));
 }
 
 interface TronScanTransfersResponse {
-  token_transfers?: Array<{ from_address: string; to_address: string; quant: string; block_ts: number }>;
+  token_transfers?: Array<{
+    from_address: string;
+    to_address: string;
+    quant: string;
+    block_ts: number;
+    tokenInfo?: { tokenDecimal?: number };
+  }>;
 }
 
 export interface TokenTransfer {
@@ -265,21 +304,23 @@ export interface TokenTransfer {
 /**
  * Recent transfers of this specific token — used to draw edges between holder bubbles when two
  * addresses already shown on the map moved this token between each other. Verified live against
- * TronScan's real response shape (`token_transfers[].from_address/to_address/quant`).
+ * TronScan's real response shape (`token_transfers[].from_address/to_address/quant`) — decimals
+ * come from the same response's embedded `tokenInfo.tokenDecimal`, no extra call needed.
  */
 export async function fetchTokenTransfers(address: string, limit = 50): Promise<TokenTransfer[]> {
   const url = `${env.TRONSCAN_BASE_URL}/api/token_trc20/transfers?limit=${limit}&start=0&contract_address=${address}`;
   const raw = await queuedTronScanCall(() =>
     fetchJsonRetry<TronScanTransfersResponse>("tronscan", url, { headers: tronScanHeaders() }),
   );
-  const info = await fetchTokenBasicInfo(address);
-  const decimals = info.decimals ?? 18;
-  return (raw.token_transfers ?? []).map((t) => ({
-    from: t.from_address,
-    to: t.to_address,
-    amount: Number(t.quant) / 10 ** decimals,
-    timestamp: t.block_ts,
-  }));
+  return (raw.token_transfers ?? []).map((t) => {
+    const decimals = t.tokenInfo?.tokenDecimal ?? SUNPUMP_TOKEN_DECIMALS;
+    return {
+      from: t.from_address,
+      to: t.to_address,
+      amount: Number(t.quant) / 10 ** decimals,
+      timestamp: t.block_ts,
+    };
+  });
 }
 
 interface TronGridTransaction {

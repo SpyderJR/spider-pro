@@ -12,6 +12,7 @@ import {
   fetchHolderFundingSource,
   fetchRecentActivity,
   fetchRecentTokenCreations,
+  fetchSunPumpLogo,
   fetchTokenBasicInfo,
   fetchTokenHolders,
   fetchTokenMarketData,
@@ -61,12 +62,13 @@ export function registerMemeRoutes(app: FastifyInstance) {
         `meme:token:${address}`,
         TTL.memeToken,
         async () => {
-          // Independent try/catch per source — a DexScreener hiccup shouldn't blank out the
-          // name/symbol TronScan already has, and vice versa. Retries live one layer down in
-          // the provider; this is the last-resort fallback if both attempts there still fail.
-          const [infoResult, marketResult] = await Promise.allSettled([
+          // Independent try/catch per source — a DexScreener/SunPump hiccup shouldn't blank out
+          // the name/symbol TronScan already has, and vice versa. Retries live one layer down
+          // in the provider; this is the last-resort fallback if both attempts there still fail.
+          const [infoResult, marketResult, logoResult] = await Promise.allSettled([
             fetchTokenBasicInfo(address),
             fetchTokenMarketData(address),
+            fetchSunPumpLogo(address),
           ]);
           if (infoResult.status === "rejected" && marketResult.status === "rejected") {
             throw infoResult.reason;
@@ -87,11 +89,15 @@ export function registerMemeRoutes(app: FastifyInstance) {
                   dexUrl: null,
                   imageUrl: null,
                 };
+          // SunPump's own logo covers virtually every token (even ones created seconds ago);
+          // DexScreener's is a fallback for the rare case SunPump's API itself is unreachable.
+          const logoUrl = logoResult.status === "fulfilled" ? logoResult.value : null;
           return {
             address,
             ...info,
             ...market,
-            source: "tronscan+dexscreener",
+            imageUrl: logoUrl ?? market.imageUrl,
+            source: "tronscan+dexscreener+sunpump",
             live: infoResult.status === "fulfilled" && marketResult.status === "fulfilled",
             updatedAt: Date.now(),
           };
