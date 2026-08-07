@@ -26,7 +26,7 @@ import { generateFuturesTradeFeedback, type FuturesFeedbackContext } from "../li
 import { useFearGreed } from "../hooks/useMarketData";
 import { useFundingRate } from "../hooks/useFundingRate";
 import { deriveAlligatorTrend } from "../lib/futures/alligatorTrend";
-import { TERMINAL_INTERVALS, type BinancePair, type TerminalInterval } from "../lib/binance/types";
+import { TERMINAL_INTERVALS, type TerminalInterval } from "../lib/binance/types";
 import type { BinanceCandle } from "../lib/binance/types";
 import type { ClosedTrade } from "../lib/paperTrading/types";
 import type { FuturesClosedTrade } from "../lib/futures/types";
@@ -41,7 +41,7 @@ function isToday(timestamp: number): boolean {
 export function TerminalPage() {
   const [mode, setMode] = useState<"live" | "replay">("live");
   const [market, setMarket] = useState<"spot" | "futures">("spot");
-  const [pair, setPair] = useState<BinancePair>("BTCUSDT");
+  const [pair, setPair] = useState("BTCUSDT");
   const [interval, setIntervalValue] = useState<TerminalInterval>("15m");
 
   const historyQuery = useBinanceKlinesQuery(pair, interval, 300);
@@ -307,7 +307,7 @@ export function TerminalPage() {
         <>
           <PairBar
         pair={pair}
-        onPairChange={(p) => setPair(p as BinancePair)}
+        onPairChange={setPair}
         ticker={streams.ticker}
         connected={streams.connected}
         balance={activeBalance}

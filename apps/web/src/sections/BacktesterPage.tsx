@@ -8,12 +8,12 @@ import { TermifiedText } from "../components/TermifiedText";
 import { fetchBacktestCandles } from "../lib/backtest/candleCache";
 import { useBacktestWorker } from "../hooks/useBacktestWorker";
 import { formatUsd } from "../lib/format";
-import { BINANCE_PAIRS, type BinancePair } from "../lib/binance/types";
+import { PairSearchBox } from "../components/terminal/PairSearchBox";
 import type { BacktestCondition, BacktestConfig, BacktestResult } from "@spider/types";
 
 type StopLossMode = BacktestConfig["stopLossMode"];
 
-const PAIR_LABELS: Record<BinancePair, string> = { BTCUSDT: "BTC/USDT", TRXUSDT: "TRX/USDT" };
+const QUICK_PAIRS = ["BTCUSDT", "TRXUSDT"];
 
 const BACKTEST_INTERVALS = ["15m", "1h", "4h", "1d"] as const;
 const SLOW_INTERVALS = new Set(["15m", "1h"]);
@@ -32,7 +32,7 @@ function ratioLabel(profitFactor: number): string {
 export function BacktesterPage() {
   const { runBacktest } = useBacktestWorker();
 
-  const [symbol, setSymbol] = useState<BinancePair>("BTCUSDT");
+  const [symbol, setSymbol] = useState("BTCUSDT");
   const [interval, setIntervalValue] = useState<(typeof BACKTEST_INTERVALS)[number]>("4h");
   const [yearsBack, setYearsBack] = useState(2);
   const [direction, setDirection] = useState<"long" | "short">("long");
@@ -165,17 +165,26 @@ export function BacktesterPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
           <div>
             <label className="text-[10px] font-mono text-slate-500 block mb-1">PAR</label>
-            <select
-              value={symbol}
-              onChange={(e) => setSymbol(e.target.value as BinancePair)}
-              className="w-full bg-void-soft border border-void-border rounded-lg px-3 py-2 text-sm text-slate-100 outline-none focus:border-neon-blue/50"
-            >
-              {BINANCE_PAIRS.map((p) => (
-                <option key={p} value={p}>
-                  {PAIR_LABELS[p]}
-                </option>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {QUICK_PAIRS.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setSymbol(p)}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-mono border ${symbol === p ? "border-neon-blue/50 text-neon-blue bg-neon-blue/5" : "border-void-border text-slate-500"}`}
+                >
+                  {p.replace("USDT", "/USDT")}
+                </button>
               ))}
-            </select>
+              {!QUICK_PAIRS.includes(symbol) && (
+                <span className="px-2.5 py-1.5 rounded-lg text-xs font-mono border border-neon-blue/50 text-neon-blue bg-neon-blue/5">
+                  {symbol.replace("USDT", "/USDT")}
+                </span>
+              )}
+            </div>
+            <div className="mt-1.5">
+              <PairSearchBox onSelect={setSymbol} placeholder="Buscar otro par…" />
+            </div>
           </div>
 
           <div>

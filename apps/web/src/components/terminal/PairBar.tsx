@@ -1,5 +1,8 @@
 import type { Ticker24h } from "../../lib/binance/types";
 import { formatUsd, formatPercent, pricePrecision } from "../../lib/format";
+import { PairSearchBox } from "./PairSearchBox";
+
+const QUICK_PAIRS = ["BTCUSDT", "TRXUSDT"];
 
 export function PairBar({
   pair,
@@ -25,8 +28,8 @@ export function PairBar({
     <div className="panel p-4 mb-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex gap-1.5">
-            {["BTCUSDT", "TRXUSDT"].map((p) => (
+          <div className="flex gap-1.5 flex-wrap">
+            {QUICK_PAIRS.map((p) => (
               <button
                 key={p}
                 onClick={() => onPairChange(p)}
@@ -39,6 +42,12 @@ export function PairBar({
                 {p.replace("USDT", "/USDT")}
               </button>
             ))}
+            {!QUICK_PAIRS.includes(pair) && (
+              <span className="px-3 py-1.5 rounded-lg text-sm font-mono border border-neon-green/50 text-neon-green bg-neon-green/5">
+                {pair.replace("USDT", "/USDT")}
+              </span>
+            )}
+            <PairSearchBox onSelect={onPairChange} />
           </div>
 
           <div>

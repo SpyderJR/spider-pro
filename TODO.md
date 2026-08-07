@@ -872,3 +872,39 @@ Build y typecheck limpios. Verificado que las 24 fichas tienen ambos campos nuev
 24 ids, 24 analogy, 24 practicalSteps). Confirmado en navegador: el botón muestra el anillo rojo
 girando, y la primera ficha abierta por defecto muestra la analogía, la explicación técnica, y los
 3 pasos prácticos en el orden esperado. Barrido de regresión limpio en las 28 rutas.
+
+## Análisis Técnico — scroll automático a la Academia; Terminal y Backtester — buscador de cualquier par de Binance
+
+Pedidos del usuario: (1) al abrir la Academia de Indicadores, la pantalla debería bajar sola hasta
+donde empieza el contenido, en vez de dejar al usuario buscarlo manualmente; (2) agregar un
+buscador de tokens a la Terminal para analizar y operar con dinero ficticio más allá de BTC/TRX,
+idealmente incluyendo memecoins de TRON/SunPump.
+
+- [x] **Scroll automático**: un `ref` en el contenedor de la Academia + `scrollIntoView({behavior:
+      "smooth"})` disparado un frame después de abrirla (para que ya esté montada en el DOM antes
+      de medir su posición).
+- [x] **Investigación de arquitectura antes de prometer nada**: se confirmó que toda la capa de
+      datos de la Terminal (WebSocket, klines REST, motor de paper trading spot y de futuros) ya
+      tipaba `pair` como `string` genérico, no como el tipo literal `BinancePair` limitado a
+      `["BTCUSDT", "TRXUSDT"]` — la restricción era puramente de la UI (los botones fijos), no del
+      motor. Esto hizo posible ampliar el alcance real sin tocar el motor de trading.
+- [x] **Nuevo buscador de pares** (`PairSearchBox.tsx`, `useBinancePairs.ts`, `fetchAllUsdtTickers`
+      en `lib/binance/rest.ts`): busca en vivo entre TODOS los pares USDT activos de Binance
+      (miles de tokens reales, ordenados por volumen 24h), sin API key. Agregado tanto a la
+      Terminal (`PairBar.tsx`, junto a los botones rápidos BTC/TRX) como al Backtester — ambos
+      ahora pueden analizar y operar con dinero ficticio cualquier token real listado en Binance
+      (SOL, DOGE, ADA, PEPE, etc.), no solo BTC/TRX.
+- [x] **Decisión explícita de NO forzar memecoins de SunPump dentro de este motor**: se explicó al
+      usuario por qué (sin velas OHLC de calidad de exchange, sin order book, precio de curva de
+      bonding fácilmente manipulable — los indicadores técnicos y el paper trading en tiempo real
+      perderían su sentido educativo) y se lo redirigió a Meme Radar, la herramienta ya construida
+      específicamente para ese caso de uso.
+- [x] **Modo Replay quedó sin cambios a propósito** — su caché de velas históricas está construida
+      específicamente alrededor de BTC/TRX; ampliarla es un cambio de mayor riesgo que no se pidió
+      explícitamente, se deja fuera de este bloque.
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador: el scroll automático aterriza
+exactamente en el encabezado de la Academia; en la Terminal, buscar "SOL" y seleccionarlo cambia el
+gráfico, el order book, los indicadores y el cálculo de cantidad del panel de órdenes a SOL/USDT en
+vivo; en el Backtester, buscar "DOGE" muestra resultados reales con volumen. Barrido de regresión
+limpio en las 28 rutas.

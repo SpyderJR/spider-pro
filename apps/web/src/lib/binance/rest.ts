@@ -28,6 +28,36 @@ export async function fetchBinanceKlines(
   }));
 }
 
+/** All actively-trading USDT spot pairs on Binance, sorted by 24h quote volume (most liquid
+ * first) — powers the pair search so results surface real, tradeable tokens instead of thin/
+ * delisted ones. One request covers the entire exchange; called rarely and cached client-side
+ * (see useBinancePairs.ts), not on every keystroke. */
+export async function fetchAllUsdtTickers(): Promise<Ticker24h[]> {
+  const res = await fetch(`${BASE}/api/v3/ticker/24hr`);
+  if (!res.ok) throw new Error(`binance ticker HTTP ${res.status}`);
+  const raw = (await res.json()) as Array<{
+    symbol: string;
+    lastPrice: string;
+    priceChangePercent: string;
+    highPrice: string;
+    lowPrice: string;
+    volume: string;
+    quoteVolume: string;
+  }>;
+  return raw
+    .filter((t) => t.symbol.endsWith("USDT") && !t.symbol.includes("UPUSDT") && !t.symbol.includes("DOWNUSDT"))
+    .map((t) => ({
+      symbol: t.symbol,
+      lastPrice: Number(t.lastPrice),
+      priceChangePercent: Number(t.priceChangePercent),
+      highPrice: Number(t.highPrice),
+      lowPrice: Number(t.lowPrice),
+      volume: Number(t.volume),
+      quoteVolume: Number(t.quoteVolume),
+    }))
+    .sort((a, b) => b.quoteVolume - a.quoteVolume);
+}
+
 export async function fetchBinanceTicker24h(symbol: string): Promise<Ticker24h> {
   const res = await fetch(`${BASE}/api/v3/ticker/24hr?symbol=${symbol}`);
   if (!res.ok) throw new Error(`binance ticker HTTP ${res.status}`);

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { SectionHeader } from "../components/SectionHeader";
 import { Disclaimer } from "../components/Disclaimer";
 import { CandlestickChart } from "../components/charts/CandlestickChart";
@@ -29,6 +29,20 @@ export function AnalisisTecnicoPage() {
   const { token, timeframe, config, setToken, setTimeframe, toggleIndicator, toggleMa } =
     useIndicatorConfigStore();
   const [showAcademy, setShowAcademy] = useState(false);
+  const academyRef = useRef<HTMLDivElement>(null);
+
+  function handleToggleAcademy() {
+    const opening = !showAcademy;
+    setShowAcademy(opening);
+    if (opening) {
+      // Espera un frame a que la Academia termine de montarse antes de medir su posición —
+      // si se llama en el mismo tick, el scroll apunta a donde estaba el elemento (nada) en
+      // vez de a donde va a quedar una vez renderizado.
+      requestAnimationFrame(() => {
+        academyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }
 
   const klines = useKlines(token.symbol, timeframe, 300, token.coingeckoId);
   const { result } = useIndicatorWorker(klines.data?.candles, config);
@@ -64,7 +78,7 @@ export function AnalisisTecnicoPage() {
               />
             )}
             <button
-              onClick={() => setShowAcademy((v) => !v)}
+              onClick={handleToggleAcademy}
               className={`group relative z-10 flex items-center gap-2 px-4 py-2 rounded-[10px] text-sm font-semibold border transition-all ${
                 showAcademy
                   ? "border-neon-green/50 text-neon-green bg-void shadow-neon-green"
@@ -263,7 +277,11 @@ export function AnalisisTecnicoPage() {
         </div>
       )}
 
-      {showAcademy && <IndicatorAcademy />}
+      {showAcademy && (
+        <div ref={academyRef}>
+          <IndicatorAcademy />
+        </div>
+      )}
 
       <Disclaimer />
     </div>
