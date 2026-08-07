@@ -160,9 +160,11 @@ export function MemeRadarPage() {
                   <HolderBubbleMap holders={holders ?? []} clustering={clustering} transfers={transfers} />
                 )}
                 <p className="text-[10px] text-slate-500 mt-3">
-                  El tamaño de cada burbuja es proporcional al balance. Haz clic en cualquiera para abrir esa cartera
-                  en Tronscan. Las líneas doradas son transferencias reales de este token entre los holders
-                  mostrados. El clustering agrupa carteras fondeadas desde el mismo origen — es una{" "}
+                  El tamaño de cada burbuja es proporcional al balance. Las 10 burbujas más grandes muestran su % del
+                  supply directamente encima — son las mismas 10 que calculan la señal de concentración de arriba;
+                  el resto muestra su % al pasar el mouse. Haz clic en cualquiera para abrir esa cartera en Tronscan.
+                  Las líneas doradas son transferencias reales de este token entre los holders mostrados. El
+                  clustering agrupa carteras fondeadas desde el mismo origen — es una{" "}
                   <strong className="text-neon-gold">estimación propia</strong>, no una identificación certera de
                   que sean la misma persona.
                 </p>

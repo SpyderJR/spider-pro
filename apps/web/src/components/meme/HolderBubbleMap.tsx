@@ -84,6 +84,15 @@ export function HolderBubbleMap({ holders, clustering, transfers }: Props) {
   const holderByAddress = new Map(holders.map((h) => [h.address, h]));
   const nodeByAddress = new Map((nodes ?? []).map((n) => [n.id, n]));
   const edges = transfers ? buildEdges(transfers, new Set(holders.map((h) => h.address))) : [];
+  // Same top-10-by-balance set the concentration risk signal is calculated from — labeling
+  // exactly those bubbles (not all of them) keeps the map readable while surfacing the number
+  // that actually drives the "riesgo alto/medio/bajo" badge shown elsewhere on the page.
+  const top10Ids = new Set(
+    [...holders]
+      .sort((a, b) => b.balance - a.balance)
+      .slice(0, 10)
+      .map((h) => h.address),
+  );
 
   if (holders.length === 0) {
     return (
@@ -173,6 +182,12 @@ export function HolderBubbleMap({ holders, clustering, transfers }: Props) {
           {nodes?.map((n) => {
             const holder = holderByAddress.get(n.id);
             const color = n.group ? GROUP_COLORS[groupIds.indexOf(n.group) % GROUP_COLORS.length]! : DEFAULT_COLOR;
+            const isTop10 = top10Ids.has(n.id);
+            const percentLabel = holder?.percentage != null ? `${holder.percentage < 1 ? holder.percentage.toFixed(2) : holder.percentage.toFixed(1)}%` : null;
+            // Only label the percentage directly on the bubble when it's both a top-10 holder
+            // (the set the risk signal actually uses) and big enough to fit readable text —
+            // smaller bubbles keep the plain center dot, with the exact number still in the tooltip.
+            const showPercentOnBubble = isTop10 && percentLabel && n.radius >= 11;
             return (
               <g
                 key={n.id}
@@ -185,15 +200,35 @@ export function HolderBubbleMap({ holders, clustering, transfers }: Props) {
                   r={n.radius}
                   fill={`url(#bubble-fill-${n.id})`}
                   stroke={color}
-                  strokeWidth={1.5}
+                  strokeWidth={isTop10 ? 2 : 1.5}
                   filter="url(#bubble-glow)"
                 />
-                <circle cx={n.x} cy={n.y} r={Math.max(1.5, n.radius * 0.08)} fill={color}>
-                  <title>
-                    {shortAddress(n.id)} — {holder ? holder.balance.toLocaleString("es-MX", { maximumFractionDigits: 0 }) : ""}
-                    {holder?.percentage != null ? ` (${holder.percentage.toFixed(2)}%)` : ""} · clic para ver en Tronscan
-                  </title>
-                </circle>
+                {showPercentOnBubble ? (
+                  <text
+                    x={n.x}
+                    y={n.y}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontFamily="monospace"
+                    fontSize={Math.min(13, Math.max(8, n.radius * 0.4))}
+                    fontWeight="bold"
+                    fill="#ffffff"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    {percentLabel}
+                    <title>
+                      {shortAddress(n.id)} — {holder ? holder.balance.toLocaleString("es-MX", { maximumFractionDigits: 0 }) : ""}
+                      {percentLabel ? ` (${percentLabel} del supply)` : ""} · top 10 holder · clic para ver en Tronscan
+                    </title>
+                  </text>
+                ) : (
+                  <circle cx={n.x} cy={n.y} r={Math.max(1.5, n.radius * 0.08)} fill={color}>
+                    <title>
+                      {shortAddress(n.id)} — {holder ? holder.balance.toLocaleString("es-MX", { maximumFractionDigits: 0 }) : ""}
+                      {percentLabel ? ` (${percentLabel})` : ""} · clic para ver en Tronscan
+                    </title>
+                  </circle>
+                )}
                 {n.radius > 14 && (
                   <text
                     x={n.x}

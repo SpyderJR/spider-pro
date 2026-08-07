@@ -23,7 +23,7 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <div className="panel max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-neon-green text-xl">◈</span>
+          <img src="/logo.png" alt="Spider" className="w-8 h-8 rounded-lg shrink-0" />
           <span className="font-mono font-bold text-white">Iniciar sesión</span>
         </div>
         <p className="text-sm text-slate-400 leading-relaxed mb-4">

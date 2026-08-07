@@ -997,3 +997,79 @@ Build y typecheck limpios en los 4 paquetes. Verificado en navegador: la estrell
 funciona, "Patrones de vela" marca círculos de colores reales sobre las velas, el panel de Futuros
 muestra Funding Rate y Open Interest en vivo con datos reales de Binance, una alerta de precio se
 crea y aparece como chip. Barrido de regresión limpio en las 28 rutas.
+
+## Academia — Nivel 4: "Medias, RSI, MACD y fractales"
+
+Pedido del usuario: seguir completando la Academia un nivel a la vez (así lo eligió explícitamente
+cuando se le preguntó cómo repartir los 8 niveles que faltaban), empezando por Indicadores
+Técnicos.
+
+- [x] **Contenido completo del nivel** (`nivel-04-indicadores-tecnicos.ts`, ~340 líneas): una
+      lección con 5 secciones numeradas — medias móviles y cruces (con diagrama SVG nuevo
+      `cruce-de-medias`, Golden Cross / Death Cross), RSI, MACD, fractales, y cómo confluyen las
+      cuatro señales entre sí. Cada sección conecta con la herramienta real correspondiente ya
+      existente en la app (toggles de EMA en la Terminal, Fractales & Estructura, Señal Compuesta
+      de Análisis Técnico) en vez de quedarse en teoría abstracta.
+- [x] **7 ejercicios** de varios tipos (opción múltiple, verdadero/falso, completa el espacio,
+      emparejar, calculadora guiada, ordenar) y **quiz final de 10 preguntas** — mismo nivel de
+      variedad que los niveles 1 y 6 ya existentes, evitando deliberadamente los tipos de ejercicio
+      más complejos (`marcaGrafico`/`retoTerminal`/`retoArcade`) que ningún nivel usa todavía.
+- [x] Registrado en `levels.ts`, reemplazando el stub "próximamente" de Indicadores Técnicos.
+
+Build y typecheck limpios en los 4 paquetes.
+
+## Meme Radar — porcentaje de supply visible directo en las burbujas del mapa de holders
+
+Pedido del usuario a partir de una captura del "Mapa de holders": marcar el porcentaje que posee
+cada cartera, o al menos las 10 principales (las mismas que ya usa la señal de concentración).
+
+- [x] Las 10 burbujas más grandes (mismo criterio que usa la señal de concentración de riesgo)
+      ahora muestran su porcentaje del supply en texto directamente encima, en vez de solo en el
+      tooltip al pasar el mouse — con un umbral mínimo de radio (11px) para no forzar texto
+      ilegible en burbujas top-10 muy pequeñas (esas conservan el punto central + tooltip). El
+      resto de las burbujas sigue mostrando el punto central, con el porcentaje exacto en el
+      tooltip.
+- [x] Texto explicativo debajo del mapa actualizado para dejar claro que las burbujas etiquetadas
+      son exactamente las 10 que alimentan el semáforo de concentración de arriba.
+
+Build y typecheck limpios en los 4 paquetes.
+
+## Logo oficial del sistema — integrado en toda la identidad de marca
+
+Pedido del usuario: usar la imagen de logo pegada en el chat (araña de circuitos dorada, monograma
+"OGR", texto "SPIDER SOFTWARE EMPRESARIAL") como el logo principal del sistema, guardada en
+`web/public` como `logo.png`, y que se vea formidable. El archivo pegado en el chat no quedó
+accesible en disco (limitación de la herramienta); se encontró en su lugar una hoja de 4 variantes
+guardada localmente — se le avisó al usuario del posible desajuste visual antes de proceder y él
+confirmó explícitamente usar lo que había disponible.
+
+- [x] Recortada la variante elegida (tarjeta oscura redondeada, patas de araña estilo circuito en
+      dorado, monograma hexagonal gris "OGA") de la hoja de 4 con PowerShell + `System.Drawing`,
+      preservando el canal alfa (el primer intento lo perdió y mostraba halos blancos — corregido
+      especificando `Format32bppArgb` explícitamente).
+- [x] Integrado reemplazando el diamante `◈` en los 7 puntos reales de identidad de marca: sidebar
+      desktop (`Nav.tsx`), barra superior móvil, header y footer del sitio público, modal de login,
+      pantalla de bienvenida del onboarding, y el botón flotante del Chat Widget (estado cerrado) —
+      dejando intactos los usos de `◈` que no son el logo (ícono del indicador MFI en Análisis
+      Técnico, viñeta decorativa en Halvings, ícono de feature "Spider Chat AI" en la landing, y el
+      ticker decorativo de la vista previa del dashboard mock).
+- [x] Favicon actualizado de `favicon.svg` a `logo.png`.
+- [x] **Bug real encontrado y corregido durante la verificación**: el archivo terminó guardado como
+      `LOGO.png` (mayúsculas) en disco, no `logo.png` — Windows/NTFS es insensible a mayúsculas
+      pero preserva el nombre original del archivo ya existente al sobrescribirlo, así que la copia
+      silenciosamente no renombró nada. El servidor de Vite sí distingue mayúsculas, así que
+      `/logo.png` caía al fallback de SPA y devolvía el HTML en vez de la imagen (detectado
+      revisando el `Content-Type` de la respuesta, no a simple vista). Corregido renombrando el
+      archivo a minúsculas vía un nombre temporal intermedio (necesario porque un rename directo
+      mayúsculas→minúsculas es un no-op en un filesystem insensible a mayúsculas). Esto también
+      habría roto el logo en producción (Netlify sí distingue mayúsculas), así que se agarró antes
+      de desplegar.
+
+Build y typecheck limpios en los 4 paquetes. Verificado que `/logo.png` se sirve como `image/png`
+real (no el fallback de HTML) y que el contenido del archivo corresponde a la variante elegida.
+**Verificación visual en navegador (Playwright) no se pudo hacer esta sesión — la herramienta de
+automatización de navegador no estaba disponible.** Sí se corrió un barrido de regresión de las 28
+rutas por HTTP (todas responden 200) y se confirmaron en vivo los endpoints de API que alimentan
+estos cambios (`/api/meme/recent`, `/api/whales`). Queda pendiente que el usuario confirme
+visualmente el logo, el nivel de Academia y las burbujas de Meme Radar la próxima vez que abra la
+app.
