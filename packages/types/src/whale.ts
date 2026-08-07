@@ -46,6 +46,11 @@ export const WhaleEntitySchema = z.object({
   chains: z.array(WhaleChainSchema),
   totalUsdValue: z.number().nullable(),
   declaredNote: z.string().nullable(),
+  /** When outside estimates of this entity's REAL total wealth are dramatically higher than what
+   * we can verify on-chain (common for individuals — most of their net worth sits in unconfirmed
+   * wallets or non-crypto equity), a short cited note explaining the gap — never our own number,
+   * always attributed to whoever published it. Null when our tracked total is already realistic. */
+  externalEstimateNote: z.string().nullable(),
   sourceUrl: z.string(),
   sourceNote: z.string(),
   updatedAt: z.number(),

@@ -50,6 +50,7 @@ export function WhaleWatcherPage() {
                   tokens: b.tokens,
                 })),
                 nota: detail.declaredNote,
+                patrimonioRealEstimadoPorTerceros: detail.externalEstimateNote,
               }
             : null,
           todasLasEntidades: entities.map((e) => ({
@@ -58,6 +59,7 @@ export function WhaleWatcherPage() {
             totalUsd: e.totalUsdValue,
             modoDatos: e.dataMode,
             redes: e.chains,
+            patrimonioRealEstimadoPorTerceros: e.externalEstimateNote,
           })),
           aviso:
             "Los valores son balances de direcciones públicas verificadas, no necesariamente el patrimonio total de la entidad. No hay datos de actividad reciente ('qué compró hoy') — solo balances actuales.",

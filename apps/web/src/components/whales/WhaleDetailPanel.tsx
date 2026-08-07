@@ -58,7 +58,10 @@ export function WhaleDetailPanel({ entity }: { entity: WhaleDetail }) {
                 ◆
               </span>
             </div>
-            <div className="value-mono text-3xl font-bold text-white mt-1">
+            <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mt-2">
+              {entity.dataMode === "declared" ? "CIFRA DECLARADA PÚBLICAMENTE" : "VALOR EN DIRECCIONES RASTREADAS (NO ES SU PATRIMONIO TOTAL)"}
+            </div>
+            <div className="value-mono text-3xl font-bold text-white">
               {entity.totalUsdValue !== null ? formatUsd(entity.totalUsdValue, 0) : "Sin cifra verificable en vivo"}
             </div>
           </div>
@@ -100,12 +103,24 @@ export function WhaleDetailPanel({ entity }: { entity: WhaleDetail }) {
         </div>
       )}
 
+      {entity.externalEstimateNote && (
+        <div className="mb-5 bg-neon-red/5 border border-neon-red/25 rounded-lg p-3 text-xs text-slate-300 leading-relaxed">
+          <strong className="text-neon-red">Su patrimonio real es mucho mayor a lo que rastreamos: </strong>
+          {entity.externalEstimateNote}
+        </div>
+      )}
+
       {entity.dataMode === "onchain" && (
-        <div className="mb-5 bg-void-soft/60 border border-void-border rounded-lg p-3 text-[11px] text-slate-500 leading-relaxed">
-          Rastreamos {entity.balances.length} dirección{entity.balances.length !== 1 ? "es" : ""} pública
-          {entity.balances.length !== 1 ? "s" : ""} verificada{entity.balances.length !== 1 ? "s" : ""} y atribuida
-          {entity.balances.length !== 1 ? "s" : ""} a esta entidad — no necesariamente su patrimonio total conocido (una
-          persona o exchange puede tener más wallets no confirmadas públicamente).
+        <div className="mb-5 bg-neon-blue/5 border border-neon-blue/25 rounded-lg p-3 text-xs text-slate-300 leading-relaxed flex gap-2">
+          <span className="text-neon-blue shrink-0">ⓘ</span>
+          <span>
+            Este número es la suma de <strong className="text-white">{entity.balances.length}</strong> dirección
+            {entity.balances.length !== 1 ? "es" : ""} pública{entity.balances.length !== 1 ? "s" : ""} verificada
+            {entity.balances.length !== 1 ? "s" : ""} — <strong className="text-white">no el patrimonio total</strong> de
+            esta persona o empresa. Alguien con fama pública puede tener su fortuna repartida en muchas más wallets
+            que nunca se confirmaron públicamente con una fuente citable; mostrar esas cifras sin poder verificarlas
+            iría contra la regla de este módulo de nunca inventar un dato.
+          </span>
         </div>
       )}
 

@@ -27,6 +27,9 @@ export function WhaleCard({ entity, selected, onSelect }: Props) {
         </div>
       </div>
 
+      <div className="text-[8px] font-mono uppercase tracking-wider text-slate-600 mb-0.5">
+        {entity.dataMode === "declared" ? "Cifra declarada" : "Direcciones rastreadas"}
+      </div>
       <div className="value-mono text-xl font-bold text-white mb-2">
         {entity.totalUsdValue !== null ? formatCompactUsd(entity.totalUsdValue) : "—"}
       </div>

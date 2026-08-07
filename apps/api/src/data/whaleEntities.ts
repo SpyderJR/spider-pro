@@ -32,6 +32,9 @@ export interface WhaleEntityConfig {
    * comes straight from the entity's own disclosure instead of a live balance read. */
   declaredValueUsd?: number;
   declaredNote?: string;
+  /** See WhaleEntity.externalEstimateNote in @spider/types — a cited "the real number is
+   * probably much higher, here's who says so and why we can't verify it ourselves" note. */
+  externalEstimateNote?: string;
   sourceUrl: string;
   sourceNote: string;
 }
@@ -82,6 +85,8 @@ export const WHALE_ENTITIES: WhaleEntityConfig[] = [
     addresses: [
       { chain: "ETH", address: "0x3ddfa8ec3052539b6c9549f12cea2c295cff5296", nativeSymbol: "ETH", tokens: [WLFI_ETH] },
     ],
+    externalEstimateNote:
+      "Su patrimonio real es reportado en miles de millones — Arkham Intelligence estima entre $5,000M y $8,000M (incluyendo su participación en los exchanges HTX y Poloniex, que no es un activo on-chain), y Bloomberg lo reportó en $12,400M en agosto de 2025. Arkham mismo reconoce que ~142 wallets adicionales 'podrían' pertenecerle, basado en patrones de transacciones, no en confirmación directa — es exactamente ese tipo de atribución no verificable la que este módulo evita mostrar como si fuera un dato confirmado.",
     sourceUrl: "https://www.coindesk.com/tech/2025/09/04/world-liberty-financial-blacklists-justin-sun-s-address-with-usd107m-wlfi",
     sourceNote:
       "Dirección atribuida a Sun por Arkham y Nansen, y reportada de forma independiente por The Block, CoinDesk y Decrypt en septiembre de 2025, cuando World Liberty Financial bloqueó esta dirección tras mover ~$107M en tokens WLFI.",
