@@ -3,6 +3,10 @@ import type { ClosedTrade, PendingOrder, Position } from "../../lib/paperTrading
 import { computeUnrealizedPnl } from "../../lib/paperTrading/engine";
 import { computeStats } from "../../lib/paperTrading/stats";
 import { formatUsd, pricePrecision } from "../../lib/format";
+import { usePagination } from "../../hooks/usePagination";
+import { PaginationControls } from "../PaginationControls";
+
+const HISTORY_PAGE_SIZE = 20;
 
 type Tab = "positions" | "orders" | "history" | "stats";
 
@@ -171,6 +175,7 @@ function OrdersTab({ orders, onCancel }: { orders: PendingOrder[]; onCancel: (id
 function HistoryTab({ history }: { history: ClosedTrade[] }) {
   const [filter, setFilter] = useState<"all" | "wins" | "losses">("all");
   const filtered = history.filter((t) => (filter === "all" ? true : filter === "wins" ? t.pnl > 0 : t.pnl <= 0));
+  const { pageItems, page, pageCount, prevPage, nextPage } = usePagination(filtered, HISTORY_PAGE_SIZE);
 
   if (history.length === 0) return <EmptyState text="Todavía no cerraste ningún trade." />;
 
@@ -203,7 +208,7 @@ function HistoryTab({ history }: { history: ClosedTrade[] }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((t) => {
+            {pageItems.map((t) => {
               const durationMin = Math.round((t.closedAt - t.openedAt) / 60000);
               return (
                 <tr key={t.id} className="border-b border-void-border/50 last:border-0">
@@ -225,6 +230,7 @@ function HistoryTab({ history }: { history: ClosedTrade[] }) {
           </tbody>
         </table>
       </div>
+      <PaginationControls page={page} pageCount={pageCount} onPrev={prevPage} onNext={nextPage} />
     </div>
   );
 }

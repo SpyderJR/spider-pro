@@ -17,15 +17,25 @@ const INITIAL_STATE: StreamState = {
   connected: false,
 };
 
+// Caps how often WS messages actually reach React state. A liquid pair's combined stream (kline
+// + trade + depth + ticker) can emit dozens of messages per second — re-rendering the chart,
+// order book and ticker that often burns CPU on updates faster than the eye can perceive.
+// ~13fps is comfortably above what's visually distinguishable and matches the 10-15fps target.
+const FLUSH_INTERVAL_MS = 75;
+
 /** Live kline + order book depth + recent trades + rolling 24h ticker, one combined Binance WS connection. */
 export function useBinanceStreams(symbol: string, interval: string): StreamState {
   const [state, setState] = useState<StreamState>(INITIAL_STATE);
+  const pendingRef = useRef<StreamState>(INITIAL_STATE);
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     let ws: WebSocket | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
+    pendingRef.current = INITIAL_STATE;
+    dirtyRef.current = false;
     setState(INITIAL_STATE);
 
     function connect() {
@@ -34,6 +44,8 @@ export function useBinanceStreams(symbol: string, interval: string): StreamState
       const streams = [`${s}@kline_${interval}`, `${s}@depth20@100ms`, `${s}@trade`, `${s}@ticker`].join("/");
       ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
 
+      // Connection status changes are rare and matter for UX feedback (the "reconectando"
+      // indicator) — applied immediately rather than batched with the high-frequency data below.
       ws.onopen = () => {
         if (!cancelled) setState((prev) => ({ ...prev, connected: true }));
       };
@@ -61,8 +73,8 @@ export function useBinanceStreams(symbol: string, interval: string): StreamState
 
         if (streamName.includes("@kline")) {
           const k = data.k as Record<string, unknown>;
-          setState((prev) => ({
-            ...prev,
+          pendingRef.current = {
+            ...pendingRef.current,
             kline: {
               time: Math.floor(Number(k.t) / 1000),
               open: Number(k.o),
@@ -72,20 +84,20 @@ export function useBinanceStreams(symbol: string, interval: string): StreamState
               volume: Number(k.v),
               isFinal: Boolean(k.x),
             },
-          }));
+          };
         } else if (streamName.includes("@depth")) {
           const bids = data.bids as [string, string][];
           const asks = data.asks as [string, string][];
-          setState((prev) => ({
-            ...prev,
+          pendingRef.current = {
+            ...pendingRef.current,
             orderBook: {
               bids: bids.map(([p, q]) => ({ price: Number(p), qty: Number(q) })).filter((l) => l.qty > 0),
               asks: asks.map(([p, q]) => ({ price: Number(p), qty: Number(q) })).filter((l) => l.qty > 0),
             },
-          }));
+          };
         } else if (streamName.includes("@trade")) {
-          setState((prev) => ({
-            ...prev,
+          pendingRef.current = {
+            ...pendingRef.current,
             trades: [
               {
                 id: Number(data.t),
@@ -94,12 +106,12 @@ export function useBinanceStreams(symbol: string, interval: string): StreamState
                 time: Number(data.T),
                 isBuyerMaker: Boolean(data.m),
               },
-              ...prev.trades,
+              ...pendingRef.current.trades,
             ].slice(0, 30),
-          }));
+          };
         } else if (streamName.includes("@ticker")) {
-          setState((prev) => ({
-            ...prev,
+          pendingRef.current = {
+            ...pendingRef.current,
             ticker: {
               symbol: String(data.s),
               lastPrice: Number(data.c),
@@ -109,15 +121,25 @@ export function useBinanceStreams(symbol: string, interval: string): StreamState
               volume: Number(data.v),
               quoteVolume: Number(data.q),
             },
-          }));
+          };
+        } else {
+          return;
         }
+        dirtyRef.current = true;
       };
     }
 
     connect();
 
+    const flushTimer = setInterval(() => {
+      if (!dirtyRef.current || cancelled) return;
+      dirtyRef.current = false;
+      setState(pendingRef.current);
+    }, FLUSH_INTERVAL_MS);
+
     return () => {
       cancelled = true;
+      clearInterval(flushTimer);
       if (reconnectTimer) clearTimeout(reconnectTimer);
       ws?.close();
     };

@@ -133,19 +133,35 @@ export function TerminalChart({ candles, liveKline, toggles, indicators, positio
         : [],
     );
 
+    const markers: Array<{ time: Time; position: "belowBar" | "aboveBar" | "inBar"; color: string; shape: "arrowUp" | "arrowDown" | "circle"; text: string }> = [];
     if (toggles.fractals) {
-      candleSeries.setMarkers(
-        indicators.fractals.map((f) => ({
+      for (const f of indicators.fractals) {
+        markers.push({
           time: candles[f.index]!.time as Time,
           position: f.type === "bullish" ? "belowBar" : "aboveBar",
           color: f.type === "bullish" ? "#22c55e" : "#ef4444",
           shape: f.type === "bullish" ? "arrowUp" : "arrowDown",
           text: "",
-        })),
-      );
-    } else {
-      candleSeries.setMarkers([]);
+        });
+      }
     }
+    if (toggles.candlePatterns) {
+      for (const p of indicators.candlePatternMatches) {
+        const candle = candles[p.index];
+        if (!candle) continue;
+        const bullish = p.type === "hammer" || p.type === "bullish_engulfing";
+        const label = { doji: "D", hammer: "H", shooting_star: "SS", bullish_engulfing: "BE", bearish_engulfing: "BE" }[p.type];
+        markers.push({
+          time: candle.time as Time,
+          position: "inBar",
+          color: p.type === "doji" ? "#94a3b8" : bullish ? "#22c55e" : "#ef4444",
+          shape: "circle",
+          text: label,
+        });
+      }
+    }
+    markers.sort((a, b) => (a.time as number) - (b.time as number));
+    candleSeries.setMarkers(markers);
 
     const overlaySeries: ISeriesApi<"Line">[] = [];
     function addLine(values: (number | null)[] | null, color: string, title: string, style?: 0 | 1 | 2 | 3 | 4) {

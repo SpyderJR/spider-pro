@@ -2,6 +2,10 @@ import { useState } from "react";
 import type { FuturesClosedTrade, FuturesPendingOrder, FuturesPosition } from "../../lib/futures/types";
 import { computeFuturesPnl } from "../../lib/futures/engine";
 import { formatUsd, pricePrecision } from "../../lib/format";
+import { usePagination } from "../../hooks/usePagination";
+import { PaginationControls } from "../PaginationControls";
+
+const HISTORY_PAGE_SIZE = 20;
 
 type Tab = "positions" | "orders" | "history" | "stats";
 
@@ -189,6 +193,8 @@ function HistoryTab({ history }: { history: FuturesClosedTrade[] }) {
     return true;
   });
 
+  const { pageItems, page, pageCount, prevPage, nextPage } = usePagination(filtered, HISTORY_PAGE_SIZE);
+
   if (history.length === 0) return <EmptyState text="Todavía no cerraste ningún trade de futuros." />;
 
   return (
@@ -220,7 +226,7 @@ function HistoryTab({ history }: { history: FuturesClosedTrade[] }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((t) => (
+            {pageItems.map((t) => (
               <tr key={t.id} className="border-b border-void-border/50 last:border-0">
                 <td className="py-2 pr-3 text-slate-400">{new Date(t.closedAt).toLocaleString("es-ES")}</td>
                 <td className="py-2 pr-3 font-mono text-slate-200">{t.pair}</td>
@@ -243,6 +249,7 @@ function HistoryTab({ history }: { history: FuturesClosedTrade[] }) {
           </tbody>
         </table>
       </div>
+      <PaginationControls page={page} pageCount={pageCount} onPrev={prevPage} onNext={nextPage} />
     </div>
   );
 }

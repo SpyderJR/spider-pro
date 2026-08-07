@@ -948,3 +948,52 @@ Build y typecheck limpios en los 4 paquetes. Cada señal fue verificada contra d
 (no simulados) — incluyendo el caso real del token "Tether USD" falso y su duplicado abandonado,
 que sirvió como validación end-to-end de las 5 señales a la vez. Barrido de regresión limpio en las
 28 rutas.
+
+## Terminal — Open Interest, watchlist, alertas de precio, patrones de vela; y rendimiento en toda la app
+
+Pedidos del usuario en dos partes: (1) recomendaciones que había hecho yo mismo — Open Interest,
+watchlist en la Terminal, alertas de precio, reconocimiento de patrones de velas — con luz verde
+para las 4; (2) una orden de optimización de rendimiento client-side (cleanup de WebSockets/timers,
+throttle de datos de alta frecuencia, Web Workers para cálculo pesado, paginación de listas
+grandes), a aplicar antes del push final.
+
+- [x] **Open Interest en vivo** (`fapi.binance.com/fapi/v1/openInterest`, gratis, sin key) junto al
+      Funding Rate — ninguno de los dos se mostraba visualmente antes (el funding solo se usaba
+      internamente para cobrar a las posiciones); ahora un panel `FuturesMarketInfo` los muestra
+      juntos en modo Futuros, con explicación de qué significa cada uno.
+- [x] **Watchlist de pares en la Terminal**: estrella para fijar cualquier par buscado, persistida
+      (`terminalWatchlistStore.ts`), aparece como chip dorado junto a los botones rápidos BTC/TRX.
+- [x] **Alertas de precio**: crear una alerta "arriba/abajo de X" para el par actual, con banner
+      en pantalla y notificación del navegador al dispararse — con el alcance declarado
+      explícitamente en la UI ("se revisan solo mientras tienes este par abierto", sin backend ni
+      notificaciones en segundo plano, honesto sobre la limitación en vez de prometer más).
+- [x] **Reconocimiento de patrones de velas** (`packages/indicators/src/candlePatterns.ts`): doji,
+      martillo, estrella fugaz, envolvente alcista/bajista — reglas geométricas exactas (cuerpo vs.
+      rango, mecha vs. cuerpo), marcadas como círculos de colores directo sobre las velas en la
+      Terminal, más una ficha nueva en la Academia de Indicadores (ya con 25 fichas).
+
+**Optimización de rendimiento (auditoría real, no un reporte teórico):**
+- [x] **Cleanup de WebSockets/timers**: se auditaron todos los `setInterval`/`requestAnimationFrame`/
+      `new WebSocket` de la app (juegos de Arcade, Replay, hooks de Meme Radar/Whale Watcher,
+      countdown de vela) — ya estaban correctamente limpiados en el retorno de cada `useEffect`;
+      no se encontró ninguna fuga real.
+- [x] **Throttle de datos de alta frecuencia**: `useBinanceStreams` (el WebSocket combinado de
+      kline+trade+depth+ticker) llamaba `setState` en CADA mensaje — en un par líquido esto son
+      decenas de re-renders por segundo. Ahora los mensajes se acumulan en una ref y se vuelcan a
+      React cada 75ms (~13fps), dentro del rango de 10-15fps pedido. El estado de conexión
+      (`connected`) se sigue actualizando al instante, sin throttle, para no sentirse lento.
+- [x] **Web Workers**: se confirmó que el cálculo pesado ya vive en workers dedicados
+      (`backtest.worker.ts`, `indicators.worker.ts`, `bubbleLayout.worker.ts`); los indicadores de
+      la Terminal corren en el hilo principal mediante `useMemo` pero solo recalculan cuando las
+      velas finalizadas cambian (nunca en cada tick en vivo) y son operaciones O(n) simples — no
+      justifican el costo de un Worker, se dejaron así deliberadamente.
+- [x] **Paginación de listas grandes**: el historial de trades (Spot y Futuros) y las entradas del
+      Diario de Trading se renderizaban completas sin límite — crecen indefinidamente con el uso.
+      Nuevo hook compartido `usePagination` + componente `PaginationControls`, 20 filas por página
+      en historiales, 15 tarjetas por página en el Diario (los paneles de análisis siguen usando
+      el dataset completo, solo se paginó el renderizado).
+
+Build y typecheck limpios en los 4 paquetes. Verificado en navegador: la estrella de favoritos
+funciona, "Patrones de vela" marca círculos de colores reales sobre las velas, el panel de Futuros
+muestra Funding Rate y Open Interest en vivo con datos reales de Binance, una alerta de precio se
+crea y aparece como chip. Barrido de regresión limpio en las 28 rutas.

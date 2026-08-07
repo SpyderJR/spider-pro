@@ -837,4 +837,38 @@ export const INDICATOR_GUIDES: IndicatorGuide[] = [
       "Combínalo con el precio: si el precio está plano pero el CMF sube de forma sostenida, puede ser acumulación silenciosa antes de un movimiento visible.",
     ],
   },
+  {
+    id: "candle-patterns",
+    title: "Patrones de Velas (Doji, Martillo, Envolvente)",
+    shortName: "Patrones de vela",
+    icon: "🕎",
+    category: "Tendencia",
+    analogy:
+      "Cada vela es una foto de la pelea entre compradores y vendedores durante ese periodo. Un patrón de velas es cuando la forma de esa foto (o de dos seguidas) cuenta una historia reconocible — como ver que alguien casi pierde una pelea pero se recuperó justo al final.",
+    what: "Formas geométricas específicas que se repiten en el precio: qué tan grande es el cuerpo (la diferencia entre apertura y cierre) comparado con las mechas (los extremos que tocó el precio pero no sostuvo). Esta plataforma detecta 5 patrones clásicos de forma mecánica — sin ambigüedad, con reglas geométricas exactas, no por 'parecido visual'.",
+    formula: "Doji: cuerpo < 10% del rango total   ·   Martillo: cuerpo pequeño arriba, mecha inferior ≥ 2× el cuerpo, casi sin mecha superior   ·   Envolvente: el cuerpo de la vela actual cubre por completo el cuerpo de la vela anterior, en sentido contrario",
+    howToRead:
+      "Doji (⚪): indecisión — compradores y vendedores empataron. Martillo (🟢 verde): posible giro alcista si aparece tras una caída — el precio bajó fuerte pero los compradores lo recuperaron antes del cierre. Estrella fugaz (🔴 roja): lo opuesto, posible giro bajista tras una subida. Envolvente alcista/bajista: la vela actual 'se comió' por completo a la anterior, señal de cambio de control del mercado.",
+    example:
+      "Un martillo que aparece justo sobre un nivel de soporte conocido, después de varias velas rojas seguidas, es una de las señales de reversión más vigiladas por traders de swing — especialmente si coincide con RSI en sobreventa.",
+    bestConditions:
+      "Mucho más confiables cuando aparecen en una zona de soporte/resistencia ya conocida, o junto con otra señal (RSI, volumen) — un patrón de una sola vela aislado, en medio de la nada, vale poco por sí solo.",
+    limitations:
+      "Son señales de reversión de corto plazo, no predicciones de cambio de tendencia mayor. En temporalidades muy bajas (1m-5m) aparecen constantemente y la mayoría no significa nada — mientras más alta la temporalidad, más peso real tiene el patrón.",
+    signals: [
+      "Martillo tras una caída, en zona de soporte: posible rebote",
+      "Estrella fugaz tras una subida, en zona de resistencia: posible techo",
+      "Envolvente alcista/bajista: cambio de control entre compradores y vendedores en esa vela",
+    ],
+    commonMistakes: [
+      "Operar cualquier patrón aislado sin contexto de soporte/resistencia o de otro indicador",
+      "Confundir un doji con indecisión de largo plazo, cuando solo describe esa vela puntual",
+      "Usarlos en 1m-5m esperando la misma fiabilidad que en 4h o 1d",
+    ],
+    practicalSteps: [
+      "Activa 'Patrones de vela' en la Terminal — vas a ver círculos de colores marcando cada patrón detectado directamente sobre el gráfico.",
+      "Cuando veas un martillo o una envolvente alcista, revisa si coincide con un soporte, un Fibonacci o un EMA — la confluencia es lo que le da fuerza real a la señal.",
+      "Compara la misma vela en 15m contra 4h para el mismo momento — vas a notar que el patrón en 4h pesa mucho más.",
+    ],
+  },
 ];

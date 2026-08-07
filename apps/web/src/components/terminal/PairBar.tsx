@@ -1,6 +1,7 @@
 import type { Ticker24h } from "../../lib/binance/types";
 import { formatUsd, formatPercent, pricePrecision } from "../../lib/format";
 import { PairSearchBox } from "./PairSearchBox";
+import { useTerminalWatchlistStore } from "../../store/terminalWatchlistStore";
 
 const QUICK_PAIRS = ["BTCUSDT", "TRXUSDT"];
 
@@ -23,12 +24,16 @@ export function PairBar({
 }) {
   const price = ticker?.lastPrice ?? null;
   const changeUp = (ticker?.priceChangePercent ?? 0) >= 0;
+  const watchlist = useTerminalWatchlistStore((s) => s.pairs);
+  const toggleWatch = useTerminalWatchlistStore((s) => s.toggle);
+  const isWatched = watchlist.includes(pair);
+  const extraFavorites = watchlist.filter((p) => !QUICK_PAIRS.includes(p) && p !== pair);
 
   return (
     <div className="panel p-4 mb-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex gap-1.5 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap items-center">
             {QUICK_PAIRS.map((p) => (
               <button
                 key={p}
@@ -42,11 +47,27 @@ export function PairBar({
                 {p.replace("USDT", "/USDT")}
               </button>
             ))}
+            {extraFavorites.map((p) => (
+              <button
+                key={p}
+                onClick={() => onPairChange(p)}
+                className="px-3 py-1.5 rounded-lg text-sm font-mono border border-neon-gold/40 text-neon-gold hover:bg-neon-gold/5 transition-colors"
+              >
+                {p.replace("USDT", "/USDT")}
+              </button>
+            ))}
             {!QUICK_PAIRS.includes(pair) && (
               <span className="px-3 py-1.5 rounded-lg text-sm font-mono border border-neon-green/50 text-neon-green bg-neon-green/5">
                 {pair.replace("USDT", "/USDT")}
               </span>
             )}
+            <button
+              onClick={() => toggleWatch(pair)}
+              title={isWatched ? "Quitar de favoritos" : "Agregar a favoritos"}
+              className={`text-lg leading-none px-1 transition-colors ${isWatched ? "text-neon-gold" : "text-slate-600 hover:text-slate-400"}`}
+            >
+              {isWatched ? "★" : "☆"}
+            </button>
             <PairSearchBox onSelect={onPairChange} />
           </div>
 

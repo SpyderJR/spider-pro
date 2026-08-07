@@ -24,3 +24,4 @@ export * from "./keltner.js";
 export * from "./cmf.js";
 export * from "./superTrend.js";
 export * from "./ichimoku.js";
+export * from "./candlePatterns.js";

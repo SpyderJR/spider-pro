@@ -3,6 +3,7 @@ import type { TerminalIndicatorToggles } from "../../hooks/useTerminalIndicators
 
 const ITEMS: Array<{ key: keyof TerminalIndicatorToggles; label: string; icon: string }> = [
   { key: "heikinAshi", label: "Heikin Ashi", icon: "🕯" },
+  { key: "candlePatterns", label: "Patrones de vela", icon: "🕎" },
   { key: "fractals", label: "Fractales", icon: "〽" },
   { key: "alligator", label: "Alligator", icon: "🐊" },
   { key: "pivots", label: "Pivots (D)", icon: "⌗" },

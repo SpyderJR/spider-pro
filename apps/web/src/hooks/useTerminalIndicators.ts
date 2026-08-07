@@ -13,6 +13,7 @@ import {
   cmf,
   superTrend,
   ichimoku,
+  detectCandlePatterns,
   type AlligatorPoint,
   type HeikinAshiCandle,
   type FibonacciLevel,
@@ -20,6 +21,7 @@ import {
   type KeltnerBand,
   type SuperTrendPoint,
   type IchimokuPoint,
+  type CandlePatternMatch,
 } from "@spider/indicators";
 import { detectFractals, type FractalPoint } from "../lib/fractals";
 import { classicPivots, type PivotLevels } from "../lib/pivotPoints";
@@ -46,6 +48,7 @@ export interface TerminalIndicatorToggles {
   keltner: boolean;
   superTrend: boolean;
   ichimoku: boolean;
+  candlePatterns: boolean;
 }
 
 export const DEFAULT_TOGGLES: TerminalIndicatorToggles = {
@@ -69,6 +72,7 @@ export const DEFAULT_TOGGLES: TerminalIndicatorToggles = {
   keltner: false,
   superTrend: false,
   ichimoku: false,
+  candlePatterns: false,
 };
 
 export interface TerminalIndicators {
@@ -90,6 +94,7 @@ export interface TerminalIndicators {
   keltnerBands: KeltnerBand[] | null;
   superTrendPoints: SuperTrendPoint[] | null;
   ichimokuPoints: IchimokuPoint[] | null;
+  candlePatternMatches: CandlePatternMatch[];
 }
 
 /**
@@ -152,6 +157,7 @@ export function useTerminalIndicators(
       keltnerBands: toggles.keltner ? keltnerChannel(candles, 20, 10, 2) : null,
       superTrendPoints: toggles.superTrend ? superTrend(candles, 10, 3) : null,
       ichimokuPoints: toggles.ichimoku ? ichimoku(candles) : null,
+      candlePatternMatches: toggles.candlePatterns ? detectCandlePatterns(candles) : [],
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candles, toggles, dailyCandles, weeklyCandles]);

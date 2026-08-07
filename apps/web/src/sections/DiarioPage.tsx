@@ -9,6 +9,10 @@ import { useDiaryStore } from "../store/diaryStore";
 import { usePaperTradingStore } from "../lib/paperTrading/store";
 import { useFuturesStore } from "../store/futuresStore";
 import { usePublishContext } from "../hooks/usePublishContext";
+import { usePagination } from "../hooks/usePagination";
+import { PaginationControls } from "../components/PaginationControls";
+
+const ENTRIES_PAGE_SIZE = 15;
 
 const MARKET_FILTERS = [
   { id: "all", label: "Todos" },
@@ -34,6 +38,7 @@ export function DiarioPage() {
   }, [futuresHistory, syncFromFuturesTrades]);
 
   const entries = marketFilter === "all" ? allEntries : allEntries.filter((e) => e.market === marketFilter);
+  const { pageItems: pageEntries, page, pageCount, prevPage, nextPage } = usePagination(entries, ENTRIES_PAGE_SIZE);
 
   usePublishContext("diario", {
     totalEntradas: allEntries.length,
@@ -85,11 +90,12 @@ export function DiarioPage() {
         <>
           <DiaryAnalysisPanel entries={entries} />
           <DiaryAiAnalysis entries={entries} />
-          <div className="space-y-3 mb-6">
-            {entries.map((e) => (
+          <div className="space-y-3 mb-2">
+            {pageEntries.map((e) => (
               <DiaryEntryCard key={e.id} entry={e} />
             ))}
           </div>
+          <PaginationControls page={page} pageCount={pageCount} onPrev={prevPage} onNext={nextPage} />
         </>
       )}
 

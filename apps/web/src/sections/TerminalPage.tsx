@@ -9,6 +9,8 @@ import { TerminalOscillators } from "../components/terminal/TerminalOscillators"
 import { IndicatorTogglesPanel } from "../components/terminal/IndicatorTogglesPanel";
 import { OrderPanel } from "../components/terminal/OrderPanel";
 import { FuturesOrderPanel } from "../components/terminal/FuturesOrderPanel";
+import { FuturesMarketInfo } from "../components/terminal/FuturesMarketInfo";
+import { PriceAlertsPanel } from "../components/terminal/PriceAlertsPanel";
 import { OrderBookPanel } from "../components/terminal/OrderBookPanel";
 import { TradesFeed } from "../components/terminal/TradesFeed";
 import { ManagementTabs } from "../components/terminal/ManagementTabs";
@@ -25,6 +27,8 @@ import { generateTradeFeedback, type FeedbackContext } from "../lib/tradeFeedbac
 import { generateFuturesTradeFeedback, type FuturesFeedbackContext } from "../lib/futuresTradeFeedback";
 import { useFearGreed } from "../hooks/useMarketData";
 import { useFundingRate } from "../hooks/useFundingRate";
+import { useOpenInterest } from "../hooks/useOpenInterest";
+import { usePriceAlerts } from "../hooks/usePriceAlerts";
 import { deriveAlligatorTrend } from "../lib/futures/alligatorTrend";
 import { TERMINAL_INTERVALS, type TerminalInterval } from "../lib/binance/types";
 import type { BinanceCandle } from "../lib/binance/types";
@@ -51,6 +55,7 @@ export function TerminalPage() {
   const depthSnapshot = useOrderBookDepth(pair, streams.orderBook);
   const fearGreed = useFearGreed();
   const fundingQuery = useFundingRate(pair);
+  const openInterestQuery = useOpenInterest(pair);
 
   const { toggles, orderSoundEnabled, toggleOrderSound, panelOrder, movePanel } = useTerminalPreferencesStore();
   const store = usePaperTradingStore();
@@ -98,6 +103,7 @@ export function TerminalPage() {
 
   const currentPrice = streams.ticker?.lastPrice ?? candles.at(-1)?.close ?? null;
   const currentPrices = useMemo(() => ({ [pair]: currentPrice ?? undefined }), [pair, currentPrice]);
+  const { alertsForPair, justTriggered, dismissTriggered } = usePriceAlerts(pair, currentPrice);
 
   const positionForPair = store.positions.find((p) => p.pair === pair) ?? null;
   const ordersForPair = store.orders.filter((o) => o.pair === pair);
@@ -315,6 +321,21 @@ export function TerminalPage() {
         lastTickUp={streams.ticker ? streams.ticker.priceChangePercent >= 0 : null}
           />
 
+      {justTriggered && (
+        <div className="panel border border-neon-gold/50 bg-neon-gold/5 p-3 mb-4 flex items-center justify-between">
+          <p className="text-xs text-slate-200">
+            🔔 <strong className="text-neon-gold">{pair.replace("USDT", "/USDT")}</strong>{" "}
+            {justTriggered.direction === "above" ? "superó" : "cayó por debajo de"}{" "}
+            <strong className="text-white">{justTriggered.targetPrice}</strong>
+          </p>
+          <button onClick={dismissTriggered} className="text-slate-500 text-xs">
+            ✕
+          </button>
+        </div>
+      )}
+
+      <PriceAlertsPanel pair={pair} currentPrice={currentPrice} alertsForPair={alertsForPair} />
+
       <div className="flex gap-1.5 mb-4">
         <button
           onClick={() => setMarket("spot")}
@@ -346,6 +367,10 @@ export function TerminalPage() {
           </span>
         )}
       </div>
+
+      {market === "futures" && (
+        <FuturesMarketInfo pair={pair} currentPrice={currentPrice} fundingRate={fundingQuery.data} openInterest={openInterestQuery.data} />
+      )}
 
       {market === "spot" && lastFeedback && (
         <div className={`panel border p-4 mb-4 ${lastFeedback.pnl >= 0 ? "border-neon-green/40 bg-neon-green/5" : "border-neon-red/40 bg-neon-red/5"}`}>
