@@ -5,6 +5,7 @@ import { StopLossExplainer } from "./riskManagement/StopLossExplainer";
 import { PositionSizeCalculator } from "./riskManagement/PositionSizeCalculator";
 import { RiskRewardCalculator } from "./riskManagement/RiskRewardCalculator";
 import { StreakSimulator } from "./riskManagement/StreakSimulator";
+import { MonteCarloSimulator } from "./riskManagement/MonteCarloSimulator";
 import { PsychologySection } from "./riskManagement/PsychologySection";
 import { SurvivalRules } from "./riskManagement/SurvivalRules";
 
@@ -13,6 +14,7 @@ const NAV_ANCHORS = [
   { id: "tamano-posicion", label: "Tamaño de posición", icon: "📐" },
   { id: "riesgo-beneficio", label: "Riesgo/Beneficio", icon: "⚖" },
   { id: "simulador-rachas", label: "Simulador de rachas", icon: "📉" },
+  { id: "monte-carlo", label: "Monte Carlo", icon: "🎲" },
   { id: "psicologia", label: "Psicología", icon: "🧠" },
   { id: "reglas-supervivencia", label: "Reglas de supervivencia", icon: "🛡" },
 ];
@@ -56,6 +58,7 @@ export function RiskManagementPage() {
       <PositionSizeCalculator />
       <RiskRewardCalculator />
       <StreakSimulator />
+      <MonteCarloSimulator />
       <PsychologySection />
       <SurvivalRules />
 
