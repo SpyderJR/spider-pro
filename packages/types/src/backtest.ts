@@ -1,8 +1,21 @@
 import { z } from "zod";
 
-/** The 5 supported condition primitives for v1 — deliberately small and well-understood
- * rather than an open-ended expression language. */
-export const BacktestIndicatorSchema = z.enum(["rsi", "ema", "macd_histogram", "vwap", "price"]);
+/** The supported condition primitives — deliberately a fixed enum rather than an open-ended
+ * expression language (see ConditionGroupSchema below for why grouping took the same approach). */
+export const BacktestIndicatorSchema = z.enum([
+  "rsi",
+  "ema",
+  "macd_histogram",
+  "vwap",
+  "price",
+  "bollinger_upper",
+  "bollinger_lower",
+  "atr",
+  "stochastic_k",
+  "adx",
+  "cci",
+  "williams_r",
+]);
 export type BacktestIndicator = z.infer<typeof BacktestIndicatorSchema>;
 
 export const ConditionOperandSchema = z.union([
@@ -21,6 +34,20 @@ export const ConditionSchema = z.object({
 });
 export type BacktestCondition = z.infer<typeof ConditionSchema>;
 
+/** One level of AND/OR grouping over plain conditions — deliberately NOT recursive (no groups
+ * of groups). Covers the realistic "A OR B, combined with C" case without the complexity/risk of
+ * a fully general expression parser, which was a conscious trade-off (see Fase 4 of Bloque 15). */
+export const ConditionGroupSchema = z.object({
+  logic: z.enum(["and", "or"]),
+  conditions: z.array(ConditionSchema).min(1),
+});
+export type ConditionGroup = z.infer<typeof ConditionGroupSchema>;
+
+/** Top-level list stays AND-combined like v1 — each item can now be a single condition OR a
+ * group with its own and/or logic, which is what actually adds OR support (v2). */
+export const ConditionNodeSchema = z.union([ConditionSchema, ConditionGroupSchema]);
+export type ConditionNode = z.infer<typeof ConditionNodeSchema>;
+
 export const BacktestConfigSchema = z.object({
   symbol: z.string(),
   interval: z.string(),
@@ -38,10 +65,9 @@ export const BacktestConfigSchema = z.object({
   /** Only used when stopLossMode is "atr" — the ATR multiplier (e.g. 1.5x ATR). */
   atrMultiplier: z.number().positive().nullable().default(null),
   direction: z.enum(["long", "short"]),
-  /** All conditions AND-combined — v1 has no OR logic. */
-  entryConditions: z.array(ConditionSchema).min(1),
+  entryConditions: z.array(ConditionNodeSchema).min(1),
   /** Optional rule-based exit on top of the always-available SL/TP percentages. */
-  exitConditions: z.array(ConditionSchema).optional(),
+  exitConditions: z.array(ConditionNodeSchema).optional(),
 });
 export type BacktestConfig = z.infer<typeof BacktestConfigSchema>;
 

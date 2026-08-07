@@ -12,6 +12,13 @@ const INDICATOR_LABELS: Record<BacktestIndicator, string> = {
   macd_histogram: "Histograma MACD",
   vwap: "VWAP",
   price: "Precio",
+  bollinger_upper: "Bollinger (banda superior)",
+  bollinger_lower: "Bollinger (banda inferior)",
+  atr: "ATR",
+  stochastic_k: "Estocástico %K",
+  adx: "ADX",
+  cci: "CCI",
+  williams_r: "Williams %R",
 };
 
 const OPERATOR_LABELS: Record<ConditionOperator, string> = {
@@ -21,7 +28,17 @@ const OPERATOR_LABELS: Record<ConditionOperator, string> = {
   crosses_below: "cruza por abajo de",
 };
 
-const DEFAULT_PERIOD: Partial<Record<BacktestIndicator, number>> = { rsi: 14, ema: 20 };
+const DEFAULT_PERIOD: Partial<Record<BacktestIndicator, number>> = {
+  rsi: 14,
+  ema: 20,
+  bollinger_upper: 20,
+  bollinger_lower: 20,
+  atr: 14,
+  stochastic_k: 14,
+  adx: 14,
+  cci: 20,
+  williams_r: 14,
+};
 
 function defaultIndicatorOperand(indicator: BacktestIndicator): ConditionOperand {
   const period = DEFAULT_PERIOD[indicator];

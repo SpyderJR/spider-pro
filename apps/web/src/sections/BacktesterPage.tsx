@@ -3,13 +3,13 @@ import { SectionHeader } from "../components/SectionHeader";
 import { Disclaimer } from "../components/Disclaimer";
 import { StatCard } from "../components/StatCard";
 import { PriceLineChart } from "../components/charts/PriceLineChart";
-import { ConditionRow } from "../components/backtest/ConditionRow";
+import { ConditionNodeEditor } from "../components/backtest/ConditionNodeEditor";
 import { TermifiedText } from "../components/TermifiedText";
 import { fetchBacktestCandles } from "../lib/backtest/candleCache";
 import { useBacktestWorker } from "../hooks/useBacktestWorker";
 import { formatUsd } from "../lib/format";
 import { PairSearchBox } from "../components/terminal/PairSearchBox";
-import type { BacktestCondition, BacktestConfig, BacktestResult } from "@spider/types";
+import type { BacktestCondition, BacktestConfig, BacktestResult, ConditionNode } from "@spider/types";
 
 type StopLossMode = BacktestConfig["stopLossMode"];
 
@@ -43,7 +43,7 @@ export function BacktesterPage() {
   const [atrMultiplier, setAtrMultiplier] = useState(1.5);
   const [takeProfitEnabled, setTakeProfitEnabled] = useState(true);
   const [takeProfitPercent, setTakeProfitPercent] = useState(4);
-  const [entryConditions, setEntryConditions] = useState<BacktestCondition[]>([DEFAULT_CONDITION]);
+  const [entryConditions, setEntryConditions] = useState<ConditionNode[]>([DEFAULT_CONDITION]);
 
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export function BacktesterPage() {
 
   const running = progress !== null;
 
-  function updateCondition(index: number, condition: BacktestCondition) {
+  function updateCondition(index: number, condition: ConditionNode) {
     setEntryConditions((prev) => prev.map((c, i) => (i === index ? condition : c)));
   }
 
@@ -334,11 +334,11 @@ export function BacktesterPage() {
             </button>
           </div>
           <p className="text-[10px] text-slate-600 mb-2">
-            Cada fila compara dos cosas (un indicador o un valor fijo) con "es mayor/menor que" o "cruza por arriba/abajo de". Ejemplo: la fila por defecto dice "RSI (14) cruza por abajo de 30" — se entra cuando el RSI acaba de caer por debajo de esa zona de sobreventa.
+            Cada fila compara dos cosas (un indicador o un valor fijo) con "es mayor/menor que" o "cruza por arriba/abajo de". Ejemplo: la fila por defecto dice "RSI (14) cruza por abajo de 30" — se entra cuando el RSI acaba de caer por debajo de esa zona de sobreventa. Todas las filas y grupos de la lista se combinan con Y — usa "+ grupo OR" en una fila para exigir solo UNA de varias condiciones dentro de ese grupo.
           </p>
           <div className="space-y-2">
-            {entryConditions.map((condition, i) => (
-              <ConditionRow key={i} condition={condition} onChange={(c) => updateCondition(i, c)} onRemove={() => removeCondition(i)} />
+            {entryConditions.map((node, i) => (
+              <ConditionNodeEditor key={i} node={node} onChange={(n) => updateCondition(i, n)} onRemove={() => removeCondition(i)} />
             ))}
             {entryConditions.length === 0 && <p className="text-xs text-slate-500">Agrega al menos una condición para poder ejecutar el backtest.</p>}
           </div>
