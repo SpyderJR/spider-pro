@@ -18,7 +18,11 @@ export function TickerBar() {
             <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse shrink-0" />
             <span className="font-mono hidden md:inline">MERCADO EN VIVO</span>
           </span>
-          <AccountMenu />
+          {/* En celular vive en MobileTopBar (siempre visible) — acá se ocultaría detrás del
+           * scroll horizontal de esta barra en pantallas angostas. */}
+          <div className="hidden lg:block">
+            <AccountMenu />
+          </div>
         </div>
       </div>
     </div>

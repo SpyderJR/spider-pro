@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { SECTIONS } from "../lib/sections";
 import { useUiStore } from "../store/uiStore";
+import { AccountMenu } from "./account/AccountMenu";
 
 export function MobileTopBar() {
   const [open, setOpen] = useState(false);
@@ -14,13 +15,16 @@ export function MobileTopBar() {
           <img src="/logo.png" alt="Spider" className="w-8 h-8 rounded-lg object-cover shrink-0" />
           <span className="font-mono font-bold tracking-tight text-white">SPIDER</span>
         </div>
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="text-slate-300 border border-void-border rounded-lg px-3 py-1.5 text-sm font-mono"
-          aria-label="Abrir navegación"
-        >
-          {open ? "✕" : "☰"}
-        </button>
+        <div className="flex items-center gap-2">
+          <AccountMenu />
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="text-slate-300 border border-void-border rounded-lg px-3 py-1.5 text-sm font-mono"
+            aria-label="Abrir navegación"
+          >
+            {open ? "✕" : "☰"}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="border-t border-void-border max-h-[70vh] overflow-y-auto">
