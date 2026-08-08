@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DONATION_ADDRESS, DONATION_ASSETS, DONATION_NETWORK } from "../data/donation";
 
 function shorten(address: string): string {
@@ -12,12 +12,20 @@ interface Props {
 
 export function DonationAddress({ compact = false }: Props) {
   const [copied, setCopied] = useState(false);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    };
+  }, []);
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(DONATION_ADDRESS);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // Portapapeles no disponible (permiso denegado o contexto no seguro) — el usuario
       // siempre puede seleccionar y copiar la dirección manualmente.
