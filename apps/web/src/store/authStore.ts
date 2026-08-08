@@ -7,6 +7,9 @@ export interface AuthUser {
   email: string | null;
   name: string | null;
   avatarUrl: string | null;
+  /** ISO timestamp de cuándo se creó la cuenta en Supabase — usado para distinguir una
+   * cuenta recién creada (debe arrancar en cero) de una que ya inicia sesión de vuelta. */
+  createdAt: string;
 }
 
 function toAuthUser(user: User): AuthUser {
@@ -16,6 +19,7 @@ function toAuthUser(user: User): AuthUser {
     email: user.email ?? null,
     name: (meta.full_name as string) ?? (meta.name as string) ?? null,
     avatarUrl: (meta.avatar_url as string) ?? (meta.picture as string) ?? null,
+    createdAt: user.created_at,
   };
 }
 
