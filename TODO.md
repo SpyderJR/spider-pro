@@ -1073,3 +1073,83 @@ rutas por HTTP (todas responden 200) y se confirmaron en vivo los endpoints de A
 estos cambios (`/api/meme/recent`, `/api/whales`). Queda pendiente que el usuario confirme
 visualmente el logo, el nivel de Academia y las burbujas de Meme Radar la próxima vez que abra la
 app.
+
+## Bloque 15 — Nivel institucional: auth por correo, liquidaciones reales, backtester ampliado, Monte Carlo, auditoría de patrones y donaciones
+
+Pedido del usuario: un "system prompt" extenso pidiendo llevar Spider Pro a nivel de clase mundial
+con 6 capacidades — auth híbrido con T&C, microestructura de mercado (VWAP/VPVR/heatmap de order
+book/mapa de liquidaciones), motor de backtesting no-code, Monte Carlo, auditoría de sesgos con
+IA, PWA offline, y sección de donación TRX. Antes de construir nada se investigó el código
+existente (3 agentes Explore en paralelo) y se encontró que **varios bloques ya estaban
+construidos**: VWAP, Volume Profile y el heatmap del order book ya existían de punta a punta; el
+checkbox de Términos y Google OAuth también. Dos correcciones se acordaron con el usuario antes de
+planear: el "mapa de liquidaciones" se reemplaza por el feed real de Binance (nunca fabricar datos
+de mercado que no existen públicamente) y la "auditoría con IA" se reemplaza por un auditor
+100% rule-based (consistente con que toda la app es rule-based fuera del chat). El usuario pidió
+explícitamente saltar la fase de PWA/offline ("no importa tanto").
+
+- [x] **Fase 1 — Auth por correo/contraseña**: `signUpWithPassword`/`signInWithPassword` nuevos en
+      `authStore.ts` (mismo patrón que Google OAuth ya existente), `LoginModal.tsx` rediseñado con
+      selector Google/Correo, doble confirmación de contraseña antes de habilitar el botón, estado
+      "revisa tu correo" tras el registro, y el checkbox de Términos/Privacidad/Riesgo (ya
+      existente) ahora bloquea ambos flujos, no solo Google.
+- [x] **Fase 2 — Donación voluntaria TRX/USDT**: `DonationAddress.tsx` nuevo (variante compacta y
+      completa) con copiar-al-portapapeles, integrado en el footer público y en el sidebar de la
+      app junto al botón de respaldo de datos.
+- [x] **Fase 3 — Feed de liquidaciones reales**: en vez del "mapa" pedido originalmente, se conecta
+      al stream real de Binance Futures `!forceOrder@arr` (liquidaciones que YA ocurrieron, no una
+      estimación) — conexión nueva a `fstream.binance.com` con el mismo patrón de buffer+flush que
+      el resto de la Terminal, panel nuevo `LiquidationFeedPanel.tsx` en modo Futuros. El mecanismo
+      se verificó contra un stream de alta frecuencia del mismo host (273 mensajes en 10s) para
+      confirmar que la ausencia de eventos observada en la ventana de prueba era mercado en calma,
+      no un bug de conexión.
+- [x] **Fase 4 — Backtester ampliado**: de 5 a 12 indicadores (+ Bollinger, ATR, Estocástico, ADX,
+      CCI, Williams %R, todos ya existentes en `@spider/indicators`) y lógica AND/OR de un nivel
+      (`ConditionGroupSchema`) — decisión consciente de ampliar el constructor visual estructurado
+      en vez de escribir un parser de texto libre desde cero (mismo poder, mucho menor riesgo de
+      bugs de parsing). Motor, métricas, worker y caché de IndexedDB no se tocaron — ya eran
+      correctos.
+- [x] **Fase 5 — Simulador de Monte Carlo**: `runMonteCarloSimulation()` corre `simulateStreak()`
+      (ya existente) 1000 veces en un Web Worker nuevo (mismo patrón Comlink que el backtester),
+      agregando banda de percentiles p10/p50/p90 y la probabilidad de ruina real (no un solo camino
+      con suerte). Win rate y ratio riesgo:beneficio ahora son ajustables por el usuario (a
+      diferencia del Simulador de Rachas de un solo camino), con botón para usar los datos reales
+      del Diario. Verificado con matemática standalone antes de construir la UI: con posición
+      proporcional al balance, la ruina real solo aparece con riesgo% alto combinado con un sistema
+      perdedor y suficientes trades (ej. 47% de ruina con 30% WR/1:1/10% riesgo/200 trades vs 0%
+      con los mismos parámetros pero con ventaja positiva) — confirma que el simulador muestra un
+      resultado real y no-trivial.
+- [x] **Fase 6 — Auditoría de patrones de trading**: `buildBehavioralAlerts()` traduce los stats de
+      comportamiento que ya existían (`winRateAfterLosingStreak`, `winRateByDayAndSessionAfterLoss`
+      — hasta ahora solo alimentaban la narración del chat AI) en alertas visibles con severidad
+      directamente en el Diario, etiquetadas explícitamente "detectado por reglas, no IA".
+- [x] **Fase 7 — PWA/offline**: omitida a pedido explícito del usuario ("salta la número 7 no
+      importa tanto"). Se había instalado `vite-plugin-pwa` como dependencia antes del aviso — se
+      revirtió el `package.json`/lockfile por completo para no dejar una dependencia sin usar.
+- [x] **Fase 8 — Revisión de rendimiento**: auditoría del código nuevo del bloque — el único gap
+      encontrado fue un `setTimeout` de feedback de "copiado" en `DonationAddress.tsx` sin limpiar
+      al desmontar; corregido. El resto (buffer+flush del WebSocket de liquidaciones, terminación
+      del Worker de Monte Carlo) ya seguía la disciplina establecida desde el diseño.
+- [x] **Fix de mapa de burbujas de Meme Radar (reportado en vivo por el usuario)**: el radio de
+      cada burbuja escala con `sqrt(balance / balance del holder más grande)`, así que en
+      distribuciones típicas (muy concentradas en el top 1-2) solo 2-4 de las 10 burbujas
+      principales superaban el umbral de "suficientemente grande para texto legible" — el resto
+      del top 10 nunca mostraba su porcentaje, aunque la lógica decía que debía hacerlo. Corregido:
+      todas las burbujas del top 10 ahora muestran su porcentaje siempre — dentro de la burbuja
+      cuando cabe, o con una etiqueta con contorno oscuro (sin caja, para verse sutil sobre el
+      fondo del radar) justo al lado cuando la burbuja es muy chica.
+
+**Gap de proceso descubierto y corregido en esta sesión**: `pnpm run build` (que se venía usando
+como única verificación) usa esbuild vía Vite para el paquete web, que **no** tipa-chequea de
+verdad — solo transpila. `pnpm run typecheck` (que sí corre `tsc --noEmit`) atrapó un error real de
+tipos (`(number|null)[]` pasado donde se esperaba `number[]`) en el simulador de Monte Carlo que
+`build` había dejado pasar en silencio. A partir de este bloque, ambos comandos se corren en cada
+fase, no solo `build`.
+
+Typecheck y build limpios en los 4 paquetes en cada fase (checkpoints locales por fase, un solo
+push al final como pidió el usuario). Barrido de regresión HTTP de las ~30 rutas (incluye
+`/terminos`, `/privacidad`, `/riesgo`) — todas responden 200. Endpoints de API verificados en vivo
+(`/api/meme/recent`, `/api/whales`). **Verificación visual en navegador no se pudo hacer esta
+sesión** (sin herramienta de automatización disponible) — queda pendiente que el usuario confirme
+visualmente el registro por correo, el feed de liquidaciones, el backtester con grupos OR, Monte
+Carlo, las alertas del Diario y el fix de las burbujas de Meme Radar.
