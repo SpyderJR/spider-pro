@@ -46,8 +46,14 @@ export function MonteCarloSimulator() {
   const canUseRealData = decidedEntries.length >= 5;
 
   function useRealDiaryData() {
-    const wins = decidedEntries.filter((e) => e.result === "win").map((e) => e.pnlPercent);
-    const losses = decidedEntries.filter((e) => e.result === "loss").map((e) => e.pnlPercent);
+    const wins = decidedEntries
+      .filter((e) => e.result === "win")
+      .map((e) => e.pnlPercent)
+      .filter((v): v is number => v !== null);
+    const losses = decidedEntries
+      .filter((e) => e.result === "loss")
+      .map((e) => e.pnlPercent)
+      .filter((v): v is number => v !== null);
     const avgWin = averageAbsPnlPercent(wins);
     const avgLoss = averageAbsPnlPercent(losses);
     setWinRatePercent(overallWinRate(diaryEntries));
