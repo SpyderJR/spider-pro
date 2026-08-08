@@ -14,16 +14,24 @@ const SYNC_LABEL: Record<SyncStatus, string> = {
   error: "Error de sincronización — reintentando",
 };
 
+/** signOut() recarga la página (para limpiar todo el progreso local) — "Cambiar de cuenta" deja
+ * esta marca antes de cerrar sesión para que, tras la recarga, el modal de login se vuelva a
+ * abrir solo, en vez de que el usuario tenga que buscar el botón de nuevo. */
+const REOPEN_LOGIN_KEY = "spider-reopen-login";
+
 export function AccountMenu() {
   const { user, status, signOut } = useAuthStore();
   const [open, setOpen] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
+  const [showLogin, setShowLogin] = useState(() => sessionStorage.getItem(REOPEN_LOGIN_KEY) === "1");
   const [showDelete, setShowDelete] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
 
   useEffect(() => onSyncStatusChange(setSyncStatus), []);
+  useEffect(() => {
+    sessionStorage.removeItem(REOPEN_LOGIN_KEY);
+  }, []);
 
   if (!isSupabaseConfigured || status === "unavailable" || status === "loading") return null;
 
@@ -104,19 +112,15 @@ export function AccountMenu() {
               </button>
               <button
                 onClick={() => {
+                  sessionStorage.setItem(REOPEN_LOGIN_KEY, "1");
                   signOut();
-                  setOpen(false);
-                  setShowLogin(true);
                 }}
                 className="w-full text-left px-2 py-1.5 rounded-lg text-sm text-slate-300 hover:bg-white/5"
               >
                 Cambiar de cuenta
               </button>
               <button
-                onClick={() => {
-                  signOut();
-                  setOpen(false);
-                }}
+                onClick={() => signOut()}
                 className="w-full text-left px-2 py-1.5 rounded-lg text-sm text-slate-400 hover:bg-white/5"
               >
                 Cerrar sesión

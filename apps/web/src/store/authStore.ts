@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
+import { resetLocalState } from "../lib/storage/resetLocalState";
 
 export interface AuthUser {
   id: string;
@@ -93,5 +94,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!supabase) return;
     await supabase.auth.signOut();
     set({ user: null, session: null, status: "signed-out" });
+    // Sin esto, todo el progreso sincronizado de la cuenta (racha, trades, diario) se quedaba
+    // en localStorage tal cual, visible como si nadie hubiera cerrado sesión — un problema real
+    // de privacidad en cualquier computadora compartida. Recarga para que cada store de Zustand
+    // vuelva a inicializarse limpio desde el localStorage ya vacío, en vez de quedarse con el
+    // estado viejo en memoria.
+    resetLocalState();
+    window.location.reload();
   },
 }));
