@@ -1,6 +1,7 @@
 import { supabase } from "../supabase";
 import type { BlobSyncTarget, SetSyncTarget } from "./types";
 import { touchLocalUpdatedAt, getLocalUpdatedAt } from "./localMeta";
+import { resetLocalState } from "./resetLocalState";
 
 const PUSH_DEBOUNCE_MS = 2000;
 const pushTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -101,10 +102,36 @@ function registerSetTarget(userId: string, target: SetSyncTarget<unknown>) {
   unsubscribers.push(unsub);
 }
 
+/** true si esta cuenta ya tiene ALGO guardado en la nube, en cualquier tabla — no si "acaba de
+ * crearse" (esa señal de tiempo resultó frágil: si pasan más de unos minutos entre crear la
+ * cuenta y lograr iniciar sesión — ej. por un problema de configuración en el medio — la ventana
+ * se cierra y el reseteo nunca se dispara). Esto en cambio nunca falla por tiempo: una cuenta que
+ * jamás sincronizó nada, sin importar cuándo se creó, sigue siendo "nueva" hasta su primer sync. */
+async function hasAnyRemoteData(
+  userId: string,
+  blobTargets: BlobSyncTarget<unknown>[],
+  setTargets: SetSyncTarget<unknown>[],
+): Promise<boolean> {
+  for (const target of blobTargets) {
+    const { data } = await supabase!.from(target.table).select("user_id").eq("user_id", userId).maybeSingle();
+    if (data) return true;
+  }
+  for (const target of setTargets) {
+    const { data } = await supabase!.from(target.table).select("user_id").eq("user_id", userId).limit(1);
+    if (data && data.length > 0) return true;
+  }
+  return false;
+}
+
 /**
  * Se llama una vez al iniciar sesión: para cada dominio, trae lo que haya en la nube,
  * lo mergea con el progreso local existente (nunca se pierde nada de ningún lado) y deja
  * ambos lados escuchando cambios futuros para sincronizar en caliente (debounced).
+ *
+ * Antes de mergear nada, si esta cuenta nunca sincronizó datos en NINGUNA tabla (cuenta
+ * genuinamente nueva, en cualquier dispositivo), borra el progreso local acumulado como
+ * invitado ANTES de crear la cuenta — si no, ese progreso se "adoptaría" como si fuera de la
+ * cuenta nueva. Se marca con un flag por cuenta para no repetir el chequeo en cada visita.
  */
 export async function startCloudSync(
   userId: string,
@@ -114,6 +141,18 @@ export async function startCloudSync(
   if (!supabase) return;
   setStatus("syncing");
   try {
+    const resetCheckedKey = `spider-reset-checked-${userId}`;
+    if (!localStorage.getItem(resetCheckedKey)) {
+      const hasData = await hasAnyRemoteData(userId, blobTargets, setTargets);
+      if (!hasData) {
+        resetLocalState();
+        localStorage.setItem(resetCheckedKey, "1");
+        window.location.reload();
+        return;
+      }
+      localStorage.setItem(resetCheckedKey, "1");
+    }
+
     for (const target of blobTargets) {
       await pullMergeAndPush(userId, target);
       registerBlobTarget(userId, target);

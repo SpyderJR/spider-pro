@@ -40,7 +40,11 @@ export function AccountMenu() {
 
   return (
     <div className="relative shrink-0">
-      <button onClick={() => setOpen((v) => !v)} className="flex items-center gap-2">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 pl-1 pr-1.5 py-1 rounded-lg hover:bg-white/5 transition-colors"
+        title="Cuenta"
+      >
         {user?.avatarUrl ? (
           <img src={user.avatarUrl} alt="" className="w-7 h-7 rounded-full border border-void-border" />
         ) : (
@@ -48,6 +52,7 @@ export function AccountMenu() {
             {(user?.name ?? user?.email ?? "?").charAt(0).toUpperCase()}
           </span>
         )}
+        <span className="text-slate-500 text-[10px]">▾</span>
       </button>
 
       {open && (
@@ -88,6 +93,16 @@ export function AccountMenu() {
               onClick={() => {
                 signOut();
                 setOpen(false);
+                setShowLogin(true);
+              }}
+              className="w-full text-left px-2 py-1.5 rounded-lg text-sm text-slate-300 hover:bg-white/5"
+            >
+              Cambiar de cuenta
+            </button>
+            <button
+              onClick={() => {
+                signOut();
+                setOpen(false);
               }}
               className="w-full text-left px-2 py-1.5 rounded-lg text-sm text-slate-400 hover:bg-white/5"
             >
@@ -97,6 +112,7 @@ export function AccountMenu() {
         </>
       )}
 
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showDelete && <DeleteAccountModal onClose={() => setShowDelete(false)} />}
     </div>
   );
