@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { resetLocalState } from "../lib/storage/resetLocalState";
+import { flushPendingPushes } from "../lib/storage/cloudSync";
 
 export interface AuthUser {
   id: string;
@@ -92,6 +93,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     if (!supabase) return;
+    // Se vacía ANTES de cerrar sesión (con la sesión todavía válida) — cualquier cambio hecho en
+    // los últimos 2s (ej. el balance de Futuros tras el último trade) todavía no había llegado a
+    // la nube por el debounce normal; sin este flush se perdía justo el progreso más reciente.
+    await flushPendingPushes();
     await supabase.auth.signOut();
     set({ user: null, session: null, status: "signed-out" });
     // Sin esto, todo el progreso sincronizado de la cuenta (racha, trades, diario) se quedaba

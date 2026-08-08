@@ -5,6 +5,7 @@ import { resetLocalState } from "./resetLocalState";
 
 const PUSH_DEBOUNCE_MS = 2000;
 const pushTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const pendingPushFns = new Map<string, () => Promise<void>>();
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 let statusListeners: Array<(s: SyncStatus) => void> = [];
@@ -26,15 +27,40 @@ export function onSyncStatusChange(cb: (s: SyncStatus) => void): () => void {
 function schedulePush(key: string, fn: () => Promise<void>) {
   const existing = pushTimers.get(key);
   if (existing) clearTimeout(existing);
+  pendingPushFns.set(key, fn);
   pushTimers.set(
     key,
     setTimeout(() => {
+      pushTimers.delete(key);
+      pendingPushFns.delete(key);
       setStatus("syncing");
       fn()
         .then(() => setStatus("synced"))
         .catch(() => setStatus("error"));
     }, PUSH_DEBOUNCE_MS),
   );
+}
+
+/**
+ * Ejecuta de inmediato cualquier push que esté esperando su debounce de 2s, en vez de esperarlo o
+ * cancelarlo. Se usa antes de cerrar sesión — sin esto, un cambio hecho justo antes de cerrar
+ * sesión (ej. el balance de Futuros tras el último trade) se perdía: `stopCloudSync()` cancelaba
+ * el timer pendiente sin haberlo disparado nunca, y el progreso local se borraba un instante
+ * después sin que ese último cambio hubiera llegado a la nube.
+ */
+export async function flushPendingPushes(): Promise<void> {
+  const fns = [...pendingPushFns.values()];
+  pushTimers.forEach((t) => clearTimeout(t));
+  pushTimers.clear();
+  pendingPushFns.clear();
+  if (fns.length === 0) return;
+  setStatus("syncing");
+  try {
+    await Promise.all(fns.map((fn) => fn()));
+    setStatus("synced");
+  } catch {
+    setStatus("error");
+  }
 }
 
 const unsubscribers: Array<() => void> = [];
