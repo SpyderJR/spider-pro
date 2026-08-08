@@ -1213,3 +1213,58 @@ crash de la API se verificó además ejecutando el bundle compilado directamente
 regresión de las ~30 rutas en producción — todas 200. Confirmado en vivo por el usuario que el
 login por correo/contraseña funciona de punta a punta (registro → confirmación → inicio de
 sesión).
+
+## Bloque 15.2 — Reportes en vivo adicionales: menú de cuenta, modal de login, y niveles 2-10 completos de la Academia
+
+Tras los fixes del bloque anterior, el usuario siguió probando en vivo y reportó tres cosas más
+en la misma sesión, más un pedido grande de contenido.
+
+- [x] **Botón de cuenta invisible en celular**: `AccountMenu` solo vivía dentro de `TickerBar`,
+      que tiene `overflow-x-auto` — en anchos de teléfono real, BTC+TRX+punto de "en vivo" ya
+      llenaban la fila, empujando el botón detrás de un scroll horizontal que nadie pensaría
+      intentar. Se movió a `MobileTopBar` (siempre visible, nunca se corta) y se ocultó el
+      duplicado de `TickerBar` por debajo de `lg`.
+- [x] **Menú de cuenta cortado ("dos flechitas" en vez del panel)**: la causa real no era el
+      `overflow-x-auto` de nuevo — el dropdown usaba `position: absolute` dentro de un contenedor
+      cuyo ancestro tiene overflow, y CSS recorta los descendientes absolutos igual que recorta
+      contenido normal. Se reescribió como un portal a `document.body` con `position: fixed`,
+      coordenadas calculadas desde la posición real del botón — ya no puede recortarse sin
+      importar dónde viva el trigger.
+- [x] **Rediseño del modal de login**: panel `rounded-2xl` con glow radial verde detrás del
+      header, logo/título/descripción centrados en vez de alineados a la izquierda, y un anillo de
+      luz verde girando alrededor del botón de Google (`conic-gradient` + la utilidad
+      `animate-border-spin` ya existente) — visible solo cuando el botón es clickeable, para no
+      invitar a un clic que aún no haría nada. Mismo tratamiento aplicado a la pantalla de "revisa
+      tu correo".
+- [x] **Reseteo de cuenta nueva corregido de verdad**: el primer intento (Bloque 15.1) chequeaba
+      "cuenta creada hace menos de 5 minutos" — con todo el ida y vuelta de una sesión de debugging
+      real, esa ventana se cierra fácilmente antes de lograr iniciar sesión, así que el reseteo
+      nunca se disparaba. Reemplazado por un chequeo que nunca expira: si la cuenta no tiene NINGÚN
+      dato guardado en NINGUNA tabla de la nube (sin importar cuándo se creó), se resetea el
+      progreso local de invitado una sola vez (con marca por cuenta para no repetir). Una cuenta
+      que ya sincronizó antes (incluso desde otro dispositivo) correctamente NO se resetea.
+- [x] **Diagnóstico de PC lenta**: revisado a pedido del usuario — no era el entorno de desarrollo
+      (los procesos de Node pesan 40-110MB cada uno); era memoria del sistema (5.2GB libres de
+      15.3GB) consumida por múltiples apps pesadas simultáneas — 5 procesos de VSCode, Firefox,
+      Claude desktop, y notablemente el Epic Games Launcher corriendo en segundo plano sin usarse.
+- [x] **Academia — niveles 2, 3, 5, 7, 8, 9 y 10 completos** (ya no quedan niveles "próximamente"):
+      Leer el gráfico (con diagrama nuevo de anatomía de vela), Patrones de velas, Estructura de
+      mercado y fractales (HH/LL, BOS, CHoCH, sistema Bill Williams), Psicología del trading (FOMO,
+      revenge trading, sesgos, por qué el Diario es clave), Contratos y apalancamiento (spot vs
+      futuros, margen, liquidación, funding), On-chain y fundamentos (halvings, M2, stablecoins,
+      cómo leer noticias), y Estrategias completas (nivel final: una operación completa de
+      principio a fin combinando todos los niveles anteriores, más cómo construir un plan de
+      trading personal). Cada nivel conecta con la herramienta real de la app que ya cubre ese
+      tema en profundidad (Velas Japonesas, Fractales & Estructura, Gestión de Riesgo, On-Chain,
+      Whale Watcher, Halvings, Análisis Macro, Stablecoins, Backtester, Estrategias) en vez de
+      duplicar ese contenido dentro de la lección.
+
+Typecheck y build limpios en los 4 paquetes tras cada nivel agregado (10 verificaciones
+incrementales, no una sola al final). Se eliminó la función `stub()` de `levels.ts`, ya sin uso —
+los 10 niveles tienen contenido real.
+
+**Pendiente para la próxima sesión**: el nombre feo del dominio de Supabase
+(`chmartdgppnsljcykkyf.supabase.co`) en la pantalla de consentimiento de Google — requiere
+completar la pantalla de consentimiento OAuth en Google Cloud Console (gratis) para el nombre de
+la app, y un dominio personalizado de Supabase (de pago, rompe el costo cero) para que el dominio
+mismo también cambie.
