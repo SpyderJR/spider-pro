@@ -4,6 +4,7 @@ import { Disclaimer } from "../components/Disclaimer";
 import { DiaryEntryCard } from "../components/diary/DiaryEntryCard";
 import { NewManualEntryForm } from "../components/diary/NewManualEntryForm";
 import { DiaryAnalysisPanel } from "../components/diary/DiaryAnalysisPanel";
+import { BehavioralAlertsPanel } from "../components/diary/BehavioralAlertsPanel";
 import { DiaryAiAnalysis } from "../components/diary/DiaryAiAnalysis";
 import { useDiaryStore } from "../store/diaryStore";
 import { usePaperTradingStore } from "../lib/paperTrading/store";
@@ -89,6 +90,7 @@ export function DiarioPage() {
       ) : (
         <>
           <DiaryAnalysisPanel entries={entries} />
+          <BehavioralAlertsPanel entries={entries} />
           <DiaryAiAnalysis entries={entries} />
           <div className="space-y-3 mb-2">
             {pageEntries.map((e) => (

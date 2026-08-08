@@ -95,6 +95,60 @@ export function winRateByDayAndSessionAfterLoss(entries: DiaryEntry[]): DayAndSe
     .sort((a, b) => a.winRate - b.winRate);
 }
 
+export type BehavioralAlertSeverity = "alta" | "media";
+
+export interface BehavioralAlert {
+  id: string;
+  severity: BehavioralAlertSeverity;
+  title: string;
+  detail: string;
+}
+
+/** A revenge-trading signal only earns an alert once the drop is large enough to be worth
+ * flagging — a 2-point wobble isn't a pattern, it's noise even past the MIN_SAMPLE bar. */
+const REVENGE_DROP_ALERT_THRESHOLD = 10;
+const REVENGE_DROP_HIGH_SEVERITY = 20;
+const BAD_WINDOW_ALERT_THRESHOLD = 30;
+const BAD_WINDOW_HIGH_SEVERITY = 15;
+
+/**
+ * Translates the two "after a loss" behavioral stats above into plain-language alerts with a
+ * severity — the rule-based equivalent of what a human coach would flag by eyeballing the journal,
+ * built entirely from `winRateAfterLosingStreak`/`winRateByDayAndSessionAfterLoss` (no new
+ * computation, no AI). Visible directly on the Diario page instead of only feeding the chat's
+ * narration.
+ */
+export function buildBehavioralAlerts(entries: DiaryEntry[]): BehavioralAlert[] {
+  const alerts: BehavioralAlert[] = [];
+
+  const losingStreak = strongestLosingStreakPattern(entries);
+  if (losingStreak) {
+    const drop = losingStreak.baselineWinRate - losingStreak.winRateAfterStreak;
+    if (drop >= REVENGE_DROP_ALERT_THRESHOLD) {
+      const plural = losingStreak.streakLength > 1 ? "s" : "";
+      alerts.push({
+        id: "revenge-trading",
+        severity: drop >= REVENGE_DROP_HIGH_SEVERITY ? "alta" : "media",
+        title: "Posible revenge trading",
+        detail: `Tu win rate cae de ${losingStreak.baselineWinRate}% a ${losingStreak.winRateAfterStreak}% en las operaciones que siguen a ${losingStreak.streakLength}+ pérdida${plural} seguida${plural} (muestra: ${losingStreak.sampleSize} operaciones). Considera pausar después de una racha así en vez de seguir operando de inmediato.`,
+      });
+    }
+  }
+
+  const dayAndSession = winRateByDayAndSessionAfterLoss(entries);
+  const worstBucket = dayAndSession[0];
+  if (worstBucket && worstBucket.winRate <= BAD_WINDOW_ALERT_THRESHOLD) {
+    alerts.push({
+      id: "bad-window-after-loss",
+      severity: worstBucket.winRate <= BAD_WINDOW_HIGH_SEVERITY ? "alta" : "media",
+      title: "Horario de mayor riesgo después de perder",
+      detail: `${worstBucket.label} es tu peor combinación de día y horario justo después de una pérdida — ${worstBucket.winRate}% de win rate (muestra: ${worstBucket.sampleSize} operaciones). Evita forzar una entrada ahí justo después de perder.`,
+    });
+  }
+
+  return alerts;
+}
+
 /**
  * Aggregates every rule-computed behavioral stat into one verified-facts block, the same role
  * `buildMarketContextSnapshot()` plays for market data — the AI is only allowed to narrate
