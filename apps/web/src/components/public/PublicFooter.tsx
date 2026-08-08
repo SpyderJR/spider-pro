@@ -9,7 +9,7 @@ export function PublicFooter() {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <img src="/logo.png" alt="Spider" className="w-8 h-8 rounded-lg shrink-0" />
+              <img src="/logo.png" alt="Spider" className="w-8 h-8 rounded-lg object-cover shrink-0" />
               <span className="font-mono font-bold text-white">SPIDER</span>
               <span className="text-[10px] font-mono text-neon-gold border border-neon-gold/40 rounded px-1.5 py-0.5">
                 PRO

@@ -14,7 +14,7 @@ export function Nav() {
       <div className="px-5 py-6 border-b border-void-border relative overflow-hidden">
         <div className="pointer-events-none absolute -top-10 -left-10 w-32 h-32 bg-neon-green/10 blur-3xl rounded-full" />
         <div className="relative flex items-center gap-2.5">
-          <img src="/logo.png" alt="Spider" className="w-10 h-10 rounded-lg shadow-neon-gold shrink-0" />
+          <img src="/logo.png" alt="Spider" className="w-10 h-10 rounded-lg object-cover shrink-0" />
           <span className="font-mono font-bold text-lg tracking-tight text-white">SPIDER</span>
           <span className="text-[10px] font-mono text-neon-gold border border-neon-gold/40 rounded px-1.5 py-0.5">
             PRO

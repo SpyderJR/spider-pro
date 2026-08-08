@@ -58,7 +58,7 @@ export function ChatWidget() {
         className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-neon-green/10 border border-neon-green/50 shadow-neon-green flex items-center justify-center text-2xl text-neon-green hover:bg-neon-green/20 transition-colors overflow-hidden"
         aria-label="Abrir Spider Chat"
       >
-        {isOpen ? "✕" : <img src="/logo.png" alt="Spider" className="w-9 h-9 rounded-lg" />}
+        {isOpen ? "✕" : <img src="/logo.png" alt="Spider" className="w-9 h-9 rounded-lg object-cover" />}
       </button>
 
       {isOpen && (

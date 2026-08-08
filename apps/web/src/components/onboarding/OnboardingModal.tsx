@@ -36,7 +36,7 @@ export function OnboardingModal() {
 
         {step === 0 && (
           <div>
-            <img src="/logo.png" alt="Spider" className="w-14 h-14 rounded-xl shadow-neon-gold mb-3" />
+            <img src="/logo.png" alt="Spider" className="w-14 h-14 rounded-xl object-cover shadow-neon-gold mb-3" />
             <h2 className="text-xl font-bold text-white mb-2">Bienvenido a Spider Pro</h2>
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
               Una plataforma educativa de trading cripto: terminal de paper trading con datos reales, academia con
