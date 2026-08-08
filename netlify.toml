@@ -4,7 +4,12 @@
   functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "20"
+  # 22+ needed for the native WebSocket global — @supabase/supabase-js's realtime-js
+  # dependency throws at client-construction time on Node 20 without it, which crashed
+  # the whole bundled API function the moment SUPABASE_SERVICE_ROLE_KEY got configured
+  # (supabaseAdmin.ts creates the client at module load, so every route broke, not just
+  # the Supabase-touching ones).
+  NODE_VERSION = "22"
 
 [functions]
   node_bundler = "esbuild"
