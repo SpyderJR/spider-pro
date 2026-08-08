@@ -1153,3 +1153,63 @@ push al final como pidió el usuario). Barrido de regresión HTTP de las ~30 rut
 sesión** (sin herramienta de automatización disponible) — queda pendiente que el usuario confirme
 visualmente el registro por correo, el feed de liquidaciones, el backtester con grupos OR, Monte
 Carlo, las alertas del Diario y el fix de las burbujas de Meme Radar.
+
+## Bloque 15.1 — Auth en producción: variables nunca configuradas, crash de la API, y 3 bugs visuales encontrados probando en vivo
+
+El usuario probó el login recién agregado y reportó, en vivo y en tiempo real, que el botón de
+"Iniciar sesión" no aparecía en ningún lado. Investigando: **`VITE_SUPABASE_URL` y
+`VITE_SUPABASE_ANON_KEY` nunca se habían configurado en Netlify** — solo estaban las keys de
+CryptoCompare/TronScan/XAI. Sin esas dos, `isSupabaseConfigured` es `false` y el `AccountMenu`
+completo (Google Y correo, no solo lo nuevo) nunca se renderiza — esto llevaba así desde que se
+agregó Google OAuth en un bloque anterior, nadie lo había notado porque nadie había intentado
+iniciar sesión hasta ahora. El usuario ya tenía un proyecto de Supabase creado (`spiderpos`) del
+que no había registro en el repo ni en Netlify — compartió las credenciales y se configuraron:
+
+- [x] **4 variables configuradas en Netlify** (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
+      `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, usando el formato nuevo `sb_publishable_`/
+      `sb_secret_` de Supabase) + copias locales en `.env`/`apps/web/.env` (gitignored) para
+      paridad de desarrollo.
+- [x] **Bug crítico encontrado al activar las variables: la API completa se cayó (502 en TODO,
+      incluso `/health`)**. Causa: `@supabase/supabase-js` 2.112.0 instancia un `RealtimeClient`
+      internamente en `createClient()` SIEMPRE, y esa versión de `realtime-js` dejó de hacer
+      fallback automático al paquete `ws` — solo revisa si existe un `WebSocket` global (Node
+      22+/navegador/Deno) y si no, lanza en vez de degradar. `supabaseAdmin.ts` crea el cliente al
+      cargar el módulo, así que el crash tumbaba TODO el bundle de la función, no solo las rutas
+      que tocan Supabase. Primer intento (subir `NODE_VERSION` a 22 en `netlify.toml`) no funcionó
+      — Netlify Functions usa un runtime de Lambda separado del `NODE_VERSION` de build. Fix real:
+      pasar `ws` explícitamente como `realtime.transport` al crear el cliente — verificado
+      **localmente antes de desplegar de nuevo** (`delete globalThis.WebSocket` + `require()` del
+      bundle compilado) para no repetir otro ciclo de deploy fallido.
+- [x] **3 bugs visuales encontrados por el usuario probando en vivo, cada uno con su causa real
+      distinta** (ninguno fue "ya quedó" a la primera excepto el último):
+      1. *Modal de login cortado arriba*: sin `max-h`/`overflow-y-auto`, el contenido nuevo
+         (selector Google/Correo, sub-tabs, hasta 3 inputs) se salía de la altura de pantallas
+         chicas — el centrado con flexbox recorta por igual arriba y abajo cuando el contenido no
+         entra.
+      2. *Logo del sidebar "tapado"*: el primer diagnóstico (quitar el `shadow-neon-gold`) fue
+         insuficiente — la causa real era un blob decorativo `blur-3xl` de 128px preexistente
+         dentro de un contenedor de solo ~88px de alto; no importa en qué esquina se reposicione,
+         el halo alcanza igual todo el header. Se quitó por completo.
+      3. *Cuenta nueva heredando datos de invitado*: el usuario notó que una cuenta recién creada
+         ya traía la racha de Academia y las pérdidas de Terminal de sus pruebas anónimas previas
+         — la sincronización con la nube mergea lo local con lo remoto (por diseño, para no perder
+         progreso al crear cuenta desde uso anónimo), pero eso significa que toda esa data de
+         "invitado" se adopta como si fuera de la cuenta nueva. Se agregó `resetLocalState()`,
+         disparado cuando la fecha de creación de la cuenta (que da Supabase, funciona igual para
+         Google y correo/contraseña) es de los últimos 5 minutos — con una marca de "ya reseteado"
+         para que no se repita en cada visita dentro de esa ventana.
+- [x] **Aparte, configuración externa guiada (no código)**: el proveedor de Google OAuth no estaba
+      habilitado dentro de Supabase (`Authentication → Providers → Google`) — el usuario ya tenía
+      las credenciales de Google Cloud cargadas de antes, solo hacía falta el toggle. También el
+      **Site URL / Redirect URLs** de Supabase apuntaban a `http://localhost:3000` (valor de
+      ejemplo por defecto) en vez del dominio real de producción — causaba que tanto la
+      confirmación de correo como el redirect de Google fallaran después de autenticar
+      correctamente (el usuario sí llegó a confirmar su correo del lado de Supabase, solo fallaba
+      la redirección final).
+
+Cada fix se verificó con `pnpm run typecheck` + `pnpm run build` antes de subir, y el fix del
+crash de la API se verificó además ejecutando el bundle compilado directamente con Node local
+(simulando la ausencia de `WebSocket` nativo) antes de arriesgar otro despliegue. Barrido de
+regresión de las ~30 rutas en producción — todas 200. Confirmado en vivo por el usuario que el
+login por correo/contraseña funciona de punta a punta (registro → confirmación → inicio de
+sesión).
