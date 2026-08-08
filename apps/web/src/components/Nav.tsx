@@ -12,7 +12,7 @@ export function Nav() {
   return (
     <nav className="hidden lg:flex lg:flex-col w-64 shrink-0 border-r border-void-border bg-void-soft/60 h-screen sticky top-0 overflow-y-auto">
       <div className="px-5 py-6 border-b border-void-border relative overflow-hidden">
-        <div className="pointer-events-none absolute -top-10 -left-10 w-32 h-32 bg-neon-green/10 blur-3xl rounded-full" />
+        <div className="pointer-events-none absolute -bottom-10 -right-10 w-32 h-32 bg-neon-green/10 blur-3xl rounded-full" />
         <div className="relative flex items-center gap-2.5">
           <img src="/logo.png" alt="Spider" className="w-10 h-10 rounded-lg object-cover shrink-0" />
           <span className="font-mono font-bold text-lg tracking-tight text-white">SPIDER</span>
