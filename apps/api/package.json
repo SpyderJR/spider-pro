@@ -20,11 +20,13 @@
     "@supabase/supabase-js": "^2.112.0",
     "dotenv": "^16.4.5",
     "fastify": "^5.1.0",
+    "ws": "^8.21.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@netlify/functions": "^2.8.2",
     "@types/node": "^22.9.0",
+    "@types/ws": "^8.18.1",
     "esbuild": "^0.24.0",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.2",
