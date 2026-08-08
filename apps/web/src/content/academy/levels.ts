@@ -1,80 +1,24 @@
 import type { AcademyLevelContent } from "./types";
 import { NIVEL_01_FUNDAMENTOS } from "./nivel-01-fundamentos";
+import { NIVEL_02_LEER_EL_GRAFICO } from "./nivel-02-leer-el-grafico";
+import { NIVEL_03_PATRONES_DE_VELAS } from "./nivel-03-patrones-de-velas";
 import { NIVEL_04_INDICADORES_TECNICOS } from "./nivel-04-indicadores-tecnicos";
+import { NIVEL_05_ESTRUCTURA_Y_FRACTALES } from "./nivel-05-estructura-y-fractales";
 import { NIVEL_06_GESTION_DE_RIESGO } from "./nivel-06-gestion-de-riesgo";
-
-/** Niveles sin contenido de lecciones todavía — quedan visibles en la ruta como "próximamente" (Bloque 12.5). */
-function stub(
-  id: string,
-  order: number,
-  title: string,
-  description: string,
-  difficulty: AcademyLevelContent["difficulty"],
-  icon: string,
-  recommendedBeforeId?: string,
-): AcademyLevelContent {
-  return { id, order, title, description, difficulty, icon, recommendedBeforeId, lessons: [], quiz: [] };
-}
+import { NIVEL_07_PSICOLOGIA_DEL_TRADING } from "./nivel-07-psicologia-del-trading";
+import { NIVEL_08_CONTRATOS_Y_APALANCAMIENTO } from "./nivel-08-contratos-y-apalancamiento";
+import { NIVEL_09_ON_CHAIN_Y_FUNDAMENTOS } from "./nivel-09-on-chain-y-fundamentos";
+import { NIVEL_10_ESTRATEGIAS_COMPLETAS } from "./nivel-10-estrategias-completas";
 
 export const ACADEMY_LEVELS_V2: AcademyLevelContent[] = [
   NIVEL_01_FUNDAMENTOS,
-  stub(
-    "leer-el-grafico",
-    2,
-    "Leer el gráfico",
-    "Anatomía de una vela japonesa, soporte y resistencia, tendencias y volumen.",
-    "principiante",
-    "🕯",
-  ),
-  stub(
-    "patrones-de-velas",
-    3,
-    "Patrones de velas",
-    "Velas de fuerza, indecisión, martillo/estrella fugaz y patrones de reversión — sin sobre-interpretarlos.",
-    "principiante",
-    "🎴",
-  ),
+  NIVEL_02_LEER_EL_GRAFICO,
+  NIVEL_03_PATRONES_DE_VELAS,
   NIVEL_04_INDICADORES_TECNICOS,
-  stub(
-    "estructura-y-fractales",
-    5,
-    "Estructura de mercado y fractales",
-    "Higher highs/lower lows, BOS y CHoCH, el sistema Bill Williams completo.",
-    "intermedio",
-    "〽",
-  ),
+  NIVEL_05_ESTRUCTURA_Y_FRACTALES,
   NIVEL_06_GESTION_DE_RIESGO,
-  stub(
-    "psicologia-del-trading",
-    7,
-    "Psicología del trading",
-    "FOMO, revenge trading, sesgos cognitivos, disciplina y por qué el diario es clave.",
-    "intermedio",
-    "🧠",
-  ),
-  stub(
-    "contratos-y-apalancamiento",
-    8,
-    "Contratos y apalancamiento",
-    "Spot vs futuros, long/short, margen, liquidación y funding — con el riesgo siempre al frente.",
-    "avanzado",
-    "⚖️",
-    "gestion-de-riesgo",
-  ),
-  stub(
-    "on-chain-y-fundamentos",
-    9,
-    "On-chain y fundamentos",
-    "Análisis on-chain simple, halvings, M2 y liquidez global, stablecoins y cómo leer noticias.",
-    "intermedio",
-    "⛓",
-  ),
-  stub(
-    "estrategias-completas",
-    10,
-    "Estrategias completas y tu plan",
-    "Cómo se ve una operación de principio a fin — y cómo construir tu propio plan de trading.",
-    "avanzado",
-    "🎓",
-  ),
+  NIVEL_07_PSICOLOGIA_DEL_TRADING,
+  NIVEL_08_CONTRATOS_Y_APALANCAMIENTO,
+  NIVEL_09_ON_CHAIN_Y_FUNDAMENTOS,
+  NIVEL_10_ESTRATEGIAS_COMPLETAS,
 ];

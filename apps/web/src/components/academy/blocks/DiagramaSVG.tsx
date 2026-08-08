@@ -4,6 +4,7 @@ import { CustodiaWallet } from "../diagrams/CustodiaWallet";
 import { EscalonesTick } from "../diagrams/EscalonesTick";
 import { RuidoVsATR } from "../diagrams/RuidoVsATR";
 import { CruceDeMedias } from "../diagrams/CruceDeMedias";
+import { AnatomiaDeVela } from "../diagrams/AnatomiaDeVela";
 
 type Data = Extract<ContentBlock, { type: "diagramaSVG" }>;
 
@@ -13,6 +14,7 @@ const REGISTRY: Record<string, () => JSX.Element> = {
   "escalones-tick": EscalonesTick,
   "ruido-vs-atr": RuidoVsATR,
   "cruce-de-medias": CruceDeMedias,
+  "anatomia-de-vela": AnatomiaDeVela,
 };
 
 export function DiagramaSVG({ data }: { data: Data }) {
