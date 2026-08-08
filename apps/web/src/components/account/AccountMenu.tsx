@@ -40,11 +40,7 @@ export function AccountMenu() {
 
   return (
     <div className="relative shrink-0">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 pl-1 pr-1.5 py-1 rounded-lg hover:bg-white/5 transition-colors"
-        title="Cuenta"
-      >
+      <button onClick={() => setOpen((v) => !v)} className="flex items-center" title="Cuenta">
         {user?.avatarUrl ? (
           <img src={user.avatarUrl} alt="" className="w-7 h-7 rounded-full border border-void-border" />
         ) : (
@@ -52,7 +48,6 @@ export function AccountMenu() {
             {(user?.name ?? user?.email ?? "?").charAt(0).toUpperCase()}
           </span>
         )}
-        <span className="text-slate-500 text-[10px]">▾</span>
       </button>
 
       {open && (

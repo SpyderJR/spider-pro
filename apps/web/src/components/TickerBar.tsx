@@ -14,9 +14,9 @@ export function TickerBar() {
         <div className="w-px h-4 bg-void-border shrink-0" />
         <TickerItem label="TRX/USD" price={trx?.price} change={trx?.change24h} decimals={5} />
         <div className="ml-auto flex items-center gap-3 shrink-0 text-slate-600">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
-            <span className="font-mono">MERCADO EN VIVO</span>
+          <span className="flex items-center gap-1.5" title="Mercado en vivo">
+            <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse shrink-0" />
+            <span className="font-mono hidden md:inline">MERCADO EN VIVO</span>
           </span>
           <AccountMenu />
         </div>
