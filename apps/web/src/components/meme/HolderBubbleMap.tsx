@@ -184,10 +184,18 @@ export function HolderBubbleMap({ holders, clustering, transfers }: Props) {
             const color = n.group ? GROUP_COLORS[groupIds.indexOf(n.group) % GROUP_COLORS.length]! : DEFAULT_COLOR;
             const isTop10 = top10Ids.has(n.id);
             const percentLabel = holder?.percentage != null ? `${holder.percentage < 1 ? holder.percentage.toFixed(2) : holder.percentage.toFixed(1)}%` : null;
-            // Only label the percentage directly on the bubble when it's both a top-10 holder
-            // (the set the risk signal actually uses) and big enough to fit readable text —
-            // smaller bubbles keep the plain center dot, with the exact number still in the tooltip.
-            const showPercentOnBubble = isTop10 && percentLabel && n.radius >= 11;
+            // Radius scales with sqrt(balance / topHolderBalance) — in a typical top-heavy
+            // distribution only the 2-4 largest of the top 10 clear a "fits readable text
+            // inside" threshold, so gating the label on radius alone silently hides it for most
+            // of the top 10 (the exact bug reported live). Every top-10 holder always gets a
+            // label now — inline when the bubble is big enough, otherwise a small outlined
+            // label just outside the bubble (no background box, so it stays subtle over the
+            // radar backdrop instead of reading as a UI chip).
+            const fitsInline = n.radius >= 13;
+            const showInlineLabel = isTop10 && percentLabel !== null && fitsInline;
+            const showOutlineLabel = isTop10 && percentLabel !== null && !fitsInline;
+            const labelOnRight = n.x + n.radius + 30 <= WIDTH;
+            const outlineLabelX = labelOnRight ? n.x + n.radius + 4 : n.x - n.radius - 4;
             return (
               <g
                 key={n.id}
@@ -203,14 +211,14 @@ export function HolderBubbleMap({ holders, clustering, transfers }: Props) {
                   strokeWidth={isTop10 ? 2 : 1.5}
                   filter="url(#bubble-glow)"
                 />
-                {showPercentOnBubble ? (
+                {showInlineLabel ? (
                   <text
                     x={n.x}
                     y={n.y}
                     textAnchor="middle"
                     dominantBaseline="central"
                     fontFamily="monospace"
-                    fontSize={Math.min(13, Math.max(8, n.radius * 0.4))}
+                    fontSize={Math.min(13, Math.max(9, n.radius * 0.42))}
                     fontWeight="bold"
                     fill="#ffffff"
                     style={{ pointerEvents: "none" }}
@@ -225,9 +233,27 @@ export function HolderBubbleMap({ holders, clustering, transfers }: Props) {
                   <circle cx={n.x} cy={n.y} r={Math.max(1.5, n.radius * 0.08)} fill={color}>
                     <title>
                       {shortAddress(n.id)} — {holder ? holder.balance.toLocaleString("es-MX", { maximumFractionDigits: 0 }) : ""}
-                      {percentLabel ? ` (${percentLabel})` : ""} · clic para ver en Tronscan
+                      {percentLabel ? ` (${percentLabel}${isTop10 ? " del supply" : ""})` : ""} · clic para ver en Tronscan
                     </title>
                   </circle>
+                )}
+                {showOutlineLabel && (
+                  <text
+                    x={outlineLabelX}
+                    y={n.y}
+                    textAnchor={labelOnRight ? "start" : "end"}
+                    dominantBaseline="central"
+                    fontFamily="monospace"
+                    fontSize={8.5}
+                    fontWeight="bold"
+                    fill="#ffffff"
+                    stroke="#05070b"
+                    strokeWidth={2.5}
+                    paintOrder="stroke"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    {percentLabel}
+                  </text>
                 )}
                 {n.radius > 14 && (
                   <text
